@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="main-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Core - Gate Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, sans-serif; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl w-full max-w-md shadow-2xl">
+            <div class="text-center mb-6">
+                <span class="text-3xl font-black text-emerald-400 tracking-wider">ALPHA <span class="text-white text-xl font-normal">GATE</span></span>
+                <p class="text-xs text-slate-500 mt-2" id="auth-subtitle">سجل دخولك للوصول إلى شبكة الألعاب والمراهنات</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">اسم المستخدم:</label>
+                    <input type="text" id="auth-username" placeholder="username" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">كلمة المرور:</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-emerald-500">
+                </div>
+                
+                <div class="pt-2 grid grid-cols-2 gap-3">
+                    <button onclick="handleAuth('login')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-2.5 rounded-xl transition text-sm">تسجيل الدخول</button>
+                    <button onclick="handleAuth('register')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl border border-slate-700 transition text-sm">إنشاء حساب جديد</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-screen" class="hidden">
+        <header class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center shadow-lg">
+            <span class="text-2xl font-black text-emerald-400 tracking-wider">ALPHA <span class="text-white text-base font-normal">CORE</span></span>
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <div class="text-xs bg-slate-800 px-3 py-2 rounded-lg border border-slate-700 text-slate-300">
+                    👤 <span id="display-username" class="font-bold text-white">---</span>
+                </div>
+                <div class="bg-slate-800 px-4 py-2 rounded-full text-sm border border-slate-700 font-mono text-emerald-400 font-bold" id="wallet-display">
+                    💵 $0.00
+                </div>
+                <button onclick="logout()" class="text-xs text-rose-400 hover:text-rose-500 font-bold px-2">خروج</button>
+            </div>
+        </header>
+
+        <div class="flex min-h-screen">
+            <aside class="w-72 bg-slate-900/80 border-slate-800 p-4 border-l id-sidebar">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 pr-2">الأقسام المتاحة</h3>
+                <ul class="space-y-2">
+                    <li onclick="switchSection('sports')" id="nav-sports" class="bg-emerald-500/10 text-emerald-400 p-3 rounded-lg font-medium cursor-pointer flex items-center space-x-3 space-x-reverse border border-emerald-500/20">
+                        <span>⚽</span> <span class="font-bold">المراهنات الرياضية</span>
+                    </li>
+                    <li onclick="switchSection('casino')" id="nav-casino" class="text-slate-400 hover:bg-slate-800 p-3 rounded-lg font-medium cursor-pointer flex items-center space-x-3 space-x-reverse transition">
+                        <span>🎰</span> <span class="font-bold">كازينو ألفا</span>
+                    </li>
+                    <li onclick="switchSection('admin')" id="nav-admin" class="text-amber-400 hover:bg-amber-500/10 p-3 rounded-lg font-medium cursor-pointer flex items-center space-x-3 space-x-reverse transition border border-dashed border-amber-500/30">
+                        <span>⚙️</span> <span class="font-bold">لوحة التحكم (Admin)</span>
+                    </li>
+                </ul>
+            </aside>
+
+            <main class="flex-1 p-6">
+                <div id="sports-section">
+                    <h1 class="text-2xl font-bold mb-4">المباريات الحية 🌍</h1>
+                    <div id="fixtures-container" class="bg-slate-900 border border-slate-800 rounded-xl divide-y divide-slate-800 shadow-2xl"></div>
+                </div>
+
+                <div id="casino-section" class="hidden">
+                    <h1 class="text-2xl font-bold mb-6">🎰 الكازينو الرقمي</h1>
+                    <div class="max-w-md mx-auto bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-2xl">
+                        <div class="bg-slate-950 p-8 rounded-xl mb-6 font-mono text-4xl font-black text-emerald-400" id="casino-display">READY</div>
+                        <input type="number" id="casino-stake" value="10" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 text-center font-bold text-white mb-4">
+                        <button onclick="playCasino()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl transition">SPIN</button>
+                    </div>
+                </div>
+
+                <div id="admin-section" class="hidden">
+                    <h1 class="text-2xl font-bold mb-4 text-amber-400">⚙️ لوحة التحكم الإدارية</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                            <div class="text-xs text-slate-500 font-bold mb-1">إجمالي التداول (Volume)</div>
+                            <div class="text-xl font-mono font-bold text-white" id="admin-total-wagered">$0.00</div>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                            <div class="text-xs text-slate-500 font-bold mb-1">إجمالي المدفوعات</div>
+                            <div class="text-xl font-mono font-bold text-slate-300" id="admin-total-paid">$0.00</div>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl bg-emerald-500/5 border-emerald-500/20">
+                            <div class="text-xs text-emerald-500 font-bold mb-1">صافي ربح المنصة (GGR)</div>
+                            <div class="text-xl font-mono font-black text-emerald-400" id="admin-net-profit">$0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-xl shadow-2xl">
+                        <div class="mb-4">
+                            <label class="text-xs text-slate-400 block mb-2 font-bold">صعوبة الكازينو:</label>
+                            <select id="admin-difficulty-select" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="text-xs text-slate-400 block mb-2 font-bold">هامش الرياضة:</label>
+                            <input type="number" id="admin-margin-input" step="0.01" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm font-mono text-white focus:outline-none">
+                        </div>
+                        <button onclick="saveAdminSettings()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl transition">💾 تطبيق الإعدادات</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "http://127.0.0.1:8000";
+        let activeUser = localStorage.getItem("alpha_username") || null;
+
+        // دالة معالجة الحسابات (الدخول والتسجيل)
+        async function handleAuth(type) {
+            const user = document.getElementById('auth-username').value.trim();
+            const pass = document.getElementById('auth-password').value;
+            
+            if(!user || !pass) return alert("الرجاء ملء كافة الحقول");
+            
+            const endpoint = type === 'login' ? '/api/auth/login' : '/api/auth/register';
+            try {
+                const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                const data = await response.json();
+                
+                if (!response.ok) return alert(data.detail || "حدث خطأ ما");
+                
+                alert(data.message);
+                if (type === 'login') {
+                    localStorage.setItem("alpha_username", data.username);
+                    activeUser = data.username;
+                    startApp();
+                }
+            } catch (e) { alert("فشل الاتصال بالسيرفر المركزي"); }
+        }
+
+        function startApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            document.getElementById('display-username').innerText = activeUser;
+            updateWalletDisplay();
+            fetchLiveFixtures();
+        }
+
+        function logout() {
+            localStorage.removeItem("alpha_username");
+            activeUser = null;
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
+
+        function switchSection(section) {
+            ['sports', 'casino', 'admin'].forEach(s => {
+                document.getElementById(`${s}-section`).classList.add('hidden');
+                document.getElementById(`nav-${s}`).className = "text-slate-400 hover:bg-slate-800 p-3 rounded-lg font-medium cursor-pointer flex items-center space-x-3 space-x-reverse transition";
+            });
+            document.getElementById(`${section}-section`).classList.remove('hidden');
+            document.getElementById(`nav-${section}`).className = section === 'admin' ? "bg-amber-500/10 text-amber-400 p-3 rounded-lg font-medium cursor-pointer flex items-center space-x-3 space-x-reverse border border-amber-500/30" : "bg-emerald-500/10 text-emerald-400 p-3 rounded-lg font-medium cursor-pointer flex items-center space-x-3 space-x-reverse border border-emerald-500/20";
+            if (section === 'admin') fetchAdminData();
+        }
+
+        async function updateWalletDisplay() {
+            if(!activeUser) return;
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/v1/wallet/${activeUser}`);
+                const data = await response.json();
+                document.getElementById('wallet-display').innerText = `💵 $${data.balance.toFixed(2)}`;
+            } catch (e) {}
+        }
+
+        async function fetchLiveFixtures() {
+            const container = document.getElementById('fixtures-container');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/v1/fixtures`);
+                const data = await response.json();
+                container.innerHTML = "";
+                data.fixtures.forEach(match => {
+                    const row = document.createElement('div');
+                    row.className = "grid grid-cols-12 p-4 items-center text-center";
+                    row.innerHTML = `
+                        <div class="col-span-6 text-start px-4">
+                            <div class="font-bold text-white">${match.home_team} VS ${match.away_team}</div>
+                            <div class="text-xs text-emerald-400 mt-1">${match.sport}</div>
+                        </div>
+                        <div class="col-span-2 px-1"><button onclick="placeSportsBet('${match.id}', '1')" class="w-full bg-slate-800 py-2 rounded font-mono text-emerald-400 font-bold text-sm hover:bg-emerald-600 hover:text-white transition">${match.odds.home_win}</button></div>
+                        <div class="col-span-2 px-1"><button onclick="placeSportsBet('${match.id}', 'X')" class="w-full bg-slate-800 py-2 rounded font-mono text-slate-400 font-bold text-sm hover:bg-emerald-600 hover:text-white transition">${match.odds.draw}</button></div>
+                        <div class="col-span-2 px-1"><button onclick="placeSportsBet('${match.id}', '2')" class="w-full bg-slate-800 py-2 rounded font-mono text-emerald-400 font-bold text-sm hover:bg-emerald-600 hover:text-white transition">${match.odds.away_win}</button></div>
+                    `;
+                    container.appendChild(row);
+                });
+            } catch (e) {}
+        }
+
+        async function placeSportsBet(matchId, outcome) {
+            const stake = prompt("أدخل قيمة الرهان ($):", "10");
+            if (!stake || isNaN(stake)) return;
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/v1/place-bet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_external_id: activeUser, fixture_id: matchId, predicted_outcome: outcome, stake_amount: parseFloat(stake) })
+                });
+                const result = await response.json();
+                alert(result.message);
+                updateWalletDisplay();
+            } catch (e) { alert("رصيد غير كافٍ أو خطأ اتصال"); }
+        }
+
+        async function playCasino() {
+            const stake = parseFloat(document.getElementById('casino-stake').value);
+            const display = document.getElementById('casino-display');
+            if (isNaN(stake) || stake <= 0) return alert("أدخل مبلغ رهان صحيح");
+            display.innerText = "🎰 SPINNING...";
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/v1/casino/spin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_external_id: activeUser, bet_amount: stake })
+                });
+                const result = await response.json();
+                setTimeout(() => {
+                    display.innerText = `x${result.multiplier}`;
+                    updateWalletDisplay();
+                    alert(result.multiplier > 1 ? `🎉 ربحت: $${result.win_amount}` : "خسرت الجولة");
+                }, 500);
+            } catch (e) { alert("رصيدك غير كافٍ!"); display.innerText = "READY"; }
+        }
+
+        async function fetchAdminData() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/stats`);
+                const data = await response.json();
+                document.getElementById('admin-total-wagered').innerText = `$${data.stats.total_money_wagered.toFixed(2)}`;
+                document.getElementById('admin-total-paid').innerText = `$${data.stats.total_money_paid_out.toFixed(2)}`;
+                const netProfitEl = document.getElementById('admin-net-profit');
+                netProfitEl.innerText = `$${data.stats.platform_net_profit.toFixed(2)}`;
+                netProfitEl.className = data.stats.platform_net_profit >= 0 ? "text-xl font-mono font-black text-emerald-400" : "text-xl font-mono font-black text-rose-500";
+                document.getElementById('admin-difficulty-select').value = data.settings.casino_difficulty;
+                document.getElementById('admin-margin-input').value = data.settings.sports_margin;
+            } catch (e) {}
+        }
+
+        async function saveAdminSettings() {
+            const difficulty = document.getElementById('admin-difficulty-select').value;
+            const margin = parseFloat(document.getElementById('admin-margin-input').value);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/settings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sports_margin: margin, casino_difficulty: difficulty })
+                });
+                const result = await response.json();
+                if(result.success) { alert(result.message); fetchLiveFixtures(); }
+            } catch(e) { alert("فشل حفظ الإعدادات"); }
+        }
+
+        // فحص الجلسة عند فتح الصفحة للتذكر التلقائي
+        window.onload = function() {
+            if (activeUser) { startApp(); }
+        }
+    </script>
+</body>
+</html>
