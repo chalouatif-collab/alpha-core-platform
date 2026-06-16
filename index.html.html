@@ -111,6 +111,17 @@
                             <label class="text-xs text-slate-400 block mb-2 font-bold">هامش الرياضة:</label>
                             <input type="number" id="admin-margin-input" step="0.01" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm font-mono text-white focus:outline-none">
                         </div>
+                        <div class="mt-4 p-4 rounded-xl bg-slate-900 border border-slate-800">
+                        <h3 class="text-white text-xs font-bold mb-2">💰 إدارة أرصدة اللاعبين</h3>
+                        <div class="flex flex-col gap-2">
+                            <input type="text" id="admin-target-user" placeholder="اسم المستخدم (مثال: fethi)" class="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white">
+                            <input type="number" id="admin-balance-amount" placeholder="المبلغ (عند الشحن فقط)" class="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white">
+                            <div class="flex gap-2 mt-1">
+                                <button onclick="handleAdminBalance('charge')" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-2 rounded-lg text-xs transition">💵 شحن</button>
+                                <button onclick="handleAdminBalance('reset')" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-black py-2 rounded-lg text-xs transition">❌ تصفير</button>
+                            </div>
+                        </div>
+                    </div>
                         <button onclick="saveAdminSettings()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl transition">💾 تطبيق الإعدادات</button>
                     </div>
                 </div>
@@ -308,6 +319,53 @@ async function handleAdminBalance(action) {
         window.onload = function() {
             if (activeUser) { startApp(); }
         }
-    </script>
+    </script>async function handleAuth(mode) {
+    const username = document.getElementById('auth-username').value.trim();
+    const password = document.getElementById('auth-password').value;
+
+    if (!username || !password) {
+        alert('الرجاء إدخال اسم المستخدم وكلمة المرور!');
+        return;
+    }
+
+    const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
+    
+    // إظهار مؤشر التحميل وتغيير نص الزر أثناء الاتصال بالسيرفر
+    const btn = document.querySelector(`button[onclick="handleAuth('${mode}')"]`);
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ جاري الاتصال...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // حفظ بيانات المستخدم في الـ LocalStorage ليبقى مسجلاً للدخول
+            localStorage.setItem('user', JSON.stringify(data.user || data));
+            currentUser = data.user || data;
+            
+            alert(mode === 'login' ? 'تم تسجيل الدخول بنجاح! أهلاً بك.' : 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
+            
+            // تحديث الواجهة والانتقال للملف الشخصي أو الصفحة الرئيسية
+            showSection('main-dashboard');
+            updateUI();
+        } else {
+            alert(`خطأ: ${data.detail || 'فشلت العملية'}`);
+        }
+    } catch (error) {
+        console.error('Auth Error:', error);
+        alert('حدث خطأ أثناء الاتصال بالسيرفر السحابي، يرجى المحاولة مجدداً بعد ثوانٍ.');
+    } finally {
+        // إعادة الزر لحالته الطبيعية بعد انتهاء العملية
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
 </body>
 </html>
