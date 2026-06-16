@@ -209,3 +209,47 @@ def update_platform_settings(settings: UpdateSettingsRequest):
     ADMIN_SETTINGS["sports_margin"] = settings.sports_margin
     ADMIN_SETTINGS["casino_difficulty"] = settings.casino_difficulty
     return {"success": True, "message": "تم تحديث إعدادات الإدارة!"}
+
+    class AdminUpdateBalanceRequest(BaseModel):
+    username: str
+    action: str  # "charge" أو "reset"
+    amount: float = 0.0
+
+@app.post("/api/admin/update-balance")
+async def admin_update_balance(req: AdminUpdateBalanceRequest):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    
+    try:
+        # 1. التأكد من وجود المستخدم أولاً وجلب رصيده الحالي
+        cursor.execute("SELECT balance FROM users WHERE username = ?", (req.username,))
+        row = cursor.fetchone()
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="المستخدم غير موجود!")
+            
+        current_balance = row[0]
+        
+        # 2. حساب الرصيد الجديد حسب نوع العملية
+        if req.action == "charge":
+            new_balance = current_balance + req.amount
+        elif req.action == "reset":
+            new_balance = 0.0
+        else:
+            raise HTTPException(status_code=400, detail="عملية غير صالحة")
+            
+        # 3. تحديث الرصيد في قاعدة البيانات
+        cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, req.username))
+        conn.commit()
+        
+        return {
+            "status": "success",
+            "message": "تم تحديث الرصيد بنجاح",
+            "username": req.username,
+            "new_balance": new_balance
+        }
+        
+    except sqlite3.Error as e:
+        raise HTTPException(status_code=500, detail=f"خطأ في قاعدة البيانات: {str(e)}")
+    finally:
+        conn.close()
