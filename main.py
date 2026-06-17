@@ -8,6 +8,7 @@ from datetime import datetime
 
 app = FastAPI(title="Alpha Core - Ultimate Casino Engine")
 
+# تفعيل الـ CORS للسماح للواجهات بالاتصال بالسيرفر دون قيود
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,6 +19,65 @@ app.add_middleware(
 
 DB_NAME = "alpha_platform.db"
 
+# دالة ذكية ومحمية لإنشاء قاعدة البيانات والجداول تلقائياً وتفادي أي خطأ سحابي
+def init_db():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    
+    # 1. إنشاء جدول المستخدمين إن لم يكن موجوداً
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT,
+        role TEXT,
+        balance REAL,
+        rtp INTEGER,
+        is_blocked INTEGER,
+        created_by TEXT,
+        timestamp TEXT
+    )
+    """)
+    
+    # 2. إنشاء جدول معاملات الشحن والسحب إن لم يكن موجوداً
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender TEXT,
+        receiver TEXT,
+        type TEXT,
+        amount REAL,
+        timestamp TEXT
+    )
+    """)
+    
+    # 3. إنشاء جدول سجل الكازينو والألعاب إن لم يكن موجوداً
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS casino_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        game_type TEXT,
+        bet_amount REAL,
+        win_amount REAL,
+        timestamp TEXT
+    )
+    """)
+    
+    # 4. التأكد أولاً من عدم تكرار حساب الأونر لمنع تضارب التشغيل (OperationalError)
+    cursor.execute("SELECT username FROM users WHERE username = 'fethi'")
+    if not cursor.fetchone():
+        cursor.execute("""
+        INSERT INTO users (username, password, role, balance, rtp, is_blocked, created_by, timestamp) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, ("fethi", "fethi2026", "owner", 1000000.0, 99, 0, "SYSTEM", datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        
+    conn.commit()
+    conn.close()
+
+# تشغيل الفحص الذكي لقاعدة البيانات فوراً عند إقلاع السيرفر
+init_db()
+
+# نماذج استقبال البيانات (Pydantic Models)
 class AuthModel(BaseModel):
     username: str
     password: str
@@ -36,12 +96,13 @@ class ControlModel(BaseModel):
     rtp: Optional[int] = 50
     is_blocked: Optional[int] = 0
 
-# نموذج استقبال بيانات الرهان من اللاعب
 class CasinoBetModel(BaseModel):
     username: str
     game_type: str  # 'slots', 'roulette', 'crash'
     bet_amount: float
-    choice: Optional[str] = None  # لون الرهان في الرويت أو نقطة السحب في الكراش
+    choice: Optional[str] = None  # لون الرهان للرويت أو نقطة السحب
+
+# --- روابط الـ API للتحكم وإدارة الشبكة ---
 
 @app.post("/api/register")
 async def register_user(user: AuthModel):
@@ -104,7 +165,30 @@ async def configure_account(data: ControlModel):
     conn.close()
     return {"message": "Success"}
 
-# --- 🎰 محرك الكازينو الخارق والمربح المرتبط بالـ RTP لكل مستخدم على حدة ---
+@app.delete("/api/admin/delete-account")
+async def delete_account(admin_username: str, target_username: str):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM users WHERE username = ?", (target_username.lower(),))
+    conn.commit()
+    conn.close()
+    return {"message": "Success"}
+
+@app.post("/api/user/change-password")
+async def change_password(data: dict):
+    username = data.get("username")
+    new_password = data.get("new_password")
+    if not username or not new_password:
+        raise HTTPException(status_code=400, detail="Missing fields")
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username.lower()))
+    conn.commit()
+    conn.close()
+    return {"message": "Success"}
+
+# --- 🎰 محرك الكازينو الاحترافي والمربح المرتبط بنسبة الـ RTP لكل مستخدم ---
+
 @app.post("/api/casino/play")
 async def play_casino(bet: CasinoBetModel):
     conn = sqlite3.connect(DB_NAME)
@@ -124,9 +208,9 @@ async def play_casino(bet: CasinoBetModel):
         raise HTTPException(status_code=400, detail="Solde insuffisant!")
 
     player_balance = user_data[0]
-    player_rtp = user_data[1] # نسبة الربح المخزنة والتي حددتها أنت في لوحة التحكم (مثلاً 30%)
+    player_rtp = user_data[1]
 
-    # خوارزمية تحديد النتيجة الحتمية بناءً على نسبة الـ RTP الخاصة باللاعب
+    # حساب النتيجة الحتمية للجولة رياضياً بناءً على نسبة الـ RTP الخاصة باللاعب
     dice = random.randint(1, 100)
     is_win = dice <= player_rtp
 
@@ -162,11 +246,10 @@ async def play_casino(bet: CasinoBetModel):
             multiplier = round(random.uniform(1.0, 1.3), 2)
         result_details = {"multiplier": multiplier}
 
-    # تحديث الحساب المالي المباشر في قاعدة البيانات
+    # حسم أو إضافة الرصيد الفوري وحفظ البيانات حياً
     new_balance = player_balance - bet.bet_amount + win_amount
     cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, bet.username.lower()))
     
-    # حفظ المعاملة في سجل الكازينو
     cursor.execute("INSERT INTO casino_history (username, game_type, bet_amount, win_amount, timestamp) VALUES (?, ?, ?, ?, ?)",
                    (bet.username, bet.game_type, bet.bet_amount, win_amount, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     
@@ -179,12 +262,3 @@ async def play_casino(bet: CasinoBetModel):
         "new_balance": new_balance,
         "details": result_details
     }
-
-@app.delete("/api/admin/delete-account")
-async def delete_account(admin_username: str, target_username: str):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM users WHERE username = ?", (target_username.lower(),))
-    conn.commit()
-    conn.close()
-    return {"message": "Success"}
