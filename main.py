@@ -20,8 +20,6 @@ DB_NAME = "alpha_platform.db"
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    
-    # تحديث جدول المستخدمين ليدعم الـ RTP والحظر
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,18 +33,6 @@ def init_db():
         timestamp TEXT
     )
     """)
-    
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS casino_history (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        game_type TEXT NOT NULL,
-        bet_amount REAL,
-        win_amount REAL,
-        timestamp TEXT
-    )
-    """)
-    
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,15 +43,12 @@ def init_db():
         timestamp TEXT
     )
     """)
-    
-    # التأكد من وجود حساب fethi الرئيسي
     cursor.execute("SELECT * FROM users WHERE username = 'fethi'")
     if not cursor.fetchone():
         cursor.execute(
             "INSERT INTO users (username, password, role, balance, rtp, is_blocked, created_by, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             ('fethi', 'fethi2026', 'super_owner', 1000000.0, 50, 0, 'SYSTEM', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         )
-        
     conn.commit()
     conn.close()
 
@@ -80,7 +63,7 @@ class AuthModel(BaseModel):
 class BalanceUpdateModel(BaseModel):
     admin_username: str
     target_username: str
-    action: str
+    action: str  # سنعتمد "charge" للشحن و "withdraw" للسحب الجزئي
     amount: float
 
 class ControlModel(BaseModel):
@@ -99,7 +82,7 @@ async def register_user(user: AuthModel):
         conn.commit()
         return {"message": "User created successfully"}
     except sqlite3.IntegrityError:
-        raise HTTPException(status_code=400, detail="اسم المستخدم محجوز مسبقاً!")
+        raise HTTPException(status_code=400, detail="Nom d'utilisateur déjà pris!")
     finally:
         conn.close()
 
@@ -111,28 +94,37 @@ async def login_user(user: AuthModel):
                    (user.username.lower(), user.password))
     row = cursor.fetchone()
     conn.close()
-    
     if row:
         if row[3] == 1:
-            raise HTTPException(status_code=403, detail="هذا الحساب محظور حالياً من الإدارة!")
+            raise HTTPException(status_code=403, detail="Compte bloqué!")
         return {"username": row[0], "role": row[1], "balance": row[2], "rtp": row[4]}
-    raise HTTPException(status_code=401, detail="بيانات الدخول غير صحيحة!")
+    raise HTTPException(status_code=401, detail="Identifiants incorrects!")
 
 @app.post("/api/admin/update-balance")
 async def update_balance(data: BalanceUpdateModel):
+    if data.amount <= 0:
+        raise HTTPException(status_code=400, detail="Le montant doit être supérieur à 0")
+        
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE username = ?", (data.admin_username.lower(),))
-    admin_bal = cursor.fetchone()[0]
     
+    # 1. حالة الشحن المالي المعتادة
     if data.action == "charge":
         cursor.execute("UPDATE users SET balance = balance - ? WHERE username = ? AND username != 'fethi'", (data.amount, data.admin_username.lower()))
         cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (data.amount, data.target_username.lower()))
-    elif data.action == "reset":
+    
+    # 2. حالة السحب المالي الجزئي الذكي (Retirer) بناءً على طلبك
+    elif data.action == "withdraw":
         cursor.execute("SELECT balance FROM users WHERE username = ?", (data.target_username.lower(),))
-        target_bal = cursor.fetchone()[0]
-        cursor.execute("UPDATE users SET balance = 0.0 WHERE username = ?", (data.target_username.lower(),))
-        cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ? AND username != 'fethi'", (target_bal, data.admin_username.lower()))
+        target_res = cursor.fetchone()
+        if not target_res or target_res[0] < data.amount:
+            conn.close()
+            raise HTTPException(status_code=400, detail="Le solde du compte est insuffisant pour retirer ce montant!")
+            
+        # الخصم من حساب الوكيل أو المحل
+        cursor.execute("UPDATE users SET balance = balance - ? WHERE username = ?", (data.amount, data.target_username.lower()))
+        # إضافة الرصيد لحسابك fethi الرئيسي فوراً
+        cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (data.amount, data.admin_username.lower()))
 
     cursor.execute("INSERT INTO transactions (sender, receiver, type, amount, timestamp) VALUES (?, ?, ?, ?, ?)",
                    (data.admin_username, data.target_username, data.action, data.amount, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
@@ -149,8 +141,6 @@ async def get_controlled_users(admin_username: str):
     conn.close()
     return [{"id": u[0], "username": u[1], "role": u[2], "balance": u[3], "created_by": u[4], "rtp": u[5], "is_blocked": u[6]} for u in users]
 
-# --- المسارات الجديدة للتحكم المطلق في الـ RTP وبلوك الحساب وحذفه ---
-
 @app.post("/api/admin/configure-account")
 async def configure_account(data: ControlModel):
     conn = sqlite3.connect(DB_NAME)
@@ -159,23 +149,13 @@ async def configure_account(data: ControlModel):
                    (data.rtp, data.is_blocked, data.target_username.lower()))
     conn.commit()
     conn.close()
-    return {"message": "تم تحديث الإعدادات بنجاح"}
+    return {"message": "Success"}
 
 @app.delete("/api/admin/delete-account")
 async def delete_account(admin_username: str, target_username: str):
-    if target_username.lower() == "fethi":
-        raise HTTPException(status_code=400, detail="لا يمكن حذف الحساب الرئيسي")
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM users WHERE username = ?", (target_username.lower(),))
     conn.commit()
     conn.close()
-    return {"message": "تم حذف الحساب نهائياً من السيستم"}
-
-@app.get("/api/admin/reports")
-async def get_platform_reports():
-    return {"ggr": 0.0, "total_deposits": 0.0}
-
-@app.get("/api/admin/transactions")
-async def get_transactions_history():
-    return []
+    return {"message": "Success"}
