@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Core - Owner Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .modal { display: none; }
+        .modal.active { display: flex; }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen p-4">
+    <header class="bg-slate-900 border-b border-slate-800 p-4 rounded-xl flex justify-between items-center mb-6 shadow-xl">
+        <h1 class="text-xl font-black text-rose-500 tracking-wider">ALPHA <span class="text-white font-light">OWNER CONTROL</span></h1>
+        <div class="flex items-center gap-4">
+            <div class="bg-slate-800 px-2 py-1 rounded border border-slate-700 text-xs">
+                🌐 <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-transparent text-white focus:outline-none cursor-pointer">
+                    <option value="ar">العربية</option>
+                    <option value="fr">Français</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <span class="text-sm bg-rose-500/10 text-rose-400 px-3 py-1 rounded-lg border border-rose-500/20 font-bold" id="owner-role-badge">Super Owner</span>
+            <span class="font-bold text-slate-300" id="owner-username">fethi</span>
+            <button onclick="logout()" data-i18n="logout" class="text-xs bg-slate-800 hover:bg-rose-600 px-3 py-1.5 rounded-lg transition-all cursor-pointer">خروج</button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto space-y-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl space-y-3 h-fit">
+                <div class="text-xs font-bold text-slate-400 pb-2 border-b border-slate-800 uppercase tracking-wide" data-i18n="reports_title">التقارير والميزات</div>
+                <button onclick="openModal('tx_user_modal')" class="w-full text-right p-3 rounded-xl border border-slate-800 bg-slate-950 hover:border-emerald-500 transition-all font-medium text-sm flex justify-between items-center">
+                    <span data-i18n="btn_tx_user">Transactions utilisateur</span> <span>📊</span>
+                </button>
+                <button onclick="openModal('net_history_modal')" class="w-full text-right p-3 rounded-xl border border-slate-800 bg-slate-950 hover:border-emerald-500 transition-all font-medium text-sm flex justify-between items-center">
+                    <span data-i18n="btn_net_history">Historique Net des Joueurs</span> <span>📈</span>
+                </button>
+                <button onclick="openModal('tree_modal')" class="w-full text-right p-3 rounded-xl border border-slate-800 bg-slate-950 hover:border-emerald-500 transition-all font-medium text-sm flex justify-between items-center">
+                    <span data-i18n="btn_tree">Arbre (الشجرة الهرمية)</span> <span>🌿</span>
+                </button>
+                
+                <div class="text-xs font-bold text-slate-400 pt-3 pb-2 border-b border-slate-800 uppercase tracking-wide" data-i18n="partners_title">Les partenaires</div>
+                <button onclick="openModal('all_tx_modal')" class="w-full text-right p-3 rounded-xl border border-slate-800 bg-slate-950 hover:border-emerald-500 transition-all font-medium text-sm flex justify-between items-center">
+                    <span data-i18n="btn_tx_history">Historique des transactions</span> <span>📜</span>
+                </button>
+                
+                <div class="text-xs font-bold text-slate-400 pt-3 pb-2 border-b border-slate-800 uppercase tracking-wide" data-i18n="other_title">Autre</div>
+                <button onclick="openModal('pass_modal')" class="w-full text-right p-3 rounded-xl border border-slate-800 bg-slate-950 hover:border-rose-500 transition-all font-medium text-sm flex justify-between items-center">
+                    <span data-i18n="btn_change_pass">Changer le mot de passe</span> <span>🔒</span>
+                </button>
+            </div>
+
+            <div class="md:col-span-3 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-slate-400 text-xs font-bold mb-1 uppercase tracking-wide" data-i18n="ggr_title">صافي أرباح الشبكة بالكامل (GGR)</h3>
+                        <p class="text-3xl font-black text-emerald-400 font-mono" id="ggr-display">$0.00</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-slate-400 text-xs font-bold mb-1 uppercase tracking-wide" data-i18n="volume_title">إجمالي التدوير المالي</h3>
+                        <p class="text-3xl font-black text-cyan-400 font-mono" id="volume-display">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-sm font-bold text-white mb-4" data-i18n="create_user_title">👑 إنشاء وتعيين رتبة جديدة في الشبكة</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end text-xs">
+                        <div>
+                            <label class="text-slate-400 block mb-1" data-i18n="lbl_username">اسم المستخدم الجديد</label>
+                            <input type="text" id="new-user-name" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="text-slate-400 block mb-1" data-i18n="lbl_password">كلمة المرور</label>
+                            <input type="password" id="new-user-pass" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="text-slate-400 block mb-1" data-i18n="lbl_role">تحديد الرتبة البرمجية</label>
+                            <select id="new-user-role" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white focus:outline-none">
+                                <option value="owner">Owner</option>
+                                <option value="super_admin">Super Admin</option>
+                                <option value="admin">Admin</option>
+                                <option value="shop">Shop</option>
+                            </select>
+                        </div>
+                        <button onclick="createNetworkUser()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-2.5 rounded transition-all cursor-pointer" data-i18n="btn_create">صناعة الحساب</button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="bg-[#10b981] p-4 text-slate-950 font-bold flex justify-between items-center text-xs">
+                        <span data-i18n="table_title">📋 قائمة التحكم في أرصدة السيستم</span>
+                        <div class="flex gap-2">
+                            <input type="text" id="target-action-user" class="bg-white p-1 rounded font-mono text-center text-slate-900" readonly>
+                            <input type="number" id="target-action-amount" class="bg-white p-1 rounded font-mono text-center text-slate-900 w-16">
+                            <button onclick="executeAction('charge')" class="bg-slate-950 text-white px-2 py-1 rounded font-bold" data-i18n="btn_charge">شحن</button>
+                            <button onclick="executeAction('reset')" class="bg-rose-700 text-white px-2 py-1 rounded font-bold" data-i18n="btn_reset">تصفير</button>
+                        </div>
+                    </div>
+                    <div class="p-4 overflow-x-auto text-xs">
+                        <table class="w-full text-right">
+                            <thead>
+                                <tr class="bg-slate-800 text-slate-400 border-b border-slate-700">
+                                    <th class="p-3" data-i18n="th_name">اسم الحساب</th>
+                                    <th class="p-3" data-i18n="th_role">الرتبة</th>
+                                    <th class="p-3" data-i18n="th_creator">المنشِئ</th>
+                                    <th class="p-3 text-left" data-i18n="th_balance">الرصيد المتاح</th>
+                                    <th class="p-3 text-center" data-i18n="th_action">الإجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="owner-network-tbody" class="divide-y divide-slate-800/60"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="tx_user_modal" class="modal fixed inset-0 bg-black/80 justify-center items-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 space-y-4">
+            <h3 class="text-base font-bold text-white border-b border-slate-800 pb-2" data-i18n="btn_tx_user">Transactions utilisateur</h3>
+            <div class="max-h-60 overflow-y-auto text-xs" id="tx-user-list">جاري جلب التقارير...</div>
+            <button onclick="closeModals()" class="w-full bg-slate-800 py-2 rounded text-xs">Fermer</button>
+        </div>
+    </div>
+
+    <div id="net_history_modal" class="modal fixed inset-0 bg-black/80 justify-center items-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 space-y-4">
+            <h3 class="text-base font-bold text-white border-b border-slate-800 pb-2" data-i18n="btn_net_history">Historique Net des Joueurs</h3>
+            <p class="text-xs text-slate-400">صافي الأداء المالي والربحي للاعبين المسجلين حالياً بالمنصة حياً.</p>
+            <div id="net-players-box" class="space-y-2 text-xs"></div>
+            <button onclick="closeModals()" class="w-full bg-slate-800 py-2 rounded text-xs">Fermer</button>
+        </div>
+    </div>
+
+    <div id="tree_modal" class="modal fixed inset-0 bg-black/80 justify-center items-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 space-y-4">
+            <h3 class="text-base font-bold text-white border-b border-slate-800 pb-2" data-i18n="btn_tree">Arbre الهيكلية الهرمية</h3>
+            <div id="tree-box" class="font-mono text-xs space-y-2 text-emerald-400"></div>
+            <button onclick="closeModals()" class="w-full bg-slate-800 py-2 rounded text-xs">Fermer</button>
+        </div>
+    </div>
+
+    <div id="all_tx_modal" class="modal fixed inset-0 bg-black/80 justify-center items-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 space-y-4">
+            <h3 class="text-base font-bold text-white border-b border-slate-800 pb-2" data-i18n="btn_tx_history">Historique des transactions</h3>
+            <div class="overflow-x-auto max-h-60 text-xs">
+                <table class="w-full text-right">
+                    <thead class="bg-slate-800 text-slate-400">
+                        <tr><th class="p-2">المنفذ</th><th class="p-2">المستقبل</th><th class="p-2">النوع</th><th class="p-2">المبلغ</th><th class="p-2">التوقيت</th></tr>
+                    </thead>
+                    <tbody id="all-tx-tbody"></tbody>
+                </table>
+            </div>
+            <button onclick="closeModals()" class="w-full bg-slate-800 py-2 rounded text-xs">Fermer</button>
+        </div>
+    </div>
+
+    <div id="pass_modal" class="modal fixed inset-0 bg-black/80 justify-center items-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xs w-full p-6 space-y-4">
+            <h3 class="text-base font-bold text-white border-b border-slate-800 pb-2" data-i18n="btn_change_pass">Changer le mot de passe</h3>
+            <div class="space-y-2 text-xs">
+                <input type="password" id="new-sys-pass" placeholder="كلمة المرور الجديدة" class="w-full p-2 rounded bg-slate-800 border border-slate-700 text-white">
+                <button onclick="submitNewPassword()" class="w-full bg-rose-500 text-white p-2 rounded font-bold">تحديث الآن</button>
+            </div>
+            <button onclick="closeModals()" class="w-full bg-slate-800 py-2 rounded text-xs">Fermer</button>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "https://alpha-core-platform-1.onrender.com";
+        let user = JSON.parse(localStorage.getItem('alpha_user'));
+        let cachedUsers = [];
+
+        const translations = {
+            ar: {
+                logout: "خروج", reports_title: "التقارير والميزات", btn_tx_user: "معاملات المستخدمين",
+                btn_net_history: "صافي سجل اللاعبين", btn_tree: "الشجرة الهرمية (Arbre)", partners_title: "الشركاء والوكلاء",
+                btn_tx_history: "سجل العمليات المالي", other_title: "أخرى", btn_change_pass: "تغيير كلمة المرور",
+                ggr_title: "صافي أرباح الشبكة بالكامل (GGR)", volume_title: "إجمالي التدوير المالي",
+                create_user_title: "👑 إنشاء وتعيين رتبة جديدة في الشبكة", lbl_username: "اسم المستخدم الجديد",
+                lbl_password: "كلمة المرور", lbl_role: "تحديد الرتبة البرمجية", btn_create: "صناعة الحساب",
+                table_title: "📋 قائمة التحكم في أرصدة السيستم", btn_charge: "شحن", btn_reset: "تصفير",
+                th_name: "اسم الحساب", th_role: "الرتبة", th_creator: "المنشِئ", th_balance: "الرصيد المتاح", th_action: "الإجراء"
+            },
+            fr: {
+                logout: "Déconnexion", reports_title: "Rapports et fonctionnalités", btn_tx_user: "Transactions utilisateur",
+                btn_net_history: "Historique Net des Joueurs", btn_tree: "Arbre de structure", partners_title: "Les partenaires",
+                btn_tx_history: "Historique des transactions", other_title: "Autre", btn_change_pass: "Changer le mot de passe",
+                ggr_title: "GGR Net Global de la Plateforme", volume_title: "Volume Financier Total",
+                create_user_title: "👑 Créer un nouveau compte dans le réseau", lbl_username: "Nom d'utilisateur",
+                lbl_password: "Mot de passe", lbl_role: "Rôle du système", btn_create: "Créer le compte",
+                table_title: "📋 Console de gestion des soldes", btn_charge: "Créditer", btn_reset: "Réinitialiser",
+                th_name: "Compte", th_role: "Rôle", th_creator: "Créateur", th_balance: "Solde Actuel", th_action: "Action"
+            },
+            en: {
+                logout: "Logout", reports_title: "Reports & Features", btn_tx_user: "User Transactions",
+                btn_net_history: "Net Player History", btn_tree: "Network Tree (Arbre)", partners_title: "Partners",
+                btn_tx_history: "Transaction History", other_title: "Other", btn_change_pass: "Change Password",
+                ggr_title: "Total Network Profit (GGR)", volume_title: "Total Financial Turn-over",
+                create_user_title: "👑 Create a New Rank in the Hierarchy", lbl_username: "New Username",
+                lbl_password: "Password", lbl_role: "System Rank Role", btn_create: "Generate Account",
+                table_title: "📋 System Balances Control Console", btn_charge: "Charge", btn_reset: "Reset",
+                th_name: "Username", th_role: "Rank Role", th_creator: "Created By", th_balance: "Available Balance", th_action: "Action"
+            }
+        };
+
+        function changeLanguage(lang) {
+            const elements = document.querySelectorAll("[data-i18n]");
+            elements.forEach(el => {
+                const key = el.getAttribute("data-i18n");
+                if (translations[lang][key]) { el.innerText = translations[lang][key]; }
+            });
+            document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        }
+
+        if (!user || (user.role !== 'super_owner' && user.role !== 'owner')) { window.location.href = "index.html"; }
+        else { document.getElementById('owner-username').innerText = user.username; loadNetworkData(); }
+
+        async function loadNetworkData() {
+            try {
+                const repRes = await fetch(`${BACKEND_URL}/api/admin/reports`);
+                if(repRes.ok){
+                    const rep = await repRes.json();
+                    document.getElementById('ggr-display').innerText = `$${parseFloat(rep.ggr).toFixed(2)}`;
+                    document.getElementById('volume-display').innerText = `$${parseFloat(rep.total_deposits).toFixed(2)}`;
+                }
+                const uRes = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
+                if(uRes.ok){
+                    cachedUsers = await uRes.json();
+                    const tbody = document.getElementById('owner-network-tbody'); tbody.innerHTML = '';
+                    cachedUsers.forEach(u => {
+                        tbody.innerHTML += `
+                            <tr class="border-b border-slate-800/40 hover:bg-slate-800/20">
+                                <td class="p-3 text-white font-bold">${u.username}</td>
+                                <td class="p-3 text-rose-400 text-xs font-mono font-bold">${u.role.toUpperCase()}</td>
+                                <td class="p-3 text-slate-400 text-xs">${u.created_by}</td>
+                                <td class="p-3 text-[#10b981] font-mono font-bold text-left">$${parseFloat(u.balance).toFixed(2)}</td>
+                                <td class="p-3 text-center"><button onclick="selectForAction('${u.username}')" class="text-xs bg-[#10b981]/10 text-[#10b981] hover:bg-[#10b981] hover:text-slate-950 px-2 py-1 rounded font-bold cursor-pointer">🎯 حدد</button></td>
+                            </tr>`;
+                    });
+                }
+            } catch(e){}
+        }
+
+        function selectForAction(username) { document.getElementById('target-action-user').value = username; }
+
+        async function executeAction(action) {
+            const target_username = document.getElementById('target-action-user').value;
+            const amountInput = document.getElementById('target-action-amount').value;
+            if(!target_username) return alert('اختر حساباً أولاً!');
+            const amount = amountInput ? parseFloat(amountInput) : 0;
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_username: user.username, target_username, action, amount })
+                });
+                if(res.ok) { alert('تم بنجاح!'); loadNetworkData(); }
+            } catch(e){}
+        }
+
+        async function createNetworkUser() {
+            const username = document.getElementById('new-user-name').value.trim();
+            const password = document.getElementById('new-user-pass').value;
+            const role = document.getElementById('new-user-role').value;
+            if(!username || !password) return alert('أدخل الحقول كاملة!');
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role, created_by: user.username })
+                });
+                if(res.ok){ alert('تم صناعة الحساب المختار!'); loadNetworkData(); }
+            } catch(e){}
+        }
+
+        // بناء وعرض الميزات المنبثقة ديناميكياً
+        async function openModal(modalId) {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+            document.getElementById(modalId).classList.add('active');
+
+            if(modalId === 'all_tx_modal') {
+                const res = await fetch(`${BACKEND_URL}/api/admin/transactions`);
+                if(res.ok) {
+                    const txs = await res.json();
+                    const tbody = document.getElementById('all-tx-tbody'); tbody.innerHTML = '';
+                    txs.forEach(t => {
+                        tbody.innerHTML += `<tr class="border-b border-slate-800 text-slate-300"><td class="p-2">${t.sender}</td><td class="p-2">${t.receiver}</td><td class="p-2 text-amber-400">${t.type}</td><td class="p-2 font-mono">$${t.amount}</td><td class="p-2 text-slate-500">${t.timestamp}</td></tr>`;
+                    });
+                }
+            } else if(modalId === 'tx_user_modal') {
+                const box = document.getElementById('tx-user-list');
+                box.innerHTML = cachedUsers.map(u => `<div class="p-2 bg-slate-950 rounded mb-1 flex justify-between"><span>👤 ${u.username}</span><span class="text-cyan-400">Solde: $${u.balance}</span></div>`).join('');
+            } else if(modalId === 'net_history_modal') {
+                const box = document.getElementById('net-players-box');
+                box.innerHTML = cachedUsers.filter(u => u.role === 'player').map(u => `<div class="p-2 bg-slate-950 rounded mb-1 flex justify-between"><span>👤 ${u.username}</span><span class="text-emerald-400">Net: $${u.balance}</span></div>`).join('') || "Aucun joueur direct disponible.";
+            } else if(modalId === 'tree_modal') {
+                const box = document.getElementById('tree-box');
+                let treeStr = `👑 fethi (Super Owner)<br>`;
+                cachedUsers.forEach(u => { treeStr += `├── 👤 ${u.username} [${u.role.toUpperCase()}] (Créé par: ${u.created_by})<br>`; });
+                box.innerHTML = treeStr;
+            }
+        }
+
+        async function submitNewPassword() {
+            const new_password = document.getElementById('new-sys-pass').value;
+            if(!new_password) return;
+            const res = await fetch(`${BACKEND_URL}/api/user/change-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user.username, new_password })
+            });
+            if(res.ok) { alert('تم تغيير الباسورد بنجاح!'); closeModals(); }
+        }
+
+        function closeModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
+        function logout() { localStorage.removeItem('alpha_user'); window.location.href = "index.html"; }
+    </script>
+</body>
+</html>
