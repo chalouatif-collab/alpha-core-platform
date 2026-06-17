@@ -1,14 +1,13 @@
-from fastapi import FastAPI, Depends, HTTPException, Header
+import sqlite3
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import sqlite3
-import random
+from typing import Optional
+from datetime import datetime
 
-app = FastAPI(
-    title="Alpha Core - Auth & Database Edition",
-    version="6.0.0"
-)
+app = FastAPI(title="Alpha Core - Multi-Level Hierarchy Platform")
 
+# تفعيل الـ CORS لتتمكن صفحات Netlify من الاتصال بالسيرفر بحرية
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,237 +18,216 @@ app.add_middleware(
 
 DB_NAME = "alpha_platform.db"
 
-# 🗄️ دالة لتهيئة قاعدة البيانات وإنشاء الجداول إذا لم تكن موجودة
+# دالة تأسيس قاعدة البيانات وبنائها بالهيكلية الجديدة
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # جدول المستخدمين والمحافظ المالية
+    
+    # 1. جدول المستخدمين المطور بدعم الرتب (Role) والوكيل (Created_By)
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            username TEXT PRIMARY KEY,
-            password TEXT NOT NULL,
-            balance REAL DEFAULT 1000.0
-        )
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL, -- super_owner, owner, super_admin, admin, shop, player
+        balance REAL DEFAULT 0.0,
+        created_by TEXT, -- اسم الحساب الأعلى الذي أنشأ هذا الحساب لإدارة الشجرة المالية
+        timestamp TEXT
+    )
     """)
+    
+    # 2. جدول تاريخ كازينو Spin
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS casino_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        game_type TEXT NOT NULL,
+        bet_amount REAL,
+        win_amount REAL,
+        timestamp TEXT
+    )
+    """)
+    
+    # 3. جدول تاريخ المراهنات الرياضية
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS sports_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        match_name TEXT NOT NULL,
+        bet_on TEXT NOT NULL,
+        amount REAL,
+        status TEXT DEFAULT 'pending', -- pending, win, lose
+        timestamp TEXT
+    )
+    """)
+    
+    # 4. جدول المعاملات المالي الموحد (شحن، تصفير، نقل أرصدة)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender TEXT NOT NULL,
+        receiver TEXT NOT NULL,
+        type TEXT NOT NULL, -- charge, reset, transfer
+        amount REAL,
+        timestamp TEXT
+    )
+    """)
+    
+    # حقن حساب الـ Super Owner الافتراضي (fethi) لو غير موجود بالسيستم
+    cursor.execute("SELECT * FROM users WHERE username = 'fethi'")
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO users (username, password, role, balance, created_by, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+            ('fethi', 'fethi2026', 'super_owner', 1000000.0, 'SYSTEM', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        )
+        
     conn.commit()
     conn.close()
 
 init_db()
 
-# الإعدادات الديناميكية للمنصة والإحصائيات
-ADMIN_SETTINGS = {"sports_margin": 1.05, "casino_difficulty": "medium"}
-PLATFORM_STATS = {"total_sports_bets": 0, "total_casino_bets": 0, "total_money_wagered": 0.0, "total_money_paid_out": 0.0, "platform_net_profit": 0.0}
-
-# نماذج البيانات (Pydantic Models)
-class RegisterRequest(BaseModel):
+# --- نماذج البيانات الممررة (Pydantic Models) ---
+class AuthModel(BaseModel):
     username: str
     password: str
+    role: Optional[str] = "player"
+    created_by: Optional[str] = "SYSTEM"
 
-class LoginRequest(BaseModel):
-    username: str
-    password: str
+class BalanceUpdateModel(BaseModel):
+    admin_username: str  # الشخص الذي يقوم بالعملية
+    target_username: str # اللاعب أو الحساب المستهدف
+    action: str          # charge أو reset
+    amount: float
 
-class BetRequest(BaseModel):
-    user_external_id: str
-    fixture_id: str
-    predicted_outcome: str
-    stake_amount: float
+# --- مسارات بوابة الولوج والمصادقة (Authentication API) ---
 
-class CasinoPlayRequest(BaseModel):
-    user_external_id: str
-    bet_amount: float
-
-class UpdateSettingsRequest(BaseModel):
-    sports_margin: float
-    casino_difficulty: str
-
-# 🔐 روابط نظام الحسابات (Auth APIs)
-
-@app.post("/api/auth/register")
-def register_user(req: RegisterRequest):
+@app.post("/api/register")
+async def register_user(user: AuthModel):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     try:
-        # إنشاء المستخدم الجديد ومنحه رصيد افتراضي 1000 دولار
-        cursor.execute("INSERT INTO users (username, password, balance) VALUES (?, ?, 1000.0)", (req.username, req.password))
+        # التحقق من أن الحساب الأعلى (المنشِئ) يملك الصلاحية لإنشاء هذه الرتبة
+        cursor.execute("INSERT INTO users (username, password, role, balance, created_by, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+                       (user.username.lower(), user.password, user.role, 0.0, user.created_by, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         conn.commit()
-        return {"success": True, "message": "تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن."}
+        return {"message": "User created successfully", "username": user.username, "role": user.role}
     except sqlite3.IntegrityError:
-        raise HTTPException(status_code=400, detail="اسم المستخدم موجود بالفعل، اختر اسماً آخر.")
+        raise HTTPException(status_code=400, detail="اسم المستخدم محجوز مسبقاً!")
     finally:
         conn.close()
 
-@app.post("/api/auth/login")
-def login_user(req: LoginRequest):
+@app.post("/api/login")
+async def login_user(user: AuthModel):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute("SELECT username, balance FROM users WHERE username = ? AND password = ?", (req.username, req.password))
-    user = cursor.fetchone()
-    conn.close()
-    
-    if not user:
-        raise HTTPException(status_code=401, detail="اسم المستخدم أو كلمة المرور غير صحيحة.")
-    
-    return {
-        "success": True,
-        "username": user[0],
-        "balance": user[1],
-        "message": "تم تسجيل الدخول بنجاح!"
-    }
-
-@app.get("/api/v1/wallet/{user_id}")
-def get_wallet_balance(user_id: str):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE username = ?", (user_id,))
+    cursor.execute("SELECT username, role, balance, created_by FROM users WHERE username = ? AND password = ?", 
+                   (user.username.lower(), user.password))
     row = cursor.fetchone()
     conn.close()
+    
     if row:
-        return {"user_id": user_id, "balance": row[0]}
-    return {"user_id": user_id, "balance": 0.0}
+        return {
+            "username": row[0],
+            "role": row[1],
+            "balance": row[2],
+            "created_by": row[3]
+        }
+    raise HTTPException(status_code=401, detail="بيانات الدخول غير صحيحة!")
 
-# ⚽ محرك الرياضة المربوط بالهامش والـ DB
-@app.get("/api/v1/fixtures")
-def get_live_fixtures():
-    margin = ADMIN_SETTINGS["sports_margin"]
-    return {"fixtures": [
-        {"id": "m1", "sport": "🏆 UEFA Champions League", "home_team": "ريال مدريد 🇪🇸", "away_team": "مانشستر سيتي 🏴󠁧󠁢󠁥󠁮󠁧󠁿", "odds": {"home_win": round(2.25/margin, 2), "draw": round(3.50/margin, 2), "away_win": round(2.90/margin, 2)}},
-        {"id": "m2", "sport": "🏆 UEFA Champions League", "home_team": "برشلونة 🇪🇸", "away_team": "بايرن ميونخ 🇩🇪", "odds": {"home_win": round(2.50/margin, 2), "draw": round(3.70/margin, 2), "away_win": round(2.40/margin, 2)}}
-    ]}
-
-@app.post("/api/v1/place-bet")
-def place_bet(bet: BetRequest):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE username = ?", (bet.user_external_id,))
-    row = cursor.fetchone()
-    
-    if outfits := not row or row[0] < bet.stake_amount:
-        conn.close()
-        raise HTTPException(status_code=400, detail="الرصيد غير كافٍ أو الحساب غير موجود")
-    
-    current_balance = row[0]
-    new_balance = round(current_balance - bet.stake_amount, 2)
-    
-    # تحديث الإحصائيات العامة
-    PLATFORM_STATS["total_sports_bets"] += 1
-    PLATFORM_STATS["total_money_wagered"] += bet.stake_amount
-
-    is_win = random.choice([True, False])
-    win_amount = 0.0
-    message = "خسرت الرهان الرياضي ❌"
-    
-    if is_win:
-        win_amount = round(bet.stake_amount * round(2.20 / ADMIN_SETTINGS["sports_margin"], 2), 2)
-        new_balance = round(new_balance + win_amount, 2)
-        PLATFORM_STATS["total_money_paid_out"] += win_amount
-        message = "مبروك الفوز بالرهان! 🎉"
-
-    # حفظ الرصيد الجديد في قاعدة البيانات فوراً
-    cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, bet.user_external_id))
-    conn.commit()
-    conn.close()
-
-    PLATFORM_STATS["platform_net_profit"] = round(PLATFORM_STATS["total_money_wagered"] - PLATFORM_STATS["total_money_paid_out"], 2)
-    return {"success": True, "message": message, "new_balance": new_balance}
-
-# 🎰 محرك الكازينو المربوط بقاعدة البيانات
-@app.post("/api/v1/casino/spin")
-def casino_spin(request: CasinoPlayRequest):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE username = ?", (request.user_external_id,))
-    row = cursor.fetchone()
-    
-    if not row or row[0] < request.bet_amount:
-        conn.close()
-        raise HTTPException(status_code=400, detail="الرصيد غير كافٍ")
-    
-    current_balance = row[0]
-    new_balance = round(current_balance - request.bet_amount, 2)
-    
-    PLATFORM_STATS["total_casino_bets"] += 1
-    PLATFORM_STATS["total_money_wagered"] += request.bet_amount
-
-    difficulty = ADMIN_SETTINGS["casino_difficulty"]
-    if difficulty == "easy":
-        multipliers = [1, 1.5, 2, 5]
-    elif difficulty == "medium":
-        multipliers = [0, 0, 1.5, 2]
-    else:
-        multipliers = [0, 0, 0, 0.5, 1.5]
-
-    result_multiplier = random.choice(multipliers)
-    win_amount = round(request.bet_amount * result_multiplier, 2)
-    new_balance = round(new_balance + win_amount, 2)
-    
-    # حفظ النتيجة والرصيد الجديد في الـ DB بالثانية
-    cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, request.user_external_id))
-    conn.commit()
-    conn.close()
-
-    PLATFORM_STATS["total_money_paid_out"] += win_amount
-    PLATFORM_STATS["platform_net_profit"] = round(PLATFORM_STATS["total_money_wagered"] - PLATFORM_STATS["total_money_paid_out"], 2)
-
-    return {
-        "success": True,
-        "multiplier": result_multiplier,
-        "win_amount": win_amount,
-        "new_balance": new_balance,
-        "status": "WIN" if result_multiplier > 1 else "LOSE"
-    }
-
-# 🎛️ روابط لوحة التحكم الإدارية
-@app.get("/api/admin/stats")
-def get_platform_stats():
-    return {"stats": PLATFORM_STATS, "settings": ADMIN_SETTINGS}
-
-@app.post("/api/admin/settings")
-def update_platform_settings(settings: UpdateSettingsRequest):
-    ADMIN_SETTINGS["sports_margin"] = settings.sports_margin
-    ADMIN_SETTINGS["casino_difficulty"] = settings.casino_difficulty
-    return {"success": True, "message": "تم تحديث إعدادات الإدارة!"}
-
-    class AdminUpdateBalanceRequest(BaseModel):
-    username: str
-    action: str  # "charge" أو "reset"
-    amount: float = 0.0
+# --- مسارات الإدارة والشحن الهرمي المحمي (Management API) ---
 
 @app.post("/api/admin/update-balance")
-async def admin_update_balance(req: AdminUpdateBalanceRequest):
+async def update_balance(data: BalanceUpdateModel):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     
-    try:
-        # 1. التأكد من وجود المستخدم أولاً وجلب رصيده الحالي
-        cursor.execute("SELECT balance FROM users WHERE username = ?", (req.username,))
-        row = cursor.fetchone()
-        
-        if not row:
-            raise HTTPException(status_code=404, detail="المستخدم غير موجود!")
-            
-        current_balance = row[0]
-        
-        # 2. حساب الرصيد الجديد حسب نوع العملية
-        if req.action == "charge":
-            new_balance = current_balance + req.amount
-        elif req.action == "reset":
-            new_balance = 0.0
-        else:
-            raise HTTPException(status_code=400, detail="عملية غير صالحة")
-            
-        # 3. تحديث الرصيد في قاعدة البيانات
-        cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, req.username))
-        conn.commit()
-        
-        return {
-            "status": "success",
-            "message": "تم تحديث الرصيد بنجاح",
-            "username": req.username,
-            "new_balance": new_balance
-        }
-        
-    except sqlite3.Error as e:
-        raise HTTPException(status_code=500, detail=f"خطأ في قاعدة البيانات: {str(e)}")
-    finally:
+    # 1. جلب بيانات الأدمن المنفذ والهدف
+    cursor.execute("SELECT role, balance FROM users WHERE username = ?", (data.admin_username.lower(),))
+    admin = cursor.fetchone()
+    cursor.execute("SELECT role, balance FROM users WHERE username = ?", (data.target_username.lower(),))
+    target = cursor.fetchone()
+    
+    if not admin:
         conn.close()
+        raise HTTPException(status_code=404, detail="الأدمن المنفذ غير موجود!")
+    if not target:
+        conn.close()
+        raise HTTPException(status_code=404, detail="المستخدم المستهدف غير موجود!")
+        
+    admin_role, admin_balance = admin[0], admin[1]
+    target_role, target_balance = target[0], target[1]
+    
+    # 2. الحماية البرمجية الصارمة: التحقق من الرتب والأقوى
+    role_weights = {'super_owner': 6, 'owner': 5, 'super_admin': 4, 'admin': 3, 'shop': 2, 'player': 1}
+    
+    if role_weights[admin_role] <= role_weights[target_role] and admin_role != 'super_owner':
+        conn.close()
+        raise HTTPException(status_code=403, detail="لا تملك صلاحية تعديل رصيد رتبة موازية أو أعلى منك!")
+
+    # 3. خصم الرصيد من المحلات (Shop) أو الأدمنية عند الشحن (نظام رأس مال ممتد)
+    if data.action == "charge":
+        if admin_role != 'super_owner' and admin_balance < data.amount:
+            conn.close()
+            raise HTTPException(status_code=400, detail="رصيد محفظتك الإدارية غير كافٍ لإتمام الشحن!")
+            
+        # تنفيذ الشحن
+        if admin_role != 'super_owner':
+            cursor.execute("UPDATE users SET balance = balance - ? WHERE username = ?", (data.amount, data.admin_username.lower()))
+        cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (data.amount, data.target_username.lower()))
+        new_target_bal = target_balance + data.amount
+
+    elif data.action == "reset":
+        # تصفير الرصيد وإرجاعه لمدير الحساب الأعلى (إلا لو كان اللاعب قد خسرها)
+        cursor.execute("UPDATE users SET balance = 0.0 WHERE username = ?", (data.target_username.lower(),))
+        if admin_role != 'super_owner':
+            cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (target_balance, data.admin_username.lower()))
+        new_target_bal = 0.0
+
+    # تسجيل المعاملة المالية في الجدول
+    cursor.execute("INSERT INTO transactions (sender, receiver, type, amount, timestamp) VALUES (?, ?, ?, ?, ?)",
+                   (data.admin_username, data.target_username, data.action, data.amount, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    
+    conn.commit()
+    conn.close()
+    return {"message": "تم تحديث الرصيد بنجاح", "new_balance": new_target_bal}
+
+# --- مسارات جلب التقارير والجداول المخصصة لكل رتبة ---
+
+@app.get("/api/admin/users")
+async def get_controlled_users(admin_username: str):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT role FROM users WHERE username = ?", (admin_username.lower(),))
+    admin_row = cursor.fetchone()
+    if tyranny := not admin_row:
+        conn.close()
+        return []
+        
+    admin_role = admin_row[0]
+    
+    # لو super_owner يرى الجميع، لو رتبة أخرى يرى فقط من هم أسفل منه أو من قام بإنشائهم
+    if admin_role == 'super_owner':
+        cursor.execute("SELECT id, username, role, balance, created_by FROM users WHERE username != 'fethi'")
+    else:
+        cursor.execute("SELECT id, username, role, balance, created_by FROM users WHERE created_by = ? OR (role = 'player' AND created_by = ?)", 
+                       (admin_username, admin_username))
+                       
+    users = cursor.fetchall()
+    conn.close()
+    return [{"id": u[0], "username": u[1], "role": u[2], "balance": u[3], "created_by": u[4]} for u in users]
+
+@app.get("/api/admin/reports")
+async def get_platform_reports():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    
+    # حساب أرباح الكازينو وصافي المدفوعات التلقائية
+    cursor.execute("SELECT SUM(bet_amount), SUM(win_amount) FROM casino_history")
+    casino = cursor.fetchone()
+    total_bets = casino[0] if casino[0] else 0.0
+    total_wins = casino[1] if casino[1] else 0.0
+    ggr = total_bets - total_wins
+    
+    conn.close()
+    return {"ggr": ggr, "total_deposits": total_bets}
