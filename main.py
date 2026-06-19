@@ -27,7 +27,7 @@ async def login_user(req: LoginRequest):
     if req.username.lower() == "fethi" and req.password == "123456":
         return {
             "username": "fethi",
-            "balance": 12692010.86,  # الرصيد الافتراضي الفخم الخاص بك
+            "balance": 999999999999999,  # الرصيد الافتراضي الفخم الخاص بك
             "role": "admin"
         }
     else:
