@@ -33,19 +33,30 @@ async def login_user(req: LoginRequest):
     else:
         raise HTTPException(status_code=401, detail="Identifiants incorrects")
 
-# ⚽ مسار جلب المباريات الحية الموزون بالشعرة
+# ⚽ مسار متطور يجلب أقوى مباريات العالم معاً (إنجلترا، إسبانيا، إيطاليا، ودوري الأبطال)
 @app.get("/api/sports/live")
 async def get_sports():
-    url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            # نرسل المصفوفة الصافية مباشرة لتقرأها الواجهة تلقائياً
-            return response.json()
-        else:
-            return []
-    except Exception as e:
-        return []
+    # قائمة بأقوى البطولات العالمية المتاحة في الـ API
+    leagues = [
+        "soccer_epl",           # الدوري الإنجليزي
+        "soccer_spain_la_liga", # الدوري الإسباني
+        "soccer_italy_serie_a", # الدوري الإيطالي
+        "soccer_uefa_champs_league" # دوري أبطال أوروبا
+    ]
+    
+    all_matches = []
+    
+    # جلب البيانات من كل دوري ودمجها في قائمة واحدة
+    for league in leagues:
+        url = f"https://api.the-odds-api.com/v4/sports/{league}/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                all_matches.extend(response.json())
+        except Exception as e:
+            print(f"Error fetching {league}: {str(e)}")
+            
+    return all_matches
 
 # 🏠 المسار الترحيبي للرئيسية لضمان عمل السيرفر بنجاح
 @app.get("/")
