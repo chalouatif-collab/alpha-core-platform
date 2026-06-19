@@ -33,18 +33,19 @@ async def login_user(req: LoginRequest):
     else:
         raise HTTPException(status_code=401, detail="Identifiants incorrects")
 
-# ⚽ مسار جلب المباريات الحية
+# ⚽ مسار جلب المباريات الحية الموزون بالشعرة
 @app.get("/api/sports/live")
 async def get_sports():
     url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            return {"matches": response.json()}
+            # نرسل المصفوفة الصافية مباشرة لتقرأها الواجهة تلقائياً
+            return response.json()
         else:
-            return {"matches": [], "error": "Failed to fetch data", "status": response.status_code}
+            return []
     except Exception as e:
-        return {"matches": [], "error": str(e)}
+        return []
 
 # 🏠 المسار الترحيبي للرئيسية لضمان عمل السيرفر بنجاح
 @app.get("/")
