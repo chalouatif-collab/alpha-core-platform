@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 import requests
 from pydantic import BaseModel
+from typing import List
 from fastapi.middleware.cors import CORSMiddleware
+import random
 
 app = FastAPI()
 
@@ -21,6 +23,22 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+# نماذج استقبال بيانات الرهان الرياضي
+class SelectionItem(BaseModel):
+    matchId: str
+    matchName: str
+    prediction: str
+    odds: float
+    leagueName: str
+
+class BetRequest(BaseModel):
+    username: str
+    slipType: str
+    amount: float
+    totalOdds: float
+    potentialWin: float
+    selections: List[SelectionItem]
+
 # 🔐 مسار تسجيل الدخول النظيف (بدون أي تكرار)
 @app.post("/api/login")
 async def login_user(req: LoginRequest):
@@ -36,7 +54,6 @@ async def login_user(req: LoginRequest):
 # ⚽ مسار متطور يجلب أقوى مباريات العالم معاً (إنجلترا، إسبانيا، إيطاليا، ودوري الأبطال)
 @app.get("/api/sports/live")
 async def get_sports():
-    # قائمة بأقوى البطولات العالمية المتاحة في الـ API
     leagues = [
         "soccer_epl",           # الدوري الإنجليزي
         "soccer_spain_la_liga", # الدوري الإسباني
@@ -46,7 +63,6 @@ async def get_sports():
     
     all_matches = []
     
-    # جلب البيانات من كل دوري ودمجها في قائمة واحدة
     for league in leagues:
         url = f"https://api.the-odds-api.com/v4/sports/{league}/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
         try:
@@ -57,6 +73,26 @@ async def get_sports():
             print(f"Error fetching {league}: {str(e)}")
             
     return all_matches
+
+# 🧾 ⚽ مسار جديد ومحمي لاستقبال وتثبيت تذاكر الرهان المتعدد
+@app.post("/api/bets/sports")
+async def confirm_sports_bet(req: BetRequest):
+    if not req.username or req.amount <= 0 or len(req.selections) == 0:
+        raise HTTPException(status_code=400, detail="Données du ticket incomplètes")
+    
+    # طباعة التذكرة في لوحة تحكم السيرفر (Logs) لمتابعتها فوراً
+    print(f"🏈 [Pari Sportif] Nouveau ticket pour {req.username}:")
+    print(f"   - Type: {req.slipType} | Mise: {req.amount} USDT | Cote: {req.totalOdds}")
+    print(f"   - Gains Estimés: {req.potentialWin} USDT")
+    print(f"   - Nombre de matchs: {len(req.selections)}")
+    
+    # إرجاع استجابة النجاح التام مع توليد رقم تذكرة عشوائي مميز
+    random_id = random.randint(100000, 900000)
+    return {
+        "status": "success",
+        "message": "Ticket enregistré avec succès",
+        "betId": f"ST-{random_id}"
+    }
 
 # 🏠 المسار الترحيبي للرئيسية لضمان عمل السيرفر بنجاح
 @app.get("/")
