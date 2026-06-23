@@ -10,7 +10,7 @@ import os
 
 app = FastAPI()
 
-# تفعيل الـ CORS لحماية الاتصال مع الواجهة
+# تفعيل الـ CORS لضمان استقبال الطلبات من السيرفرات الخارجية والواجهة
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -18,7 +18,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# مفتاح الـ API الخاص بك لجلب المباريات
 API_KEY = "f9afe7e1bc006f79f75bafe764b0f117"
 DB_FILE = "alpha_casino.db"
 
@@ -35,7 +34,7 @@ def init_db():
             role TEXT DEFAULT 'user'
         )
     ''')
-    # 2. جدول تذاكر الرهان
+    # 2. جدول تذاكر الرهان الرياضي
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS bets (
             bet_id TEXT PRIMARY KEY,
@@ -48,7 +47,7 @@ def init_db():
             status TEXT DEFAULT 'En cours'
         )
     ''')
-    # 3. جدول تفاصيل تذاكر الرهان (المباريات المختارة داخل كل تذكرة)
+    # 3. جدول تفاصيل الرهانات الرياضية
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS bet_selections (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,7 +61,7 @@ def init_db():
         )
     ''')
     
-    # إضافة حسابك الفخم "fethi" كأدمن رئيسي تلقائياً برصيد غير محدود إذا لم يكن موجوداً
+    # إضافة حسابك كأدمن رئيسي تلقائياً برصيد ثابت
     cursor.execute("SELECT * FROM users WHERE username = 'fethi'")
     if not cursor.fetchone():
         cursor.execute("INSERT INTO users (username, password, balance, role) VALUES ('fethi', '123456', 999999999999999, 'admin')")
@@ -72,7 +71,7 @@ def init_db():
 
 init_db()
 
-# نماذج استقبال البيانات (Pydantic Models)
+# نماذج استقبال البيانات لـ Pydantic
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -100,6 +99,17 @@ class UpdateBetStatusRequest(BaseModel):
     adminUsername: str
     betId: str
     newStatus: str
+
+# 🎰 نماذج استقبال طلبات مزودي الألعاب العالمية (API Aggregators Models)
+class ProviderBalanceRequest(BaseModel):
+    username: str
+
+class ProviderTransactionRequest(BaseModel):
+    username: str
+    transaction_id: str
+    game_id: str
+    amount: float  # قيمة الرهان أو الربح
+    type: str      # 'bet' للخصم أو 'win' للإضافة
 
 # 📝 مسار إنشاء حساب جديد للاعبين (Inscription)
 @app.post("/api/register")
@@ -149,14 +159,13 @@ async def get_sports():
             pass
     return all_matches
 
-# 🧾 مسار تثبيت تذاكر الرهان وحفظها في قاعدة البيانات الحقيقية
+# 🧾 مسار تثبيت تذاكر الرهان الرياضي
 @app.post("/api/bets/sports")
 async def confirm_sports_bet(req: BetRequest):
     uname = req.username.strip().lower()
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     
-    # التحقق من الرصيد الفعلي للمستخدم من قاعدة البيانات
     cursor.execute("SELECT balance FROM users WHERE username = ?", (uname,))
     user_row = cursor.fetchone()
     if not user_row or user_row[0] < req.amount:
@@ -167,7 +176,6 @@ async def confirm_sports_bet(req: BetRequest):
     random_id = f"ST-{random.randint(100000, 900000)}"
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     
-    # خصم الرصيد وحفظ التذكرة
     cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, uname))
     cursor.execute("INSERT INTO bets (bet_id, username, slip_type, amount, total_odds, potential_win, date, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'En cours')",
                    (random_id, uname, req.slipType, req.amount, req.totalOdds, req.potentialWin, date_str))
@@ -180,32 +188,28 @@ async def confirm_sports_bet(req: BetRequest):
     conn.close()
     return {"status": "success", "betId": random_id, "newBalance": new_balance}
 
-# 📑 مسار جلب سجل التذاكر الخاص بكل لاعب من قاعدة البيانات
+# 📑 مسار جلب سجل التذاكر الخاص بكل لاعب
 @app.get("/api/bets/history/{username}")
 async def get_bet_history(username: str):
     uname = username.strip().lower()
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    
     cursor.execute("SELECT * FROM bets WHERE username = ? ORDER BY date DESC", (uname,))
     bets_rows = cursor.fetchall()
-    
     history = []
     for bet in bets_rows:
         cursor.execute("SELECT match_id as matchId, match_name as matchName, prediction, odds, league_name as leagueName FROM bet_selections WHERE bet_id = ?", (bet["bet_id"],))
         selections = [dict(row) for row in cursor.fetchall()]
-        
         history.append({
             "betId": bet["bet_id"], "username": bet["username"], "slipType": bet["slip_type"],
             "amount": bet["amount"], "totalOdds": bet["total_odds"], "potentialWin": bet["potential_win"],
             "date": bet["date"], "status": bet["status"], "selections": selections
         })
-        
     conn.close()
     return history
 
-# 👑 مسار الأدمن: جلب كافة التذاكر لإدارتها وحسمها
+# 👑 مسار الإدارة لجلب التذاكر وحسمها وشحن الرصيد
 @app.get("/api/admin/bets")
 async def admin_get_all_bets():
     conn = sqlite3.connect(DB_FILE)
@@ -213,7 +217,6 @@ async def admin_get_all_bets():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM bets ORDER BY date DESC")
     bets_rows = cursor.fetchall()
-    
     all_bets = []
     for bet in bets_rows:
         cursor.execute("SELECT match_id as matchId, match_name as matchName, prediction, odds, league_name as leagueName FROM bet_selections WHERE bet_id = ?", (bet["bet_id"],))
@@ -226,7 +229,6 @@ async def admin_get_all_bets():
     conn.close()
     return all_bets
 
-# 👑 مسار الأدمن: حسم التذكرة أو شحن الرصيد الفعلي في قاعدة البيانات
 @app.post("/api/admin/bets/settle")
 async def admin_settle_bet(req: UpdateBetStatusRequest):
     if req.adminUsername.strip().lower() != "fethi":
@@ -235,7 +237,6 @@ async def admin_settle_bet(req: UpdateBetStatusRequest):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     
-    # 💰 معالجة الشحن الفوري من لوحة التحكم admin.html
     if req.betId == "RECHARGE":
         try:
             target_player, amount_to_charge = req.newStatus.split(":")
@@ -248,15 +249,13 @@ async def admin_settle_bet(req: UpdateBetStatusRequest):
             conn.close()
             raise HTTPException(status_code=400, detail="Format de recharge invalide")
 
-    # 🧾 معالجة حسم تذاكر المباريات
     cursor.execute("SELECT status, username, potential_win FROM bets WHERE bet_id = ?", (req.betId,))
     bet = cursor.fetchone()
     if not bet or bet[0] != "En cours":
         conn.close()
-        raise HTTPException(status_code=400, detail="Ticket déjà traité أو غير موجود")
+        raise HTTPException(status_code=400, detail="Ticket déjà traité")
         
     cursor.execute("UPDATE bets SET status = ? WHERE bet_id = ?", (req.newStatus, req.betId))
-    
     if req.newStatus == "Gagné":
         cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (bet[2], bet[1]))
         
@@ -264,6 +263,68 @@ async def admin_settle_bet(req: UpdateBetStatusRequest):
     conn.close()
     return {"status": "success", "updatedBet": {"username": bet[1], "potentialWin": bet[2]}}
 
+
+# =========================================================================
+# 🎰 🎰 مـسارات الـ WEBHOOKS الـدولـية لـربـط مـزودي الألـعـاب (Seamless Wallet API)
+# =========================================================================
+
+# 1. مسار تحقق شركة الألعاب من رصيد اللاعب الفعلي داخل موقعك
+@app.post("/api/casino/balance")
+async def casino_get_balance(req: ProviderBalanceRequest):
+    uname = req.username.strip().lower()
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT balance FROM users WHERE username = ?", (uname,))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="Joueur non trouvé")
+    
+    # نرد على السيرفر الدولي بالصيغة المعتمدة لـ Hub88 / Softswiss
+    return {"username": uname, "balance": user[0], "currency": "USDT", "status": "OK"}
+
+# 2. مسار معالجة حركات الرهان والربح التلقائية داخل اللعبة
+@app.post("/api/casino/transaction")
+async def casino_process_transaction(req: ProviderTransactionRequest):
+    uname = req.username.strip().lower()
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT balance FROM users WHERE username = ?", (uname,))
+    user = cursor.fetchone()
+    if not user:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Joueur non trouvé")
+        
+    current_balance = user[0]
+    
+    if req.type == "bet":
+        # خصم الرهان (اللاعب يدور العجلة أو يلعب سحب)
+        if current_balance < req.amount:
+            conn.close()
+            return {"status": "ERROR_INSUFFICIENT_FUNDS", "balance": current_balance, "error": "Solde insuffisant"}
+        new_balance = current_balance - req.amount
+    elif req.type == "win":
+        # إضافة الربح (اللاعب حقق فوزاً داخل اللعبة)
+        new_balance = current_balance + req.amount
+    else:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Type de transaction inconnu")
+        
+    # تحديث محفظة اللاعب فوراً في قاعدة البيانات الحقيقية
+    cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, uname))
+    conn.commit()
+    conn.close()
+    
+    return {
+        "status": "OK",
+        "transaction_id": req.transaction_id,
+        "username": uname,
+        "balance": new_balance,
+        "currency": "USDT"
+    }
+
 @app.get("/")
 async def root():
-    return {"status": "Alpha SQLite Database Engine is running perfectly!"}
+    return {"status": "Alpha SQLite Database & Casino Webhook Engine is running perfectly!"}
