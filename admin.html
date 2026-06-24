@@ -19,7 +19,6 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
-    <!-- القائمة الجانبية الرسمية المتكاملة لـ MENU DE GESTION -->
     <aside class="w-full md:w-72 bg-[#090d1a] border-b md:border-b-0 md:border-r border-slate-800/80 p-5 flex flex-col justify-between shrink-0 h-auto md:h-screen z-40 shadow-2xl">
         <div class="space-y-6">
             <div class="bg-[#0b101f] border border-slate-800 rounded-xl p-3 flex items-center justify-between">
@@ -59,7 +58,6 @@
         </div>
     </aside>
 
-    <!-- منطقة العرض المركزية الكبرى -->
     <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
         <header class="bg-[#0b101f]/90 border-b border-slate-800/60 p-4 flex justify-between items-center shadow-md shrink-0">
             <div class="flex items-center gap-3">
@@ -70,27 +68,22 @@
 
         <main class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar space-y-6">
 
-            <!-- كروت ومؤشرات الأداء المحدثة ماليّاً -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div class="bg-[#0b101f]/60 border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
                     <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Solde Admin (رصيدك الحالي للتوزيع)</span>
                     <span class="text-xl font-mono font-black text-emerald-400 mt-1" id="stat-admin-balance">$0.00</span>
                 </div>
-                <div class="bg-[#0b101f]/60 border border-slate-800 p-4 rounded-xl">
-                    <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Super Owner Shunting</span>
-                    <button onclick="triggerSuperOwnerMockCharge()" class="mt-2 w-full bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-400 font-bold text-[10px] py-1.5 rounded-lg transition-all cursor-pointer">
-                        ⚡ طلب شحن رصيد من Super Owner
-                    </button>
-                </div>
-                <div class="bg-[#0b101f]/60 border border-slate-800 p-4 rounded-xl">
+                <div class="bg-[#0b101f]/60 border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
                     <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Engine Status</span>
-                    <span class="text-[10px] font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded inline-block mt-2 font-mono">FINANCE PRO CONTROL</span>
+                    <span class="text-[10px] font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded inline-block mt-2 font-mono max-w-max">FINANCE PRO CONTROL</span>
+                </div>
+                <div class="bg-[#0b101f]/60 border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Server Location</span>
+                    <span class="text-xs font-black text-white font-mono mt-2 block">Tunisia (TN)</span>
                 </div>
             </div>
 
-            <!-- التبويب الأول: الحسابات والتحويلات المالية -->
             <div id="panel-sec-compte" class="admin-main-view space-y-6">
-                <!-- كرت تفريع حساب جديد -->
                 <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-4">
                     <h3 class="text-xs font-black text-slate-300 flex items-center gap-2">🕹️ إنشاء حساب لاعب أو محل جديد</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-bold">
@@ -113,7 +106,6 @@
                     <button onclick="createNewAccountReal()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-black text-xs px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md">تثبيت وإنشاء</button>
                 </section>
 
-                <!-- جدول إدارة الأرصدة التابعة للآدمين -->
                 <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
                     <div class="bg-gradient-to-r from-cyan-500/20 to-transparent p-4 border-b border-slate-800/60 flex justify-between items-center flex-wrap gap-2">
                         <h3 class="text-xs font-black text-white flex items-center gap-2">📋 إدارة المحلات واللاعبين التابعين لك</h3>
@@ -135,20 +127,17 @@
                                 </tr>
                             </thead>
                             <tbody id="users-table-body" class="divide-y divide-slate-900/60">
-                                <!-- تضاف قائمة الحسابات ديناميكياً هنا -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </section>
             </div>
 
-            <!-- التبويب الثاني: سجل الرهانات الرياضية للتحكم الفوري والحسم -->
             <div id="panel-sec-sport" class="admin-main-view space-y-4 hidden">
                 <div class="text-xs text-slate-400 font-bold uppercase tracking-wide px-1">⚽ Tickets de sport actifs en attente :</div>
                 <div id="admin-container" class="grid grid-cols-1 gap-3"></div>
             </div>
 
-            <!-- التبويب الثالث: سجل تفاعلات الكازينو -->
             <div id="panel-sec-casino" class="admin-main-view space-y-4 hidden">
                 <div class="text-xs text-slate-400 font-bold uppercase tracking-wide px-1">🎰 معاملات الكازينو الحية (Hub88 Webhook Tracker) :</div>
                 <div class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl p-4 space-y-3" id="casino-logs-container">
@@ -159,7 +148,6 @@
                 </div>
             </div>
 
-            <!-- التبويب الرابع: سجل تفصيلي للتحويلات المالية والشحن والسحب -->
             <div id="panel-sec-transfert" class="admin-main-view space-y-4 hidden">
                 <div class="text-xs text-slate-400 font-bold uppercase tracking-wide px-1">💸 أرشيف المعاملات المالية التاريخي للشبكة :</div>
                 <div class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
@@ -179,7 +167,6 @@
                 </div>
             </div>
 
-            <!-- التبويب الخامس: تغيير كلمة مرور المشرف الإداري -->
             <div id="panel-sec-security" class="admin-main-view max-w-md mx-auto hidden">
                 <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
                     <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">🔑 Modifier le mot de passe Administrateur</h4>
@@ -196,7 +183,7 @@
 
     <script>
         const BACKEND_URL = "https://alpha-core-fl0v.onrender.com";
-        let adminCurrentBalance = 5000.00; // رصيد الآدمين الأولي (fethi) القابل للتوزيع الخاضع للخصم الإداري
+        let adminCurrentBalance = 5000.00; // رصيدك الفعلي للتوزيع، يتأثر بالخصم والزيادة الحقيقية عند شحن وسحب أرصدة الوكلاء واللاعبين
         let localAccountsList = [
             { username: "marwa_shop", role: "user", balance: 1200.00 },
             { username: "imane_player", role: "player", balance: 350.00 }
@@ -211,22 +198,6 @@
             toast.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 2500);
-        }
-
-        // دالة محاكاة شحن السوبر أونر للآدمين مباشرة
-        async function triggerSuperOwnerMockCharge() {
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/bets/settle`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminUsername: "fethi", betId: "RECHARGE", newStatus: "fethi:10000" })
-                });
-                if(res.ok) {
-                    showNotification('تمت موافقة Super Owner! تمت إضافة $10,000.00 لرصيدك الإداري.');
-                    adminCurrentBalance += 10000;
-                    updateAdminTopStats();
-                }
-            } catch(e) { showNotification('عطل في الاتصال', 'error'); }
         }
 
         function updateAdminTopStats() {
@@ -264,7 +235,6 @@
             } catch(e) {}
         }
 
-        // دالة المعاملات المالية المعتمدة على رصيد الآدمين المتوفر
         async function handleAdminFinanceAction(type) {
             const targetUser = document.getElementById('action-target-user').value.trim().toLowerCase();
             let amount = parseFloat(document.getElementById('action-amount').value);
@@ -272,7 +242,7 @@
             if(!targetUser || isNaN(amount) || amount <= 0) return showNotification('بيانات غير صحيحة', 'error');
 
             if(type === 'charge' && adminCurrentBalance < amount) {
-                return showNotification('رصيدك الإداري الحالي غير كافٍ! يرجى الشحن من السوبر أونر أولاً', 'error');
+                return showNotification('رصيدك الإداري الحالي غير كافٍ!', 'error');
             }
 
             const finalAmount = type === 'withdraw' ? -amount : amount;
@@ -323,6 +293,7 @@
         }
 
         function selectUserForAction(username) { document.getElementById('action-target-user').value = username; }
+        function changeLanguage(lang) { }
         function changeAdminLanguage(lang) { document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'; }
         function logoutAdmin() { window.location.href = 'index.html'; }
 
