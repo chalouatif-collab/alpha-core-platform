@@ -55,57 +55,56 @@
                     <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center transform rotate-45">
                         <span class="text-slate-950 font-black text-base transform -rotate-45">A</span>
                     </div>
-                    <h1 class="text-lg font-black tracking-widest text-white font-sans">
-                        Alphabet
-                    </h1>
+                    <h1 class="text-lg font-black tracking-widest text-white font-sans">Alphabet</h1>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white font-bold text-lg cursor-pointer">✕</button>
             </div>
             
-           <nav class="space-y-1 font-bold text-xs tracking-wide max-h-[70vh] overflow-y-auto no-scrollbar" id="sidebar-nav-list">
-    <button onclick="switchTab('accueil');" class="w-full flex items-center gap-3 bg-slate-800/30 text-slate-300 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-        🏠 <span data-i18n="menu_accueil">Accueil</span>
-    </button>
-    <button onclick="switchTab('sport');" class="w-full flex items-center justify-between text-slate-400 p-3.5 rounded-xl transition-all cursor-pointer">
-        <div class="flex items-center gap-3">🏆 <span data-i18n="menu_sport">Sport</span></div>
-    </button>
-    <button onclick="switchTab('mes-paris');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-        <div class="flex items-center justify-between w-full">
-            <div class="flex items-center gap-3">📑 <span data-i18n="menu_history">Mes Paris</span></div>
-            <span id="nav-bets-count" class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full text-[10px]">0</span>
-        </div>
-    </button>
-    <button id="admin-nav-btn" onclick="switchTab('admin-panel');" class="w-full flex items-center gap-3 text-amber-400 bg-amber-500/5 border border-amber-500/10 p-3.5 rounded-xl transition-all cursor-pointer hidden">
-        👑 <span data-i18n="menu_admin">لوحة الإدارة</span>
-    </button>
-    <button onclick="switchTab('casino');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-        🎰 <span data-i18n="menu_casino">Le casino</span>
-    </button>
-    <button onclick="switchTab('live-casino');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-        👤 <span data-i18n="menu_live_casino">Casino en direct</span>
-    </button>
-    <button onclick="switchTab('crash');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-        🚀 <span data-i18n="menu_crash">Jeux de crash</span>
-    </button>
-    <button onclick="switchTab('top');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-        🔥 <span data-i18n="menu_top">Meilleurs jeux</span>
-    </button>
-    <button onclick="switchTab('promo');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-        🎁 <span data-i18n="menu_promo">Promotions</span>
-    </button>
-    
-   <div class="relative w-full">
+            <nav class="space-y-1 font-bold text-xs tracking-wide max-h-[70vh] overflow-y-auto no-scrollbar" id="sidebar-nav-list">
+                <button onclick="switchTab('accueil');" class="w-full flex items-center gap-3 bg-slate-800/30 text-slate-300 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
+                    🏠 <span data-i18n="menu_accueil">Accueil</span>
+                </button>
+                <button onclick="switchTab('sport');" class="w-full flex items-center justify-between text-slate-400 p-3.5 rounded-xl transition-all cursor-pointer">
+                    <div class="flex items-center gap-3">🏆 <span data-i18n="menu_sport">Sport</span></div>
+                </button>
+                <button onclick="switchTab('mes-paris');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
+                    <div class="flex items-center justify-between w-full">
+                        <div class="flex items-center gap-3">📑 <span data-i18n="menu_history">Mes Paris</span></div>
+                        <span id="nav-bets-count" class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full text-[10px]">0</span>
+                    </div>
+                </button>
+                <button id="admin-nav-btn" onclick="switchTab('admin-panel');" class="w-full flex items-center gap-3 text-amber-400 bg-amber-500/5 border border-amber-500/10 p-3.5 rounded-xl transition-all cursor-pointer hidden">
+                    👑 <span data-i18n="menu_admin">لوحة الإدارة</span>
+                </button>
+                <button onclick="switchTab('casino');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
+                    🎰 <span data-i18n="menu_casino">Le casino</span>
+                </button>
+                <button onclick="switchTab('live-casino');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
+                    👤 <span data-i18n="menu_live_casino">Casino en direct</span>
+                </button>
+                <button onclick="switchTab('crash');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
+                    🚀 <span data-i18n="menu_crash">Jeux de crash</span>
+                </button>
+                <button onclick="switchTab('top');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
+                    🔥 <span data-i18n="menu_top">Meilleurs jeux</span>
+                </button>
+                <button onclick="switchTab('promo');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
+                    🎁 <span data-i18n="menu_promo">Promotions</span>
+                </button>
+                
+                <div class="relative w-full">
                     <button onclick="document.getElementById('lang-dropdown').classList.toggle('hidden')" class="w-full flex items-center justify-between text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
                         <div class="flex items-center gap-3">💬 <span data-i18n="menu_langue">Langue</span></div>
                         <span class="text-[9px]" id="lang-arrow">▼</span>
                     </button>
                     <div id="lang-dropdown" class="hidden absolute left-0 right-0 bottom-full mb-1 bg-[#0b101f] border border-slate-800 rounded-xl p-1.5 shadow-2xl z-50 space-y-1">
-                        <button onclick="changeLanguage('fr')" class="w-full text-left p-2 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 block">Français (FR)</button>
-                        <button onclick="changeLanguage('ar')" class="w-full text-left p-2 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 block">العربية (AR)</button>
-                        <button onclick="changeLanguage('en')" class="w-full text-left p-2 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 block">English (EN)</button>
-      </div>
-</nav>
-            
+                        <button onclick="changeLanguage('fr')" class="w-full text-left p-2 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 block cursor-pointer">Français (FR)</button>
+                        <button onclick="changeLanguage('ar')" class="w-full text-left p-2 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 block cursor-pointer">العربية (AR)</button>
+                        <button onclick="changeLanguage('en')" class="w-full text-left p-2 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 block cursor-pointer">English (EN)</button>
+                    </div>
+                </div>
+            </nav>
+        </div>
 
         <div class="border-t border-slate-800/80 pt-4 space-y-2 text-[10px] font-bold text-slate-500 text-center">
             <p class="hover:text-slate-400 transition-all cursor-pointer" data-i18n="foot_responsible">Jouez De Façon Responsable</p>
@@ -143,9 +142,7 @@
                     <span class="text-[9px] md:text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded-lg font-bold animate-pulse" data-i18n="sportsbook_live">LIVE ODDS</span>
                 </div>
                 <div class="grid grid-cols-1 gap-3" id="sports-container">
-                    <div class="text-center p-8 text-slate-500 text-xs font-bold uppercase tracking-wider animate-pulse">
-                        Chargement des matchs en direct...
-                    </div>
+                    <div class="text-center p-8 text-slate-500 text-xs font-bold uppercase tracking-wider animate-pulse">Chargement des matchs en direct...</div>
                 </div>
             </div>
 
@@ -188,7 +185,7 @@
         </main>
     </div>
 
-    <div id="bet-slip-panel" class="fixed bottom-0 right-0 top-auto md:top-0 h-[60vh] md:h-screen w-full md:w-80 bg-[#090d1a] border-t md:border-t-0 md:border-l border-slate-800 z-50 flex flex-col justify-between rounded-t-3xl md:rounded-t-none" style="transform: translateY(100%); md:transform: translateX(100%);">
+    <div id="bet-slip-panel" class="fixed bottom-0 right-0 top-auto md:top-0 h-[60vh] md:h-screen w-full md:w-80 bg-[#090d1a] border-t md:border-t-0 md:border-l border-slate-800 z-50 flex flex-col justify-between rounded-t-3xl md:rounded-t-none" style="transform: translateY(100%);">
         <div>
             <div class="p-4 bg-[#0b101f] border-b border-slate-800 flex justify-between items-center rounded-t-3xl md:rounded-t-none">
                 <div class="flex items-center gap-2">
@@ -211,7 +208,7 @@
                 <span class="text-slate-400" data-i18n="slip_total_est">Gains Estimés:</span>
                 <span class="text-emerald-400 text-sm font-black font-mono" id="slip-potential-payout">$0.00</span>
             </div>
-            <button onclick="confirmSportsBet()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black p-3 rounded-xl transition-all text-xs uppercase" data-i18n="slip_confirm_btn">Confirmer le Pari</button>
+            <button onclick="confirmSportsBet()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black p-3 rounded-xl transition-all text-xs uppercase cursor-pointer" data-i18n="slip_confirm_btn">Confirmer le Pari</button>
         </div>
     </div>
 
@@ -263,13 +260,7 @@
 
         function toggleMobileSidebar() {
             const menu = document.getElementById('sidebar-menu');
-            if (menu.classList.contains('-translate-x-full')) {
-                menu.classList.remove('-translate-x-full');
-                menu.classList.add('translate-x-0');
-            } else {
-                menu.classList.remove('translate-x-0');
-                menu.classList.add('-translate-x-full');
-            }
+            menu.classList.toggle('-translate-x-full');
         }
 
         function openAuthModal(mode = 'login') {
@@ -299,31 +290,22 @@
         function changeLanguage(lang) {
             localStorage.setItem('alpha_lang', lang);
             document.documentElement.lang = lang;
-            
-            // قلب اتجاه الموقع كاملاً لتظهر العربية بشكل صحيح من اليمين لليسار
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            
-            // تحديث كافة النصوص المترجمة بداخل الموقع فوراً
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.getAttribute('data-i18n');
-                if(translations[lang]?.[key]) {
-                    element.innerText = translations[lang][key];
-                }
+                if(translations[lang]?.[key]) element.innerText = translations[lang][key];
             });
-            
-            // إغلاق قائمة الموبايل الجانبية تلقائياً لتسهيل تجربة المستخدم
-            if (window.innerWidth < 768) {
-                const menu = document.getElementById('sidebar-menu');
-                menu.classList.add('-translate-x-full');
-                menu.classList.remove('translate-x-0');
-            }
-            
-            toggleLangDropdown();
+            document.getElementById('lang-dropdown').classList.add('hidden');
         }
 
-        function toggleLangDropdown() { 
-            document.getElementById('lang-dropdown').classList.toggle('hidden'); 
-        }
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = `p-3 rounded-xl shadow-2xl border text-xs font-bold text-slate-900 flex items-center gap-2 ${type === 'success' ? 'bg-gradient-to-r from-emerald-400 to-teal-400 border-emerald-500' : 'bg-gradient-to-r from-rose-400 to-amber-400 border-rose-500'}`;
+            toast.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
         }
 
         async function fetchAndRenderSports() {
@@ -345,14 +327,16 @@
                                     <span class="text-xs font-black text-white">${match.home_team} <span class="text-slate-500 font-normal">vs</span> ${match.away_team}</span>
                                 </div>
                                 <div class="flex items-center gap-2 w-full md:w-auto justify-center md:justify-end">
-                                    <button data-bet-btn data-id="${match.id}" data-match="${match.home_team} vs ${match.away_team}" data-prediction="1" data-odds="${homeOdds}" data-league="${match.sport_title}" class="flex-1 md:flex-initial bg-[#04060c] border border-slate-800 p-2 rounded-xl text-center min-w-[65px] font-mono text-amber-400 text-xs font-bold">${homeOdds}</button>
-                                    <button data-bet-btn data-id="${match.id}" data-match="${match.home_team} vs ${match.away_team}" data-prediction="X" data-odds="${drawOdds}" data-league="${match.sport_title}" class="flex-1 md:flex-initial bg-[#04060c] border border-slate-800 p-2 rounded-xl text-center min-w-[65px] font-mono text-amber-400 text-xs font-bold">${drawOdds}</button>
-                                    <button data-bet-btn data-id="${match.id}" data-match="${match.home_team} vs ${match.away_team}" data-prediction="2" data-odds="${awayOdds}" data-league="${match.sport_title}" class="flex-1 md:flex-initial bg-[#04060c] border border-slate-800 p-2 rounded-xl text-center min-w-[65px] font-mono text-amber-400 text-xs font-bold">${awayOdds}</button>
+                                    <button data-bet-btn data-id="${match.id}" data-match="${match.home_team} vs ${match.away_team}" data-prediction="1" data-odds="${homeOdds}" data-league="${match.sport_title}" class="flex-1 md:flex-initial bg-[#04060c] border border-slate-800 p-2 rounded-xl text-center min-w-[65px] font-mono text-amber-400 text-xs font-bold cursor-pointer">${homeOdds}</button>
+                                    <button data-bet-btn data-id="${match.id}" data-match="${match.home_team} vs ${match.away_team}" data-prediction="X" data-odds="${drawOdds}" data-league="${match.sport_title}" class="flex-1 md:flex-initial bg-[#04060c] border border-slate-800 p-2 rounded-xl text-center min-w-[65px] font-mono text-amber-400 text-xs font-bold cursor-pointer">${drawOdds}</button>
+                                    <button data-bet-btn data-id="${match.id}" data-match="${match.home_team} vs ${match.away_team}" data-prediction="2" data-odds="${awayOdds}" data-league="${match.sport_title}" class="flex-1 md:flex-initial bg-[#04060c] border border-slate-800 p-2 rounded-xl text-center min-w-[65px] font-mono text-amber-400 text-xs font-bold cursor-pointer">${awayOdds}</button>
                                 </div>
                             </div>`;
                     }).join('');
+                } else {
+                    container.innerHTML = `<div class="text-center p-6 text-slate-500">Aucun match disponible pour le moment</div>`;
                 }
-            } catch (e) { container.innerHTML = `<div class="text-center p-6 text-rose-500 text-xs font-bold">Erreur de connexion</div>`; }
+            } catch (e) { container.innerHTML = `<div class="text-center p-6 text-rose-500 text-xs font-bold">Erreur de connexion au serveur</div>`; }
         }
 
         function filterCasinoGames(filterType = 'all') {
@@ -366,7 +350,7 @@
                     <div class="bg-gradient-to-br ${game.color} h-20 md:h-24 flex items-center justify-center text-2xl select-none"><span>${game.emoji}</span></div>
                     <div class="p-2 md:p-3 space-y-2">
                         <h4 class="text-[11px] font-black text-white truncate">${game.title}</h4>
-                        <button onclick="handleCasinoPlayClick('${game.title}')" class="w-full bg-[#04060c] hover:bg-emerald-500 hover:text-slate-950 text-slate-300 text-[10px] font-black py-2 rounded-xl border border-slate-800 transition-all">Jouer</button>
+                        <button onclick="handleCasinoPlayClick('${game.title}')" class="w-full bg-[#04060c] hover:bg-emerald-500 hover:text-slate-950 text-slate-300 text-[10px] font-black py-2 rounded-xl border border-slate-800 transition-all cursor-pointer">Jouer</button>
                     </div>
                 </div>`).join('');
         }
@@ -389,7 +373,6 @@
             } else {
                 activeBetsList.push(newBet);
             }
-            
             renderBetSlipUI();
         });
 
@@ -397,7 +380,7 @@
             const panel = document.getElementById('bet-slip-panel');
             const container = document.getElementById('slip-items-container');
             if (activeBetsList.length === 0) { 
-                panel.style.transform = window.innerWidth < 768 ? "translateY(100%)" : "translateX(100%)"; 
+                panel.style.transform = "translateY(100%)"; 
                 return; 
             }
             document.getElementById('slip-title-text').innerText = `BETSLIP (${activeBetsList.length})`;
@@ -408,13 +391,10 @@
                     <p class="text-amber-400 font-bold">Cote: ${bet.odds}</p>
                 </div>`).join('');
             calculatePotentialPayout();
-            panel.style.transform = window.innerWidth < 768 ? "translateY(0%)" : "translateX(0%)";
+            panel.style.transform = "translateY(0%)";
         }
 
-        function closeBetSlip() { 
-            const panel = document.getElementById('bet-slip-panel');
-            panel.style.transform = window.innerWidth < 768 ? "translateY(100%)" : "translateX(100%)"; 
-        }
+        function closeBetSlip() { document.getElementById('bet-slip-panel').style.transform = "translateY(100%)"; }
         
         function calculatePotentialPayout() {
             if (activeBetsList.length === 0) return;
@@ -424,7 +404,6 @@
             document.getElementById('slip-potential-payout').innerText = `$${(amt * totalOdds).toFixed(2)}`;
         }
 
-        // جلب سجل المراهنات المحدث للباكيند وعرضه فوراً
         async function fetchAndRenderHistory() {
             if (!currentUser) return;
             const container = document.getElementById('history-container');
@@ -460,9 +439,10 @@
                     currentUser.balance -= amt;
                     document.getElementById('nav-balance').innerText = `$${parseFloat(currentUser.balance).toFixed(2)}`;
                     localStorage.setItem('alpha_user', JSON.stringify(currentUser));
-                    fetchAndRenderHistory(); // تحديث قائمة رهاناتي فوراً
+                    fetchAndRenderHistory();
+                } else { 
+                    showNotification('Solde insuffisant !', 'error'); 
                 }
-                else { showNotification('Solde insuffisant !', 'error'); }
             } catch(e) {}
         }
 
@@ -475,12 +455,6 @@
             document.getElementById('admin-grid').classList.add('hidden');
             document.getElementById('casino-grid').classList.add('hidden');
 
-            if (window.innerWidth < 768) {
-                const menu = document.getElementById('sidebar-menu');
-                menu.classList.add('-translate-x-full');
-                menu.classList.remove('translate-x-0');
-            }
-
             if (tabName === 'mes-paris') { 
                 document.getElementById('history-grid').classList.remove('hidden');
                 fetchAndRenderHistory();
@@ -492,7 +466,10 @@
                 else if (tabName === 'crash') filterCasinoGames('crash');
                 else if (tabName === 'top') filterCasinoGames('slots');
                 else filterCasinoGames('all');
-            } else { document.getElementById('games-grid').classList.remove('hidden'); fetchAndRenderSports(); }
+            } else { 
+                document.getElementById('games-grid').classList.remove('hidden'); 
+                fetchAndRenderSports(); 
+            }
         }
 
         async function handleUnifiedAuth() {
@@ -540,6 +517,7 @@
             const savedLang = localStorage.getItem('alpha_lang') || 'fr';
             changeLanguage(savedLang);
             fetchAndRenderSports();
+            filterCasinoGames('all');
             const savedUser = localStorage.getItem('alpha_user');
             if(savedUser) { 
                 currentUser = JSON.parse(savedUser); 
