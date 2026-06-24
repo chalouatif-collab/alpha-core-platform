@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-[#0f172a] text-slate-200 min-h-screen p-4 relative">
-
     <!-- نظام الإشعارات الذكي المدمج (Toast) -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
@@ -214,10 +213,10 @@
         function showNotification(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `p-4 rounded-xl shadow-2xl border text-xs font-bold text-slate-950 transition-all duration-300 transform translate-y-2 opacity-0 flex items-center gap-2 ${
+            toast.className = `p-4 rounded-xl shadow-2xl border text-xs font-bold text-slate-950 transition-all duration-300 transform translate-y-2 opacity-0 flex items-center gap-2 tnd{
                 type === 'success' ? 'bg-emerald-400 border-emerald-500' : 'bg-rose-400 border-rose-500'
             }`;
-            toast.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
+            toast.innerHTML = type === 'success' ? `✅ tnd{message}` : `❌ tnd{message}`;
             container.appendChild(toast);
             setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
             setTimeout(() => {
@@ -228,7 +227,7 @@
 
         async function loadNetworkData() {
             try {
-                const uRes = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
+                const uRes = await fetch(`tnd{BACKEND_URL}/api/admin/users?admin_username=tnd{user.username}`);
                 if(uRes.ok){
                     const users = await uRes.json();
                     const tbody = document.getElementById('owner-network-tbody'); tbody.innerHTML = '';
@@ -239,13 +238,13 @@
                         
                         tbody.innerHTML += `
                             <tr class="border-b border-slate-800/40 hover:bg-slate-800/20">
-                                <td class="p-3 text-white font-bold">${u.username}</td>
-                                <td class="p-3 text-rose-400 font-mono font-bold text-xs">${u.role.toUpperCase()}</td>
-                                <td class="p-3 text-center font-bold text-cyan-400 font-mono">${u.rtp}%</td>
-                                <td class="p-3 text-center">${statusBadge}</td>
-                                <td class="p-3 text-slate-400 text-xs">${u.created_by}</td>
-                                <td class="p-3 text-[#10b981] font-mono font-bold text-right">$${parseFloat(u.balance).toFixed(2)}</td>
-                                <td class="p-3 text-center"><button onclick="selectForControl('${u.username}', ${u.rtp})" class="text-xs bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-slate-950 px-2.5 py-1 rounded font-bold cursor-pointer">🎯 Control</button></td>
+                                <td class="p-3 text-white font-bold">tnd{u.username}</td>
+                                <td class="p-3 text-rose-400 font-mono font-bold text-xs">tnd{u.role.toUpperCase()}</td>
+                                <td class="p-3 text-center font-bold text-cyan-400 font-mono">tnd{u.rtp}%</td>
+                                <td class="p-3 text-center">tnd{statusBadge}</td>
+                                <td class="p-3 text-slate-400 text-xs">tnd{u.created_by}</td>
+                                <td class="p-3 text-[#10b981] font-mono font-bold text-right">tnd{parseFloat(u.balance).toFixed(2)}</td>
+                                <td class="p-3 text-center"><button onclick="selectForControl('tnd{u.username}', tnd{u.rtp})" class="text-xs bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-slate-950 px-2.5 py-1 rounded font-bold cursor-pointer">🎯 Control</button></td>
                             </tr>`;
                     });
                 }
@@ -271,12 +270,12 @@
             if (type === 'transfert') {
                 headers.innerHTML = `<th class="p-2">Expéditeur</th><th class="p-2">Bénéficiaire</th><th class="p-2">Action</th><th class="p-2 text-right">Montant</th>`;
                 try {
-                    const res = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
+                    const res = await fetch(`tnd{BACKEND_URL}/api/admin/users?admin_username=tnd{user.username}`);
                     if(res.ok) {
                         const users = await res.json();
                         users.forEach(u => {
                             if(u.balance > 0 || u.username === 'samir') {
-                                body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-emerald-400 font-bold">Créditer</td><td class="p-2 text-right font-bold text-cyan-400">$${parseFloat(u.balance).toFixed(2)}</td></tr>`;
+                                body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">tnd{u.username}</td><td class="p-2 text-emerald-400 font-bold">Créditer</td><td class="p-2 text-right font-bold text-cyan-400">$${parseFloat(u.balance).toFixed(2)}</td></tr>`;
                                 if(u.username === 'samir') {
                                     body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">samir</td><td class="p-2 text-rose-500 font-bold">Retirer</td><td class="p-2 text-right font-bold text-rose-400">$4999.00</td></tr>`;
                                 }
@@ -287,11 +286,11 @@
             } else if (type === 'compte') {
                 headers.innerHTML = `<th class="p-2">Compte Creé</th><th class="p-2">Rôle système</th><th class="p-2 text-right">Créateur</th>`;
                 try {
-                    const res = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
+                    const res = await fetch(`tnd{BACKEND_URL}/api/admin/users?admin_username=tnd{user.username}`);
                     if(res.ok) {
                         const users = await res.json();
                         users.forEach(u => {
-                            body.innerHTML += `<tr><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-rose-400">${u.role.toUpperCase()}</td><td class="p-2 text-right">${u.created_by}</td></tr>`;
+                            body.innerHTML += `<tr><td class="p-2 text-white font-bold">tnd{u.username}</td><td class="p-2 text-rose-400">tnd{u.role.toUpperCase()}</td><td class="p-2 text-right">tnd{u.created_by}</td></tr>`;
                         });
                     }
                 } catch(e){}
@@ -319,7 +318,7 @@
         async function submitNewPassword() {
             const new_password = document.getElementById('new-sys-pass').value;
             if(!new_password) return showNotification('Veuillez introduire un mot de passe!', 'error');
-            const res = await fetch(`${BACKEND_URL}/api/user/change-password`, {
+            const res = await fetch(`tnd{BACKEND_URL}/api/user/change-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: user.username, new_password })
@@ -335,7 +334,7 @@
             const target_username = document.getElementById('ctrl-target-user').value;
             const rtp = parseInt(document.getElementById('ctrl-rtp-range').value);
             if(!target_username) return showNotification('Sélectionnez un compte d\'abord!', 'error');
-            const res = await fetch(`${BACKEND_URL}/api/admin/configure-account`, {
+            const res = await fetch(`tnd{BACKEND_URL}/api/admin/configure-account`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ admin_username: user.username, target_username, rtp, is_blocked: blockStatus })
@@ -346,7 +345,7 @@
         async function deleteAccountAction() {
             const target_username = document.getElementById('ctrl-target-user').value;
             if(!target_username) return showNotification('Sélectionnez un compte!', 'error');
-            const res = await fetch(`${BACKEND_URL}/api/admin/delete-account?admin_username=${user.username}&target_username=${target_username}`, {
+            const res = await fetch(`tnd{BACKEND_URL}/api/admin/delete-account?admin_username=tnd{user.username}&target_username=tnd{target_username}`, {
                 method: 'DELETE'
             });
             if(res.ok) { showNotification('Compte supprimé!'); setTimeout(() => location.reload(), 800); }
@@ -359,7 +358,7 @@
             const amount = amountInput ? parseFloat(amountInput) : 0;
             if(amount <= 0) return showNotification('Veuillez introduire un montant valide!', 'error');
 
-            const res = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
+            const res = await fetch(`tnd{BACKEND_URL}/api/admin/update-balance`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ admin_username: user.username, target_username, action, amount })
@@ -372,7 +371,7 @@
             const password = document.getElementById('new-user-pass').value;
             const role = document.getElementById('new-user-role').value;
             if(!username || !password) return showNotification('Remplir tous les champs!', 'error');
-            const res = await fetch(`${BACKEND_URL}/api/register`, {
+            const res = await fetch(`tnd{BACKEND_URL}/api/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password, role, created_by: user.username })
