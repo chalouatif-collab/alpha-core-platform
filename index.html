@@ -243,7 +243,7 @@
                 menu_accueil: "الرئيسية", menu_sport: "الرياضة", menu_history: "رهاناتي الحاليّة", menu_casino: "الكازينو", menu_live_casino: "الكازينو المباشر",
                 menu_crash: "ألعاب الكراش", menu_top: "أفضل الألعاب", menu_promo: "العروض الترويجية", menu_langue: "اللغة", foot_responsible: "العب بمسؤولية ووعي مالي",
                 foot_terms: "الشروط والأحكام العامة للشبكة", header_solde: "الرصيد المتاح:", header_logout: "خروج", sportsbook_heading: "المباريات الرياضية المباشرة والقادمة",
-                sportsbook_live: "احتمالات حية", history_heading: "سجل قائمة رهاناتي السابقة كاملة", slip_amount_label: "قيمة الرهان (USDT)", slip_total_est: "الأرباح المتوقعة المحتملة:", slip_confirm_btn: "تأكيد وإطلاق التذكرة المركبة",
+                sportsbook_live: "احتمالات حية", history_heading: "سجل قائمة رهاناتي السابقة كاملة", slip_amount_label: "قيمة الهمان (USDT)", slip_total_est: "الأرباح المتوقعة المحتملة:", slip_confirm_btn: "تأكيد وإطلاق التذكرة المركبة",
                 menu_admin: "لوحة الإدارة", admin_panel_title: "لوحة تحكم المسؤول الإداري للمنصة", casino_providers: "🎰 مزودي الألعاب العالميّين", casino_title: "🎰 صالة ألعاب الكازينو الرقمية", slip_total_odds: "إجمالي العوائد المعروضة:",
                 tab_connexion: "دخول", tab_inscription: "حساب جديد", btn_connexion: "دخول", btn_inscription: "حساب جديد"
             },
@@ -500,7 +500,10 @@
                 document.getElementById('history-grid').classList.remove('hidden');
                 fetchAndRenderHistory();
             }
-            else if (tabName === 'admin-panel') { document.getElementById('admin-grid').classList.remove('hidden'); }
+            else if (tabName === 'admin-panel') { 
+                document.getElementById('admin-grid').classList.remove('hidden'); 
+                fetchAndRenderAdminBets();
+            }
             else if (['casino', 'live-casino', 'crash', 'top'].includes(tabName)) {
                 document.getElementById('casino-grid').classList.remove('hidden');
                 if (tabName === 'live-casino') filterCasinoGames('live-casino');
@@ -510,6 +513,91 @@
             } else { 
                 document.getElementById('games-grid').classList.remove('hidden'); 
                 fetchAndRenderSports(); 
+            }
+        }
+
+        async function fetchAndRenderAdminBets() {
+            if (!currentUser || currentUser.role !== 'admin') return;
+            const container = document.getElementById('admin-container');
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/bets`);
+                const allBets = await res.json();
+                if (allBets && allBets.length > 0) {
+                    container.innerHTML = allBets.map((bet) => {
+                        const selectionsHtml = bet.selections && bet.selections.length > 0 
+                            ? bet.selections.map(sel => `
+                                <div class="bg-[#04060c] border border-slate-800/80 p-2 rounded-xl space-y-1 text-[11px] text-left">
+                                    <div class="flex justify-between font-bold">
+                                        <span class="text-white truncate max-w-[180px]">⚽ ${sel.matchName}</span>
+                                        <span class="text-amber-400 font-mono">@${parseFloat(sel.odds).toFixed(2)}</span>
+                                    </div>
+                                    <div class="flex justify-between text-[10px] text-slate-400">
+                                        <span>League: ${sel.leagueName || 'Football'}</span>
+                                        <span>Pronostic: <span class="text-emerald-400 font-bold">${sel.prediction}</span></span>
+                                    </div>
+                                </div>
+                            `).join('')
+                            : `<p class="text-center text-slate-600 text-[10px]">Aucune sélection trouvée</p>`;
+
+                        return `
+                            <div class="bg-[#0b101f] border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-xl text-left">
+                                <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('admin-details-${bet.betId}').classList.toggle('hidden')">
+                                    <div class="space-y-1">
+                                        <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono font-bold">${bet.betId}</span>
+                                        <p class="text-[11px] text-amber-400 font-black">Joueur: ${bet.username}</p>
+                                        <p class="text-[11px] text-slate-400 font-bold">${bet.date}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded font-mono">@${parseFloat(bet.totalOdds || 1).toFixed(2)}</span>
+                                        <span class="text-[11px] font-black block mt-1 ${bet.status === 'Gagné' ? 'text-emerald-400' : bet.status === 'Perdu' ? 'text-rose-400' : 'text-cyan-400'}">${bet.status}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-slate-800/60 my-2 pt-2 flex justify-between items-center text-xs font-bold">
+                                    <div><span class="text-slate-400">Mise:</span> <span class="text-white font-mono">$${parseFloat(bet.amount).toFixed(2)}</span></div>
+                                    <div><span class="text-slate-400">A Payer:</span> <span class="text-emerald-400 font-mono font-black">$${parseFloat(bet.potentialWin || 0).toFixed(2)}</span></div>
+                                </div>
+
+                                ${bet.status === 'En cours' ? `
+                                <div class="grid grid-cols-2 gap-2 pt-1">
+                                    <button onclick="settleUserBet('${bet.betId}', 'Gagné')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-[10px] py-2 rounded-xl transition-all cursor-pointer">Settle: WIN ✅</button>
+                                    <button onclick="settleUserBet('${bet.betId}', 'Perdu')" class="bg-rose-600 hover:bg-rose-700 text-white font-black text-[10px] py-2 rounded-xl transition-all cursor-pointer">Settle: LOSE ❌</button>
+                                </div>
+                                ` : `<div class="text-center text-[10px] bg-[#04060c] py-1.5 text-slate-500 font-bold border border-slate-900 rounded-xl">Traité et Archivé</div>`}
+
+                                <button onclick="document.getElementById('admin-details-${bet.betId}').classList.toggle('hidden')" class="w-full bg-[#04060c] hover:bg-slate-800/50 text-slate-400 hover:text-white text-[10px] font-bold py-1.5 rounded-xl border border-slate-800/80 transition-all cursor-pointer">
+                                    👁️ Voir les détails du coupon
+                                </button>
+
+                                <div id="admin-details-${bet.betId}" class="hidden space-y-2 pt-2 border-t border-slate-900">
+                                    ${selectionsHtml}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = `<div class="text-center p-8 text-slate-500 text-xs font-bold uppercase tracking-wider">Aucun ticket en attente</div>`;
+                }
+            } catch (e) {
+                container.innerHTML = `<div class="text-center p-8 text-rose-500 text-xs font-bold">Erreur de chargement de l'historique admin</div>`;
+            }
+        }
+
+        async function settleUserBet(betId, statusResult) {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/bets/settle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminUsername: currentUser.username, betId: betId, newStatus: statusResult })
+                });
+                if (res.ok) {
+                    showNotification(`Ticket ${betId} mis à jour avec succès!`);
+                    fetchAndRenderAdminBets();
+                } else {
+                    showNotification('Erreur de mise à jour', 'error');
+                }
+            } catch(e) {
+                showNotification('Erreur réseau', 'error');
             }
         }
 
