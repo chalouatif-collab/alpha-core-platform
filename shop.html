@@ -19,8 +19,10 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
+    <!-- 1️⃣ الشريط الجانبي المستوحى حرفياً من Capture1.PNG وتطبيقه للـ Shop -->
     <aside class="w-full md:w-72 bg-[#090d1a] border-b md:border-b-0 md:border-r border-slate-800/80 p-5 flex flex-col justify-between shrink-0 h-auto md:h-screen z-40 shadow-2xl">
         <div class="space-y-6">
+            <!-- اختيار اللغة المبرمج المماثل للصورة المرجعية -->
             <div class="bg-[#0b101f] border border-slate-800 rounded-xl p-3 flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-400 flex items-center gap-2">🌐 Langue:</span>
                 <select id="shop-lang-select" onchange="changeShopLanguage(this.value)" class="bg-[#04060c] border border-slate-800 rounded-lg text-xs font-bold text-white px-2 py-1 focus:outline-none cursor-pointer font-mono">
@@ -51,6 +53,7 @@
             </div>
         </div>
 
+        <!-- زر الخروج السفلي الفاخر المتطابق مع لقطة الشاشة المرجعية -->
         <div class="pt-4 border-t border-slate-800/60">
             <button onclick="logoutShop()" class="w-full bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-400 font-black p-3 rounded-xl transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg">
                 🚪 Déconnexion
@@ -58,6 +61,7 @@
         </div>
     </aside>
 
+    <!-- 2️⃣ منطقة المحتوى الرئيسية الكبرى -->
     <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
         <header class="bg-[#0b101f]/90 border-b border-slate-800/60 p-4 flex justify-between items-center shadow-md shrink-0">
             <div class="flex items-center gap-3">
@@ -65,14 +69,15 @@
             </div>
             <div class="bg-[#04060c] border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2 font-mono text-xs">
                 <span class="text-[10px] text-slate-400 font-sans">رصيد متجرك:</span>
-                <span class="text-emerald-400 font-black text-sm" id="shop-balance-val">$0.00</span>
-                <span class="text-[9px] bg-emerald-500/10 text-emerald-400 px-1 py-0.5 rounded font-bold">USDT</span>
+                <span class="text-emerald-400 font-black text-sm" id="shop-balance-val">0.00 TND</span>
             </div>
         </header>
 
         <main class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar space-y-6">
 
+            <!-- التبويب الأول: الحسابات والعمليات المالية للاعبين التابعين للمحل -->
             <div id="panel-shop-compte" class="shop-main-view space-y-6">
+                <!-- كرت تفريع حساب جديد -->
                 <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-4">
                     <h3 class="text-xs font-black text-slate-300 flex items-center gap-2">🕹️ إنشاء حساب لاعب جديد تحت متجرك</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-bold">
@@ -88,12 +93,13 @@
                     <button onclick="createPlayerAccount()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md">تثبيت وإنشاء الحساب</button>
                 </section>
 
+                <!-- لوحة إدارة الحسابات التابعة للمحل والشحن والسحب -->
                 <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
                     <div class="bg-gradient-to-r from-emerald-500/10 to-transparent p-4 border-b border-slate-800/60 flex justify-between items-center flex-wrap gap-2">
                         <h3 class="text-xs font-black text-white flex items-center gap-2">📋 إدارة المحلات واللاعبين التابعين لك</h3>
                         <div class="flex gap-1.5 flex-wrap">
                             <input type="text" id="target-player-name" placeholder="لاعبك المحدد" class="bg-[#04060c] border border-slate-800 text-xs px-2 py-1 rounded-lg text-amber-400 font-mono w-28 focus:outline-none">
-                            <input type="number" id="finance-amount" placeholder="المبلغ" class="bg-[#04060c] border border-slate-800 text-xs px-2 py-1 rounded-lg text-emerald-400 font-mono w-20 focus:outline-none">
+                            <input type="number" id="finance-amount" placeholder="المبلغ (TND)" class="bg-[#04060c] border border-slate-800 text-xs px-2 py-1 rounded-lg text-emerald-400 font-mono w-24 focus:outline-none">
                             <button onclick="executeShopFinance('charge')" class="bg-emerald-500 text-slate-950 font-black text-[10px] px-3 py-1 rounded-lg cursor-pointer hover:bg-emerald-600 transition-all shadow">شحن من رصيدك</button>
                             <button onclick="executeShopFinance('withdraw')" class="bg-rose-600 text-white font-black text-[10px] px-3 py-1 rounded-lg cursor-pointer hover:bg-rose-700 transition-all shadow">سحب لرصيدك</button>
                         </div>
@@ -103,18 +109,20 @@
                             <thead class="bg-[#04060c] text-slate-400 font-mono uppercase text-[10px] border-b border-slate-900">
                                 <tr>
                                     <th class="p-3">اسم لاعبك</th>
-                                    <th class="p-3">الرصيد المتاح له</th>
+                                    <th class="p-3">الرصيد المتاح (TND)</th>
                                     <th class="p-3">الحالة البرمجية</th>
                                     <th class="p-3">تحديد سريع</th>
                                 </tr>
                             </thead>
                             <tbody id="players-table-body" class="divide-y divide-slate-900/60 font-mono">
-                                </tbody>
+                                <!-- تضاف الحسابات المنشأة ديناميكياً هنا -->
+                            </tbody>
                         </table>
                     </div>
                 </section>
             </div>
 
+            <!-- التبويب الثاني: سجل الرهانات الرياضية للتحكم الفوري والحسم للمحل -->
             <div id="panel-shop-sport" class="shop-main-view space-y-4 hidden">
                 <div class="text-xs text-slate-400 font-bold uppercase tracking-wide px-1">⚽ Tickets de sport actifs de vos joueurs :</div>
                 <div id="shop-sport-container" class="grid grid-cols-1 gap-3">
@@ -122,6 +130,7 @@
                 </div>
             </div>
 
+            <!-- التبويب الخامس: تغيير كلمة مرور المحل -->
             <div id="panel-shop-security" class="shop-main-view max-w-md mx-auto hidden">
                 <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
                     <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">🔑 Modifier le mot de passe Boutique</h4>
@@ -208,10 +217,10 @@
                 
                 if(res.ok) {
                     if (type === 'withdraw') {
-                        showNotification(`تم سحب $${amount.toFixed(2)} بنجاح لرصيد متجرك`);
+                        showNotification(`تم سحب ${amount.toFixed(2)} د.ت بنجاح لرصيد متجرك`);
                         shopSessionUser.balance += amount;
                     } else {
-                        showNotification(`تم شحن اللاعب بمبلغ $${amount.toFixed(2)} خصماً من رصيدك`);
+                        showNotification(`تم شحن اللاعب بمبلغ ${amount.toFixed(2)} د.ت خصماً من رصيدك`);
                         shopSessionUser.balance -= amount;
                     }
                     
@@ -223,7 +232,7 @@
                     }
                     
                     localStorage.setItem('alpha_user', JSON.stringify(shopSessionUser));
-                    document.getElementById('shop-balance-val').innerText = `$${shopSessionUser.balance.toFixed(2)}`;
+                    document.getElementById('shop-balance-val').innerText = `${shopSessionUser.balance.toFixed(2)} TND`;
                     renderPlayersTable();
                     document.getElementById('finance-amount').value = "";
                 } else {
@@ -241,7 +250,7 @@
             tbody.innerHTML = createdPlayersList.map(p => `
                 <tr class="hover:bg-slate-900/40">
                     <td class="p-3 text-white">${p.username}</td>
-                    <td class="p-3 text-emerald-400">$${parseFloat(p.balance).toFixed(2)}</td>
+                    <td class="p-3 text-emerald-400">${parseFloat(p.balance).toFixed(2)} TND</td>
                     <td class="p-3 text-cyan-400 text-[10px]">ACTIVE PLAYER</td>
                     <td class="p-3"><button onclick="selectPlayerForAction('${p.username}')" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-2 py-0.5 rounded cursor-pointer">Sélectionner</button></td>
                 </tr>
@@ -257,7 +266,7 @@
             if(saved) {
                 shopSessionUser = JSON.parse(saved);
                 document.getElementById('shop-username-display').innerText = `Boutique: ${shopSessionUser.username}`;
-                document.getElementById('shop-balance-val').innerText = `$${parseFloat(shopSessionUser.balance).toFixed(2)}`;
+                document.getElementById('shop-balance-val').innerText = `${parseFloat(shopSessionUser.balance).toFixed(2)} TND`;
             }
             renderPlayersTable();
         }
