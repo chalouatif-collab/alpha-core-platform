@@ -155,13 +155,66 @@
                 <div class="grid grid-cols-1 gap-3" id="history-container"></div>
             </div>
 
-            <div id="admin-grid" class="space-y-4 hidden">
+            <!-- واجهة الإدارة الجانبية المتطورة بناءً على التوثيق الحرفي المرفق -->
+            <div id="admin-grid" class="space-y-6 hidden">
                 <div class="flex justify-between items-center px-1 border-b border-slate-900 pb-3">
                     <h2 class="text-sm font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                        🛠️ <span data-i18n="admin_panel_title">لوحة تحكم المسؤول الإداري للمنصة</span>
+                        🛠️ <span data-i18n="admin_panel_title">MENU DE GESTION - لوحة تحكم المنصة</span>
                     </h2>
                 </div>
-                <div class="grid grid-cols-1 gap-3" id="admin-container"></div>
+
+                <!-- قائمة أزرار الإدارة المستوحاة من لقطة الشاشة المرفقة -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="admin-menu-buttons">
+                    <button onclick="switchAdminSection('sport')" id="btn-admin-sport" class="w-full flex items-center gap-3 bg-slate-800/40 border border-emerald-500/30 text-white p-4 rounded-xl transition-all cursor-pointer font-bold text-xs shadow-md">
+                        ⚽ Historique de sport
+                    </button>
+                    <button onclick="switchAdminSection('casino')" id="btn-admin-casino" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
+                        🎰 Historique de casino
+                    </button>
+                    <button onclick="switchAdminSection('transfert')" id="btn-admin-transfert" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
+                        💸 Historique de transfert
+                    </button>
+                    <button onclick="switchAdminSection('compte')" id="btn-admin-compte" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
+                        👤 Historique de compte
+                    </button>
+                    <button onclick="switchAdminSection('security')" id="btn-admin-security" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
+                        🔑 Changement de mot de passe
+                    </button>
+                </div>
+
+                <!-- الحاويات والتبويبات المخصصة لعرض البيانات إدارياً -->
+                <div id="admin-sections-content" class="pt-2">
+                    <div id="admin-sec-sport" class="admin-tab-content space-y-3">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-1">📋 Tickets de sport actifs :</div>
+                        <div id="admin-container" class="grid grid-cols-1 gap-3"></div>
+                    </div>
+
+                    <div id="admin-sec-casino" class="admin-tab-content space-y-3 hidden">
+                        <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
+                            🎰 Historique de casino Sandbox Native En ligne Engine Active. Aucun pari casino enregistré.
+                        </div>
+                    </div>
+
+                    <div id="admin-sec-transfert" class="admin-tab-content space-y-3 hidden">
+                        <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
+                            💸 Historique de transfert (Dépôts / Retraits Hub88 Logs) - Aucun transfert en attente.
+                        </div>
+                    </div>
+
+                    <div id="admin-sec-compte" class="admin-tab-content space-y-3 hidden">
+                        <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
+                            👤 Base de données des comptes utilisateurs sécurisée - Aucun log disponible.
+                        </div>
+                    </div>
+
+                    <div id="admin-sec-security" class="admin-tab-content space-y-3 hidden">
+                        <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl space-y-4 max-w-sm mx-auto">
+                            <h4 class="text-xs font-bold text-amber-400">🔑 Modifier le mot de passe Administrateur</h4>
+                            <input type="password" id="admin-new-pass" placeholder="Nouveau mot de passe" class="w-full bg-[#04060c] border border-slate-800 p-2.5 rounded-xl text-xs focus:outline-none focus:border-emerald-500 text-white font-mono">
+                            <button onclick="showNotification('Sandbox Active ! Mot de passe inchangé.')" class="w-full bg-emerald-500 text-slate-950 font-black text-xs py-2 rounded-xl cursor-pointer">Mettre à jour</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="casino-grid" class="space-y-6 hidden">
@@ -170,7 +223,7 @@
                     <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="providers-container">
                         <button onclick="filterCasinoGames('all')" id="prov-all" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0">Tout</button>
                         <button onclick="filterCasinoGames('pragmatic')" id="prov-pragmatic" class="bg-[#0b101f] border border-slate-800 text-slate-300 font-black text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0">🔴 Pragmatic</button>
-                        <button onclick="filterCasinoGames('evolution')" id="prov-evolution" class="bg-[#0b101f] border border-slate-800 text-slate-300 font-black text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0">👑 Evolution</button>
+                        <button onclick="filterCasinoGames('all')" id="prov-evolution" class="bg-[#0b101f] border border-slate-800 text-slate-300 font-black text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0">👑 Evolution</button>
                         <button onclick="filterCasinoGames('hacksaw')" id="prov-hacksaw" class="bg-[#0b101f] border border-slate-800 text-slate-300 font-black text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0">🪓 Hacksaw</button>
                     </div>
                 </div>
@@ -243,7 +296,7 @@
                 menu_accueil: "الرئيسية", menu_sport: "الرياضة", menu_history: "رهاناتي الحاليّة", menu_casino: "الكازينو", menu_live_casino: "الكازينو المباشر",
                 menu_crash: "ألعاب الكراش", menu_top: "أفضل الألعاب", menu_promo: "العروض الترويجية", menu_langue: "اللغة", foot_responsible: "العب بمسؤولية ووعي مالي",
                 foot_terms: "الشروط والأحكام العامة للشبكة", header_solde: "الرصيد المتاح:", header_logout: "خروج", sportsbook_heading: "المباريات الرياضية المباشرة والقادمة",
-                sportsbook_live: "احتمالات حية", history_heading: "سجل قائمة رهاناتي السابقة كاملة", slip_amount_label: "قيمة الهمان (USDT)", slip_total_est: "الأرباح المتوقعة المحتملة:", slip_confirm_btn: "تأكيد وإطلاق التذكرة المركبة",
+                sportsbook_live: "احتمالات حية", history_heading: "سجل قائمة رهاناتي السابقة كاملة", slip_amount_label: "قيمة الرهان (USDT)", slip_total_est: "الأرباح المتوقعة المحتملة:", slip_confirm_btn: "تأكيد وإطلاق التذكرة المركبة",
                 menu_admin: "لوحة الإدارة", admin_panel_title: "لوحة تحكم المسؤول الإداري للمنصة", casino_providers: "🎰 مزودي الألعاب العالميّين", casino_title: "🎰 صالة ألعاب الكازينو الرقمية", slip_total_odds: "إجمالي العوائد المعروضة:",
                 tab_connexion: "دخول", tab_inscription: "حساب جديد", btn_connexion: "دخول", btn_inscription: "حساب جديد"
             },
@@ -502,7 +555,7 @@
             }
             else if (tabName === 'admin-panel') { 
                 document.getElementById('admin-grid').classList.remove('hidden'); 
-                fetchAndRenderAdminBets();
+                switchAdminSection('sport');
             }
             else if (['casino', 'live-casino', 'crash', 'top'].includes(tabName)) {
                 document.getElementById('casino-grid').classList.remove('hidden');
@@ -513,6 +566,24 @@
             } else { 
                 document.getElementById('games-grid').classList.remove('hidden'); 
                 fetchAndRenderSports(); 
+            }
+        }
+
+        function switchAdminSection(sectionName) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('admin-menu-buttons').querySelectorAll('button').forEach(btn => {
+                btn.className = "w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs";
+            });
+            
+            const targetSection = document.getElementById(`admin-sec-${sectionName}`);
+            const targetBtn = document.getElementById(`btn-admin-${sectionName}`);
+            if (targetSection) targetSection.classList.remove('hidden');
+            if (targetBtn) {
+                targetBtn.className = "w-full flex items-center gap-3 bg-slate-800/40 border border-emerald-500/30 text-white p-4 rounded-xl transition-all cursor-pointer font-bold text-xs shadow-md";
+            }
+            
+            if (sectionName === 'sport') {
+                fetchAndRenderAdminBets();
             }
         }
 
