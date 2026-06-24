@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Core - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen p-4">
+    <header class="bg-slate-900 border-b border-slate-800 p-4 rounded-xl flex justify-between items-center mb-6 shadow-xl">
+        <h1 class="text-xl font-black text-cyan-400 tracking-wider">ALPHA <span class="text-white font-light">ADMINISTRATION</span></h1>
+        <div class="flex items-center gap-4">
+            <span class="text-sm bg-cyan-500/10 text-cyan-400 px-3 py-1 rounded-lg border border-cyan-500/20 font-bold" id="admin-role-badge">ADMIN</span>
+            <span class="font-bold text-slate-300" id="admin-username">---</span>
+            <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-cyan-600 px-3 py-1.5 rounded-lg transition-all cursor-pointer">خروج</button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto space-y-6">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+            <h3 class="text-lg font-bold text-white mb-4">📥 تفريع حساب جديد (Shop / Player)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">اسم الحساب الجديد</label>
+                    <input type="text" id="adm-user-name" placeholder="Username" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">كلمة المرور</label>
+                    <input type="password" id="adm-user-pass" placeholder="••••••••" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">الرتبة</label>
+                    <select id="adm-user-role" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-cyan-500">
+                        <option value="shop">Shop (محل معتمد)</option>
+                        <option value="player">Player (لاعب فرعي)</option>
+                    </select>
+                </div>
+                <button onclick="createSubUser()" class="w-full bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold py-2.5 rounded transition-all cursor-pointer shadow-lg">تثبيت وإنشاء</button>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="bg-cyan-500 p-4 text-slate-950 font-bold flex justify-between items-center">
+                <span>📋 إدارة المحلات واللاعبين التابعين لك</span>
+                <div class="flex gap-2 text-xs">
+                    <input type="text" id="action-target" placeholder="الحساب المحدد" class="bg-white p-1 rounded font-mono text-center text-slate-900 w-24 focus:outline-none" readonly>
+                    <input type="number" id="action-amount" placeholder="المبلغ" class="bg-white p-1 rounded font-mono text-center text-slate-900 w-16 focus:outline-none">
+                    <button onclick="handleBalance('charge')" class="bg-slate-950 text-white px-2 py-1 rounded font-bold">شحن</button>
+                    <button onclick="handleBalance('reset')" class="bg-rose-700 text-white px-2 py-1 rounded font-bold">تصفير</button>
+                </div>
+            </div>
+            <div class="p-4 overflow-x-auto">
+                <table class="w-full text-right text-sm">
+                    <thead>
+                        <tr class="bg-slate-800 text-slate-400 font-bold border-b border-slate-700 text-xs">
+                            <th class="p-3">اسم المستخدم</th>
+                            <th class="p-3">الرتبة</th>
+                            <th class="p-3 text-left">الرصيد الحالي</th>
+                            <th class="p-3 text-center">الإجراء الفوري</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-tbody" class="divide-y divide-slate-800/60"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const BACKEND_URL = "https://alpha-casino-api.onrender.com";
+        let user = JSON.parse(localStorage.getItem('alpha_user'));
+        if (!user || (user.role !== 'super_admin' && user.role !== 'admin')) { window.location.href = "index.html"; }
+        else { document.getElementById('admin-username').innerText = user.username; document.getElementById('admin-role-badge').innerText = user.role.toUpperCase(); loadAdminData(); }
+
+        async function loadAdminData() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
+                if(res.ok) {
+                    const data = await res.json();
+                    const tbody = document.getElementById('admin-tbody'); tbody.innerHTML = '';
+                    data.forEach(u => {
+                        tbody.innerHTML += `
+                            <tr class="border-b border-slate-800/40">
+                                <td class="p-3 text-white font-bold">${u.username}</td>
+                                <td class="p-3 text-cyan-400 text-xs font-mono font-bold">${u.role.toUpperCase()}</td>
+                                <td class="p-3 text-[#10b981] font-mono font-bold text-left">$${parseFloat(u.balance).toFixed(2)}</td>
+                                <td class="p-3 text-center"><button onclick="selectUser('${u.username}')" class="text-xs bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 px-2 py-1 rounded font-bold cursor-pointer">🎯 اختيار</button></td>
+                            </tr>`;
+                    });
+                }
+            } catch(e){}
+        }
+        function selectUser(un) { document.getElementById('action-target').value = un; }
+        async function handleBalance(action) {
+            const target_username = document.getElementById('action-target').value;
+            const amountInput = document.getElementById('action-amount').value;
+            if(!target_username) return alert('اختر حساباً أولاً!');
+            const amount = amountInput ? parseFloat(amountInput) : 0;
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_username: user.username, target_username, action, amount })
+                });
+                if(res.ok){ alert('تمت العملية المالية!'); loadAdminData(); }
+                else { const err = await res.json(); alert(err.detail); }
+            } catch(e){}
+        }
+        async function createSubUser() {
+            const username = document.getElementById('adm-user-name').value.trim();
+            const password = document.getElementById('adm-user-pass').value;
+            const role = document.getElementById('adm-user-role').value;
+            if(!username || !password) return alert('أدخل البيانات كاملة!');
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role, created_by: user.username })
+                });
+                if(res.ok){ alert('تم تفريع الحساب التابع بنجاح!'); loadAdminData(); }
+                else { const err = await res.json(); alert(err.detail); }
+            } catch(e){}
+        }
+        function logout() { localStorage.removeItem('alpha_user'); window.location.href = "index.html"; }
+    </script>
+</body>
+</html>
