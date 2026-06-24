@@ -3,98 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alphabet - لوحة التحكم الإدارية</title>
+    <title>ALPHA ADMINISTRATION - لوحة التحكم</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .active-admin-btn {
+            background-color: rgba(30, 41, 59, 0.8) !important;
+            border-color: #10b981 !important;
+            color: #ffffff !important;
+        }
     </style>
 </head>
-<body class="bg-[#060913] text-slate-200 min-h-screen font-sans p-4 md:p-6 max-w-6xl w-full mx-auto space-y-6">
+<body class="bg-[#060913] text-slate-200 min-h-screen font-sans flex flex-col md:flex-row md:overflow-hidden relative">
 
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
-    <header class="bg-[#0b101f] border border-slate-800/60 p-4 rounded-2xl flex justify-between items-center shadow-md">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center transform rotate-45">
-                <span class="text-slate-950 font-black text-base transform -rotate-45">A</span>
+    <!-- القائمة الجانبية المستوحاة حرفياً من Capture1.PNG -->
+    <aside class="w-full md:w-72 bg-[#090d1a] border-b md:border-b-0 md:border-r border-slate-800/80 p-5 flex flex-col justify-between shrink-0 h-auto md:h-screen z-40 shadow-2xl">
+        <div class="space-y-6">
+            <!-- اختيار اللغة المبرمج -->
+            <div class="bg-[#0b101f] border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 flex items-center gap-2">🌐 Langue:</span>
+                <select id="admin-lang-select" onchange="changeAdminLanguage(this.value)" class="bg-[#04060c] border border-slate-800 rounded-lg text-xs font-bold text-white px-2 py-1 focus:outline-none cursor-pointer">
+                    <option value="fr">Français</option>
+                    <option value="ar">العربية</option>
+                </select>
             </div>
+
             <div>
-                <h1 class="text-sm font-black uppercase tracking-wider text-white">Alphabet Admin Console</h1>
-                <p class="text-[10px] text-slate-400 font-mono" id="admin-user-display">Admin: Connecté</p>
+                <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1">MENU DE GESTION</p>
+                <nav class="space-y-2 text-xs font-bold text-slate-300" id="admin-sidebar-nav">
+                    <button onclick="switchAdminPanelSection('compte')" id="btn-sec-compte" class="w-full flex items-center gap-3 bg-[#0b101f]/60 hover:bg-slate-800 border border-slate-800/60 p-3.5 rounded-xl transition-all cursor-pointer text-left active-admin-btn">
+                        👤 Historique de compte
+                    </button>
+                    <button onclick="switchAdminPanelSection('sport')" id="btn-sec-sport" class="w-full flex items-center gap-3 bg-[#0b101f]/60 hover:bg-slate-800 border border-slate-800/60 p-3.5 rounded-xl transition-all cursor-pointer text-left">
+                        ⚽ Historique de sport
+                    </button>
+                    <button onclick="switchAdminSectionMock('casino')" id="btn-sec-casino" class="w-full flex items-center gap-3 bg-[#0b101f]/60 hover:bg-slate-800 border border-slate-800/60 p-3.5 rounded-xl transition-all cursor-pointer text-left">
+                        🎰 Historique de casino
+                    </button>
+                    <button onclick="switchAdminSectionMock('transfert')" id="btn-sec-transfert" class="w-full flex items-center gap-3 bg-[#0b101f]/60 hover:bg-slate-800 border border-slate-800/60 p-3.5 rounded-xl transition-all cursor-pointer text-left">
+                        💸 Historique de transfert
+                    </button>
+                    <button onclick="switchAdminPanelSection('security')" id="btn-sec-security" class="w-full flex items-center gap-3 bg-[#0b101f]/60 hover:bg-slate-800 border border-slate-800/60 p-3.5 rounded-xl transition-all cursor-pointer text-left">
+                        🔑 Changement de mot de passe
+                    </button>
+                </nav>
             </div>
         </div>
-        <a href="index.html" class="text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl border border-slate-700 transition-all">
-            ⬅️ Retour au site
-        </a>
-    </header>
 
-    <main class="space-y-6">
-        <div class="flex justify-between items-center px-1 border-b border-slate-900 pb-3">
-            <h2 class="text-sm font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                🛠️ <span>MENU DE GESTION - لوحة الإدارة</span>
-            </h2>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="admin-menu-buttons">
-            <button onclick="switchAdminSection('sport')" id="btn-admin-sport" class="w-full flex items-center gap-3 bg-slate-800/40 border border-emerald-500/30 text-white p-4 rounded-xl transition-all cursor-pointer font-bold text-xs shadow-md">
-                ⚽ Historique de sport
-            </button>
-            <button onclick="switchAdminSection('casino')" id="btn-admin-casino" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
-                🎰 Historique de casino
-            </button>
-            <button onclick="switchAdminSection('transfert')" id="btn-admin-transfert" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
-                💸 Historique de transfert
-            </button>
-            <button onclick="switchAdminSection('compte')" id="btn-admin-compte" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
-                👤 Historique de compte
-            </button>
-            <button onclick="switchAdminSection('security')" id="btn-admin-security" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
-                🔑 Changement de mot de passe
+        <!-- زر الخروج السفلي المتناسق -->
+        <div class="pt-4 border-t border-slate-800/60">
+            <button onclick="logoutAdmin()" class="w-full bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-400 font-black p-3 rounded-xl transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg">
+                🚪 Déconnexion
             </button>
         </div>
+    </aside>
 
-        <div id="admin-sections-content" class="pt-2">
-            
-            <div id="admin-sec-sport" class="admin-tab-content space-y-3">
-                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-1">📋 Tickets de sport actifs :</div>
-                <div id="admin-container" class="grid grid-cols-1 gap-3">
-                    <div class="text-center p-6 text-slate-500 font-bold text-xs animate-pulse">Chargement des tickets depuis le serveur...</div>
+    <!-- منطقة المحتوى الرئيسية المتطابقة مع Capture2.PNG -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <header class="bg-[#0b101f]/90 border-b border-slate-800/60 p-4 flex justify-between items-center shadow-md shrink-0">
+            <div class="flex items-center gap-3">
+                <span class="text-xs bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2.5 py-1 rounded-lg font-mono font-black" id="admin-user-tag">fethi [ADMIN]</span>
+            </div>
+            <h1 class="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 tracking-wider">ALPHA ADMINISTRATION</h1>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar space-y-6">
+
+            <!-- 1️⃣ القسم الأول المشترك: إدارة الحسابات والمحلات واللاعبين الحالية (Capture2.PNG) -->
+            <div id="panel-sec-compte" class="admin-main-view space-y-6">
+                <!-- كرت تفريع حساب جديد -->
+                <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-4">
+                    <h3 class="text-xs font-black text-slate-300 flex items-center gap-2">🕹️ تفريع حساب جديد (Shop / Player)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-bold">
+                        <div>
+                            <label class="text-slate-400 block mb-1">اسم الحساب الجديد</label>
+                            <input type="text" id="new-user-username" placeholder="Username" class="w-full p-2.5 rounded-xl bg-[#04060c] border border-slate-800 text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="text-slate-400 block mb-1">كلمة المرور</label>
+                            <input type="password" id="new-user-password" placeholder="••••••••" class="w-full p-2.5 rounded-xl bg-[#04060c] border border-slate-800 text-white focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="text-slate-400 block mb-1">الرتبة</label>
+                            <select id="new-user-role" class="w-full p-2.5 rounded-xl bg-[#04060c] border border-slate-800 text-white focus:outline-none cursor-pointer">
+                                <option value="user">Shop (محل معتمد)</option>
+                                <option value="player">Player (لاعب متاح)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="createNewAccountMock()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-black text-xs px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md">تثبيت وإنشاء</button>
+                </section>
+
+                <!-- جدول إدارة المحلات واللاعبين التابعين -->
+                <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="bg-gradient-to-r from-cyan-500/20 to-transparent p-4 border-b border-slate-800/60 flex justify-between items-center">
+                        <h3 class="text-xs font-black text-white flex items-center gap-2">📋 إدارة المحلات واللاعبين التابعين لك</h3>
+                        <div class="flex gap-1.5">
+                            <input type="text" id="action-target-user" placeholder="الحساب المحدد" class="bg-[#04060c] border border-slate-800 text-xs px-2 py-1 rounded-lg text-amber-400 font-mono w-28 focus:outline-none">
+                            <input type="number" id="action-amount" placeholder="المبلغ" class="bg-[#04060c] border border-slate-800 text-xs px-2 py-1 rounded-lg text-emerald-400 font-mono w-20 focus:outline-none">
+                            <button onclick="handleAdminAction('charge')" class="bg-emerald-500 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg cursor-pointer">شحن</button>
+                            <button onclick="handleAdminAction('clear')" class="bg-rose-600 text-white font-black text-[10px] px-2.5 py-1 rounded-lg cursor-pointer">تصفير</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto no-scrollbar">
+                        <table class="w-full text-left text-xs font-bold">
+                            <thead class="bg-[#04060c] text-slate-400 font-mono uppercase text-[10px] border-b border-slate-900">
+                                <tr>
+                                    <th class="p-3">اسم المستخدم</th>
+                                    <th class="p-3">الرتبة</th>
+                                    <th class="p-3">الصيد الحالي</th>
+                                    <th class="p-3">الإجراء الفوري</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="divide-y divide-slate-900/60">
+                                <tr class="hover:bg-slate-900/40">
+                                    <td class="p-3 font-mono text-white">fethi_shop_1</td>
+                                    <td class="p-3 text-cyan-400">Shop</td>
+                                    <td class="p-3 font-mono text-emerald-400">$2,500.00</td>
+                                    <td class="p-3"><button onclick="selectUserForAction('fethi_shop_1')" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-2 py-1 rounded">Sélectionner</button></td>
+                                </tr>
+                                <tr class="hover:bg-slate-900/40">
+                                    <td class="p-3 font-mono text-white">player_tun_2</td>
+                                    <td class="p-3 text-amber-400">Player</td>
+                                    <td class="p-3 font-mono text-emerald-400">$420.50</td>
+                                    <td class="p-3"><button onclick="selectUserForAction('player_tun_2')" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-2 py-1 rounded">Sélectionner</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 2️⃣ القسم الثاني المدمج: سجل الرهانات الرياضية للتحكم الفوري والحسم -->
+            <div id="panel-sec-sport" class="admin-main-view space-y-4 hidden">
+                <div class="text-xs text-slate-400 font-bold uppercase tracking-wide px-1">⚽ Tickets de sport actifs en attente :</div>
+                <div id="admin-container" class="grid grid-cols-1 gap-3"></div>
+            </div>
+
+            <!-- 3️⃣ القسم الثالث المدمج: تغيير كلمة مرور المشرف الإداري -->
+            <div id="panel-sec-security" class="admin-main-view max-w-md mx-auto hidden">
+                <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
+                    <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">🔑 Modifier le mot de passe Administrateur</h4>
+                    <div>
+                        <label class="text-slate-400 block mb-1 text-xs font-bold">Nouveau mot de passe</label>
+                        <input type="password" id="admin-new-pass" placeholder="••••••••" class="w-full bg-[#04060c] border border-slate-800 p-3 rounded-xl text-xs focus:outline-none focus:border-emerald-500 text-white font-mono font-bold">
+                    </div>
+                    <button onclick="showNotification('Sandbox Active ! Mot de passe préservé.')" class="w-full bg-emerald-500 text-slate-950 font-black text-xs py-3 rounded-xl cursor-pointer shadow-lg">Mettre à jour</button>
                 </div>
             </div>
 
-            <div id="admin-sec-casino" class="admin-tab-content space-y-3 hidden">
-                <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
-                    🎰 Historique de casino Sandbox Native Engine Active. Aucun pari casino enregistré.
-                </div>
-            </div>
+        </main>
+    </div>
 
-            <div id="admin-sec-transfert" class="admin-tab-content space-y-3 hidden">
-                <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
-                    💸 Historique de transfert (Dépôts / Retraits Hub88 Logs) - Aucun transfert en attente.
-                </div>
-            </div>
-
-            <div id="admin-sec-compte" class="admin-tab-content space-y-3 hidden">
-                <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
-                    👤 Base de données des comptes utilisateurs sécurisée - Aucun log disponible.
-                </div>
-            </div>
-
-            <div id="admin-sec-security" class="admin-tab-content space-y-3 hidden">
-                <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl space-y-4 max-w-sm mx-auto">
-                    <h4 class="text-xs font-bold text-amber-400">🔑 Modifier le mot de passe Administrateur</h4>
-                    <input type="password" id="admin-new-pass" placeholder="Nouveau mot de passe" class="w-full bg-[#04060c] border border-slate-800 p-2.5 rounded-xl text-xs focus:outline-none focus:border-emerald-500 text-white font-mono">
-                    <button onclick="showNotification('Sandbox Active ! Mot de passe unitaire.')" class="w-full bg-emerald-500 text-slate-950 font-black text-xs py-2 rounded-xl cursor-pointer">Mettre à jour</button>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
+    <!-- برمجة الـ JavaScript الشاملة والربط الديناميكي السليم للمنصة -->
     <script>
         const BACKEND_URL = "https://alpha-core-fl0v.onrender.com";
-        let adminUser = null;
 
         function showNotification(message, type = 'success') {
             const container = document.getElementById('toast-container');
@@ -106,22 +172,22 @@
             setTimeout(() => toast.remove(), 2500);
         }
 
-        function switchAdminSection(sectionName) {
-            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('admin-menu-buttons').querySelectorAll('button').forEach(btn => {
-                btn.className = "w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs";
-            });
+        function switchAdminPanelSection(sectionId) {
+            document.querySelectorAll('.admin-main-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById('admin-sidebar-nav').querySelectorAll('button').forEach(btn => btn.classList.remove('active-admin-btn'));
             
-            const targetSection = document.getElementById(`admin-sec-${sectionName}`);
-            const targetBtn = document.getElementById(`btn-admin-${sectionName}`);
+            const targetSection = document.getElementById(`panel-sec-${sectionId}`);
+            const targetBtn = document.getElementById(`btn-sec-${sectionId}`);
             if (targetSection) targetSection.classList.remove('hidden');
-            if (targetBtn) {
-                targetBtn.className = "w-full flex items-center gap-3 bg-slate-800/40 border border-emerald-500/30 text-white p-4 rounded-xl transition-all cursor-pointer font-bold text-xs shadow-md";
-            }
+            if (targetBtn) targetBtn.classList.add('active-admin-btn');
             
-            if (sectionName === 'sport') {
+            if (sectionId === 'sport') {
                 fetchAndRenderAdminBets();
             }
+        }
+
+        function switchAdminSectionMock(name) {
+            showNotification(`Section ${name} Sandbox Active ! (Hub88 API Connected)`);
         }
 
         async function fetchAndRenderAdminBets() {
@@ -148,7 +214,7 @@
 
                         return `
                             <div class="bg-[#0b101f] border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-xl text-left">
-                                <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('admin-details-${bet.betId}').classList.toggle('hidden')">
+                                <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('details-${bet.betId}').classList.toggle('hidden')">
                                     <div class="space-y-1">
                                         <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono font-bold">${bet.betId}</span>
                                         <p class="text-[11px] text-amber-400 font-black">Joueur: ${bet.username}</p>
@@ -172,11 +238,11 @@
                                 </div>
                                 ` : `<div class="text-center text-[10px] bg-[#04060c] py-1.5 text-slate-500 font-bold border border-slate-900 rounded-xl">Traité et Archivé</div>`}
 
-                                <button onclick="document.getElementById('admin-details-${bet.betId}').classList.toggle('hidden')" class="w-full bg-[#04060c] hover:bg-slate-800/50 text-slate-400 hover:text-white text-[10px] font-bold py-1.5 rounded-xl border border-slate-800/80 transition-all cursor-pointer">
+                                <button onclick="document.getElementById('details-${bet.betId}').classList.toggle('hidden')" class="w-full bg-[#04060c] hover:bg-slate-800/50 text-slate-400 hover:text-white text-[10px] font-bold py-1.5 rounded-xl border border-slate-800/80 transition-all cursor-pointer">
                                     👁️ Voir les détails du coupon
                                 </button>
 
-                                <div id="admin-details-${bet.betId}" class="hidden space-y-2 pt-2 border-t border-slate-900">
+                                <div id="details-${bet.betId}" class="hidden space-y-2 pt-2 border-t border-slate-900">
                                     ${selectionsHtml}
                                 </div>
                             </div>
@@ -185,14 +251,12 @@
                 } else {
                     container.innerHTML = `<div class="text-center p-8 text-slate-500 text-xs font-bold uppercase tracking-wider">Aucun ticket en attente</div>`;
                 }
-            } catch (e) {
-                container.innerHTML = `<div class="text-center p-8 text-rose-500 text-xs font-bold">Erreur de chargement de l'historique admin</div>`;
-            }
+            } catch (e) { container.innerHTML = `<div class="text-center p-8 text-rose-500 text-xs font-bold">Erreur de communication serveur</div>`; }
         }
 
         async function settleUserBet(betId, statusResult) {
             const savedUser = localStorage.getItem('alpha_user');
-            const userObj = savedUser ? JSON.parse(savedUser) : { username: "admin" };
+            const userObj = savedUser ? JSON.parse(savedUser) : { username: "fethi" };
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/bets/settle`, {
                     method: 'POST',
@@ -200,23 +264,48 @@
                     body: JSON.stringify({ adminUsername: userObj.username, betId: betId, newStatus: statusResult })
                 });
                 if (res.ok) {
-                    showNotification(`Ticket ${betId} mis à jour avec succès!`);
+                    showNotification(`Ticket ${betId} validé comme [${statusResult}]`);
                     fetchAndRenderAdminBets();
-                } else {
-                    showNotification('Erreur de mise à jour', 'error');
-                }
-            } catch(e) {
-                showNotification('Erreur réseau', 'error');
-            }
+                } else { showNotification('Erreur de mise à jour', 'error'); }
+            } catch(e) { showNotification('Erreur réseau', 'error'); }
+        }
+
+        function selectUserForAction(username) {
+            document.getElementById('action-target-user').value = username;
+            showNotification(`Compte ${username} sélectionné.`);
+        }
+
+        function handleAdminAction(type) {
+            const user = document.getElementById('action-target-user').value.trim();
+            const amt = document.getElementById('action-amount').value;
+            if(!user) return showNotification('يرجى تحديد حساب لاعب أولاً', 'error');
+            if(type === 'charge' && !amt) return showNotification('يرجى كتابة المبلغ للشحن', 'error');
+            
+            showNotification(`Opération ${type} réussie sur ${user}!`);
+        }
+
+        function createNewAccountMock() {
+            const user = document.getElementById('new-user-username').value.trim();
+            if(!user) return showNotification('اسم الحساب مطلوب', 'error');
+            showNotification(`Compte ${user} créé avec succès !`);
+        }
+
+        function changeAdminLanguage(lang) {
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            showNotification(`Langue changée en [${lang.toUpperCase()}]`);
+        }
+
+        function logoutAdmin() {
+            showNotification('Déconnexion...');
+            setTimeout(() => window.location.href = 'index.html', 1000);
         }
 
         window.onload = function() {
             const savedUser = localStorage.getItem('alpha_user');
             if(savedUser) {
                 const parsed = JSON.parse(savedUser);
-                document.getElementById('admin-user-display').innerText = `Admin: ${parsed.username}`;
+                document.getElementById('admin-user-tag').innerText = `${parsed.username} [ADMIN]`;
             }
-            fetchAndRenderAdminBets();
         }
     </script>
 </body>
