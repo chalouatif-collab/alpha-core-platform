@@ -19,10 +19,8 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
-    <!-- 1️⃣ الشريط الجانبي المستوحى حرفياً من Capture1_2.PNG وتطبيقه للـ Shop -->
     <aside class="w-full md:w-72 bg-[#090d1a] border-b md:border-b-0 md:border-r border-slate-800/80 p-5 flex flex-col justify-between shrink-0 h-auto md:h-screen z-40 shadow-2xl">
         <div class="space-y-6">
-            <!-- اختيار اللغة المبرمج المماثل للصورة المرجعية -->
             <div class="bg-[#0b101f] border border-slate-800 rounded-xl p-3 flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-400 flex items-center gap-2">🌐 Langue:</span>
                 <select id="shop-lang-select" onchange="changeShopLanguage(this.value)" class="bg-[#04060c] border border-slate-800 rounded-lg text-xs font-bold text-white px-2 py-1 focus:outline-none cursor-pointer font-mono">
@@ -53,7 +51,6 @@
             </div>
         </div>
 
-        <!-- زر الخروج السفلي الفاخر المتطابق مع لقطة الشاشة المرجعية -->
         <div class="pt-4 border-t border-slate-800/60">
             <button onclick="logoutShop()" class="w-full bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-400 font-black p-3 rounded-xl transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg">
                 🚪 Déconnexion
@@ -61,7 +58,6 @@
         </div>
     </aside>
 
-    <!-- 2️⃣ منطقة المحتوى الرئيسية الكبرى -->
     <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
         <header class="bg-[#0b101f]/90 border-b border-slate-800/60 p-4 flex justify-between items-center shadow-md shrink-0">
             <div class="flex items-center gap-3">
@@ -76,9 +72,7 @@
 
         <main class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar space-y-6">
 
-            <!-- التبويب الأول: الحسابات والعمليات المالية للاعبين التابعين للمحل -->
             <div id="panel-shop-compte" class="shop-main-view space-y-6">
-                <!-- كرت تفريع حساب جديد -->
                 <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-4">
                     <h3 class="text-xs font-black text-slate-300 flex items-center gap-2">🕹️ إنشاء حساب لاعب جديد تحت متجرك</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-bold">
@@ -94,7 +88,6 @@
                     <button onclick="createPlayerAccount()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md">تثبيت وإنشاء الحساب</button>
                 </section>
 
-                <!-- لوحة إدارة الحسابات التابعة للمحل والشحن والسحب -->
                 <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
                     <div class="bg-gradient-to-r from-emerald-500/10 to-transparent p-4 border-b border-slate-800/60 flex justify-between items-center flex-wrap gap-2">
                         <h3 class="text-xs font-black text-white flex items-center gap-2">📋 إدارة المحلات واللاعبين التابعين لك</h3>
@@ -116,14 +109,12 @@
                                 </tr>
                             </thead>
                             <tbody id="players-table-body" class="divide-y divide-slate-900/60 font-mono">
-                                <!-- تضاف الحسابات المنشأة ديناميكياً هنا -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </section>
             </div>
 
-            <!-- التبويب الثاني: سجل الرهانات الرياضية للتحكم الفوري والحسم للمحل -->
             <div id="panel-shop-sport" class="shop-main-view space-y-4 hidden">
                 <div class="text-xs text-slate-400 font-bold uppercase tracking-wide px-1">⚽ Tickets de sport actifs de vos joueurs :</div>
                 <div id="shop-sport-container" class="grid grid-cols-1 gap-3">
@@ -131,7 +122,6 @@
                 </div>
             </div>
 
-            <!-- التبويب الخامس: تغيير كلمة مرور المحل -->
             <div id="panel-shop-security" class="shop-main-view max-w-md mx-auto hidden">
                 <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
                     <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">🔑 Modifier le mot de passe Boutique</h4>
@@ -149,9 +139,7 @@
     <script>
         const BACKEND_URL = "https://alpha-core-fl0v.onrender.com";
         let shopSessionUser = null;
-        let createdPlayersList = [
-            { username: "client_test_1", balance: 50.00 }
-        ];
+        let createdPlayersList = [];
 
         function showNotification(message, type = 'success') {
             const container = document.getElementById('toast-container');
@@ -228,7 +216,11 @@
                     }
                     
                     const playerObj = createdPlayersList.find(p => p.username === targetPlayer);
-                    if(playerObj) playerObj.balance = type === 'withdraw' ? playerObj.balance - amount : playerObj.balance + amount;
+                    if(playerObj) {
+                        playerObj.balance = type === 'withdraw' ? playerObj.balance - amount : playerObj.balance + amount;
+                    } else {
+                        createdPlayersList.push({ username: targetPlayer, balance: finalAmount > 0 ? finalAmount : 0 });
+                    }
                     
                     localStorage.setItem('alpha_user', JSON.stringify(shopSessionUser));
                     document.getElementById('shop-balance-val').innerText = `$${shopSessionUser.balance.toFixed(2)}`;
@@ -242,10 +234,14 @@
 
         function renderPlayersTable() {
             const tbody = document.getElementById('players-table-body');
+            if (createdPlayersList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-600">Aucun joueur trouvé</td></tr>`;
+                return;
+            }
             tbody.innerHTML = createdPlayersList.map(p => `
                 <tr class="hover:bg-slate-900/40">
                     <td class="p-3 text-white">${p.username}</td>
-                    <td class="p-3 text-emerald-400">$${p.balance.toFixed(2)}</td>
+                    <td class="p-3 text-emerald-400">$${parseFloat(p.balance).toFixed(2)}</td>
                     <td class="p-3 text-cyan-400 text-[10px]">ACTIVE PLAYER</td>
                     <td class="p-3"><button onclick="selectPlayerForAction('${p.username}')" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-2 py-0.5 rounded cursor-pointer">Sélectionner</button></td>
                 </tr>
