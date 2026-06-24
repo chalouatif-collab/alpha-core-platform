@@ -672,7 +672,7 @@
             }
         }
 
-        async function handleUnifiedAuth() {
+       async function handleUnifiedAuth() {
             const username = document.getElementById('auth-username').value.trim();
             const password = document.getElementById('auth-password').value;
             if(!username || !password) return showNotification('الحقول مطلوبة!', 'error');
@@ -689,13 +689,25 @@
                     } else {
                         currentUser = data;
                         localStorage.setItem('alpha_user', JSON.stringify(currentUser));
-                        showDashboard(); closeAuthModal(); showNotification('Connexion réussie !');
-                        fetchAndRenderSports();
-                        fetchAndRenderHistory();
+                        closeAuthModal();
+                        
+                        // 🛠️ نظام التوجيه الذكي حسب الرتبة
+                        if (currentUser.role === 'admin') {
+                            showDashboard();
+                            switchTab('admin-panel');
+                            showNotification('Bienvenue Admin !');
+                        } else if (currentUser.role === 'user') {
+                            showNotification('Connexion Boutique Réussie !');
+                            window.location.href = 'shop.html'; // يفتح لوحة المحل فوراً
+                        } else {
+                            showDashboard();
+                            showNotification('Connexion réussie !');
+                            fetchAndRenderSports();
+                            fetchAndRenderHistory();
+                        }
                     }
                 } else { showNotification(data.detail || 'Erreur !', 'error'); }
             } catch(e){ showNotification('Erreur de communication!', 'error'); }
-        }
 
         function showDashboard() {
             if(!currentUser) {
