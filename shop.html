@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALPHA SHOP - لوحة تحكم المحل المعتمد</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-[#060913] text-slate-200 min-h-screen font-sans p-4 md:p-6 max-w-6xl w-full mx-auto space-y-6">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
+
+    <header class="bg-[#0b101f] border border-slate-800/60 p-4 rounded-2xl flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center transform rotate-45">
+                <span class="text-slate-950 font-black text-base transform -rotate-45">S</span>
+            </div>
+            <div>
+                <h1 class="text-sm font-black uppercase tracking-wider text-white">Alpha Shop Dashboard</h1>
+                <p class="text-[10px] text-cyan-400 font-mono" id="shop-username-display">Boutique: Connected</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="bg-[#04060c] border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2 font-mono text-xs">
+                <span class="text-[10px] text-slate-400 font-sans">رصيد المحل:</span>
+                <span class="text-emerald-400 font-black" id="shop-balance-val">$0.00</span>
+                <span class="text-[9px] bg-emerald-500/10 text-emerald-400 px-1 py-0.5 rounded font-bold">USDT</span>
+            </div>
+            <button onclick="logoutShop()" class="text-xs font-bold bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-400 px-3 py-1.5 rounded-xl transition-all cursor-pointer">
+                Sortir
+            </button>
+        </div>
+    </header>
+
+    <main class="grid grid-cols-1 gap-6">
+        
+        <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="border-b border-slate-900 pb-2 flex justify-between items-center">
+                <h3 class="text-xs font-black text-slate-300 flex items-center gap-2">👤 تفريع حساب لاعب جديد (Créer un joueur)</h3>
+                <span class="text-[9px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-bold">Sous-compte</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-bold">
+                <div>
+                    <label class="text-slate-400 block mb-1">اسم لاعبك الجديد</label>
+                    <input type="text" id="player-username" placeholder="Nom du joueur" class="w-full p-2.5 rounded-xl bg-[#04060c] border border-slate-800 text-white font-mono focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-slate-400 block mb-1">كلمة المرور الحاصة به</label>
+                    <input type="password" id="player-password" placeholder="••••••••" class="w-full p-2.5 rounded-xl bg-[#04060c] border border-slate-800 text-white font-mono focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+            <button onclick="createPlayerAccount()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md">تثبيت وإنشاء الحساب</button>
+        </section>
+
+        <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
+            <div class="bg-gradient-to-r from-emerald-500/10 to-transparent p-4 border-b border-slate-800/60 flex justify-between items-center flex-wrap gap-2">
+                <h3 class="text-xs font-black text-white flex items-center gap-2">💸 لوحة شحن وسحب أرصدة زبائنك</h3>
+                <div class="flex gap-1.5 flex-wrap">
+                    <input type="text" id="target-player-name" placeholder="لاعبك المحدد" class="bg-[#04060c] border border-slate-800 text-xs px-2 py-1 rounded-lg text-amber-400 font-mono w-28 focus:outline-none">
+                    <input type="number" id="finance-amount" placeholder="المبلغ" class="bg-[#04060c] border border-slate-800 text-xs px-2 py-1 rounded-lg text-emerald-400 font-mono w-20 focus:outline-none">
+                    <button onclick="executeShopFinance('charge')" class="bg-emerald-500 text-slate-950 font-black text-[10px] px-3 py-1 rounded-lg cursor-pointer hover:bg-emerald-600 transition-all">شحن</button>
+                    <button onclick="executeShopFinance('withdraw')" class="bg-rose-600 text-white font-black text-[10px] px-3 py-1 rounded-lg cursor-pointer hover:bg-rose-700 transition-all">سحب</button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto no-scrollbar">
+                <table class="w-full text-left text-xs font-bold">
+                    <thead class="bg-[#04060c] text-slate-400 font-mono uppercase text-[10px] border-b border-slate-900">
+                        <tr>
+                            <th class="p-3">اسم لاعبك</th>
+                            <th class="p-3">الرصيد المتاح له</th>
+                            <th class="p-3">الحالة البرمجية</th>
+                            <th class="p-3">تحديد سريع</th>
+                        </tr>
+                    </thead>
+                    <tbody id="players-table-body" class="divide-y divide-slate-900/60 font-mono">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const BACKEND_URL = "https://alpha-core-fl0v.onrender.com";
+        let shopSessionUser = null;
+        let createdPlayersList = [
+            { username: "client_test_1", balance: 50.00 }
+        ];
+
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = `p-3 rounded-xl shadow-2xl border text-xs font-bold text-slate-900 flex items-center gap-2 ${type === 'success' ? 'bg-gradient-to-r from-emerald-400 to-teal-400 border-emerald-500' : 'bg-gradient-to-r from-rose-400 to-amber-400 border-rose-500'}`;
+            toast.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        async function createPlayerAccount() {
+            const username = document.getElementById('player-username').value.trim();
+            const password = document.getElementById('player-password').value;
+            
+            if(!username || !password) return showNotification('جميع الحقول مطلوبة لتفريغ حساب لاعب', 'error');
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/register`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                if(res.ok) {
+                    showNotification(`تم تفريع حساب اللاعب [${username}] بنجاح تحت متجرك!`);
+                    createdPlayersList.push({ username: username.toLowerCase(), balance: 0.0 });
+                    renderPlayersTable();
+                    document.getElementById('player-username').value = "";
+                    document.getElementById('player-password').value = "";
+                } else {
+                    showNotification('هذا الاسم محجوز مسبقاً في المنصة', 'error');
+                }
+            } catch(e) { showNotification('عطل اتصال بالسيرفر', 'error'); }
+        }
+
+        async function executeShopFinance(type) {
+            const targetPlayer = document.getElementById('target-player-name').value.trim().toLowerCase();
+            let amount = parseFloat(document.getElementById('action-amount') ? document.getElementById('action-amount').value : document.getElementById('finance-amount').value);
+            
+            if(!targetPlayer || isNaN(amount) || amount <= 0) return showNotification('بيانات المعاملة غير صحيحة', 'error');
+
+            if(type === 'charge' && shopSessionUser.balance < amount) {
+                return showNotification('رصيد متجرك الحالي غير كافٍ لتغطية هذه الشحنة!', 'error');
+            }
+
+            const finalAmount = type === 'withdraw' ? -amount : amount;
+
+            try {
+                // المحل يرسل الحركة المالية للباكيند؛ السيرفر يتعرف على رصيد المحل ويخصم منه
+                const res = await fetch(`${BACKEND_URL}/api/admin/bets/settle`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminUsername: shopSessionUser.username, betId: "RECHARGE", newStatus: `${targetPlayer}:${finalAmount}` })
+                });
+                
+                if(res.ok) {
+                    if (type === 'withdraw') {
+                        showNotification(`تم سحب $${amount.toFixed(2)} بنجاح وإعادتها لرصيد متجرك`);
+                        shopSessionUser.balance += amount;
+                    } else {
+                        showNotification(`تم شحن اللاعب ${targetPlayer} بمبلغ $${amount.toFixed(2)} خصماً من رصيدك`);
+                        shopSessionUser.balance -= amount;
+                    }
+                    
+                    const playerObj = createdPlayersList.find(p => p.username === targetPlayer);
+                    if(playerObj) playerObj.balance = type === 'withdraw' ? playerObj.balance - amount : playerObj.balance + amount;
+                    
+                    localStorage.setItem('alpha_user', JSON.stringify(shopSessionUser));
+                    document.getElementById('shop-balance-val').innerText = `$${shopSessionUser.balance.toFixed(2)}`;
+                    renderPlayersTable();
+                    document.getElementById('finance-amount').value = "";
+                } else {
+                    showNotification('فشلت العملية، تأكد من صحة اسم اللاعب التابع لك', 'error');
+                }
+            } catch(e) { showNotification('خطأ في معالجة الشبكة المالية', 'error'); }
+        }
+
+        function renderPlayersTable() {
+            const tbody = document.getElementById('players-table-body');
+            tbody.innerHTML = createdPlayersList.map(p => `
+                <tr class="hover:bg-slate-900/40">
+                    <td class="p-3 text-white">${p.username}</td>
+                    <td class="p-3 text-emerald-400">$${p.balance.toFixed(2)}</td>
+                    <td class="p-3 text-cyan-400 text-[10px]">ACTIVE PLAYER</td>
+                    <td class="p-3"><button onclick="selectPlayerForAction('${p.username}')" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-2 py-0.5 rounded cursor-pointer">Sélectionner</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function selectPlayerForAction(name) { document.getElementById('target-player-name').value = name; }
+        function changeAdminLanguage(lang) { }
+        function logoutShop() { window.location.href = 'index.html'; }
+
+        window.onload = function() {
+            const saved = localStorage.getItem('alpha_user');
+            if(saved) {
+                shopSessionUser = JSON.parse(saved);
+                document.getElementById('shop-username-display').innerText = `Boutique: ${shopSessionUser.username}`;
+                document.getElementById('shop-balance-val').innerText = `$${parseFloat(shopSessionUser.balance).toFixed(2)}`;
+            }
+            renderPlayersTable();
+        }
+    </script>
+</body>
+</html>
