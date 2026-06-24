@@ -72,11 +72,11 @@
 
         <main class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar space-y-6">
 
-            <!-- 1️⃣ القسم الأول المشترك: إدارة الحسابات والمحلات واللاعبين الحالية (Capture2.PNG) -->
+            <!-- 1️⃣ القسم الأول: تفريع الحسابات وإدارة العمليات المالية (الشحن والسحب) -->
             <div id="panel-sec-compte" class="admin-main-view space-y-6">
                 <!-- كرت تفريع حساب جديد -->
                 <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-4">
-                    <h3 class="text-xs font-black text-slate-300 flex items-center gap-2">🕹️ تفريع حساب جديد (Shop / Player)</h3>
+                    <h3 class="text-xs font-black text-slate-300 flex items-center gap-2">🕹️ إنشاء حساب لاعب جديد</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-bold">
                         <div>
                             <label class="text-slate-400 block mb-1">اسم الحساب الجديد</label>
@@ -94,18 +94,20 @@
                             </select>
                         </div>
                     </div>
-                    <button onclick="createNewAccountMock()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-black text-xs px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md">تثبيت وإنشاء</button>
+                    <button onclick="createNewAccountReal()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-black text-xs px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md">تثبيت وإنشاء</button>
                 </section>
 
                 <!-- جدول إدارة المحلات واللاعبين التابعين -->
                 <section class="bg-[#0b101f]/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
-                    <div class="bg-gradient-to-r from-cyan-500/20 to-transparent p-4 border-b border-slate-800/60 flex justify-between items-center">
+                    <div class="bg-gradient-to-r from-cyan-500/20 to-transparent p-4 border-b border-slate-800/60 flex justify-between items-center flex-wrap gap-2">
                         <h3 class="text-xs font-black text-white flex items-center gap-2">📋 إدارة المحلات واللاعبين التابعين لك</h3>
-                        <div class="flex gap-1.5">
+                        <div class="flex gap-1.5 flex-wrap">
                             <input type="text" id="action-target-user" placeholder="الحساب المحدد" class="bg-[#04060c] border border-slate-800 text-xs px-2 py-1 rounded-lg text-amber-400 font-mono w-28 focus:outline-none">
                             <input type="number" id="action-amount" placeholder="المبلغ" class="bg-[#04060c] border border-slate-800 text-xs px-2 py-1 rounded-lg text-emerald-400 font-mono w-20 focus:outline-none">
-                            <button onclick="handleAdminAction('charge')" class="bg-emerald-500 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg cursor-pointer">شحن</button>
-                            <button onclick="handleAdminAction('clear')" class="bg-rose-600 text-white font-black text-[10px] px-2.5 py-1 rounded-lg cursor-pointer">تصفير</button>
+                            
+                            <!-- 🛠️ تعديل الأزرار لتصبح شحن وسحب حقيقي برمجياً بالكامل -->
+                            <button onclick="handleAdminFinanceAction('charge')" class="bg-emerald-500 text-slate-950 font-black text-[10px] px-3 py-1 rounded-lg cursor-pointer hover:bg-emerald-600 transition-all shadow">شحن</button>
+                            <button onclick="handleAdminFinanceAction('withdraw')" class="bg-rose-600 text-white font-black text-[10px] px-3 py-1 rounded-lg cursor-pointer hover:bg-rose-700 transition-all shadow">سحب</button>
                         </div>
                     </div>
                     <div class="overflow-x-auto no-scrollbar">
@@ -114,23 +116,12 @@
                                 <tr>
                                     <th class="p-3">اسم المستخدم</th>
                                     <th class="p-3">الرتبة</th>
-                                    <th class="p-3">الصيد الحالي</th>
+                                    <th class="p-3">الرصيد الحالي</th>
                                     <th class="p-3">الإجراء الفوري</th>
                                 </tr>
                             </thead>
                             <tbody id="users-table-body" class="divide-y divide-slate-900/60">
-                                <tr class="hover:bg-slate-900/40">
-                                    <td class="p-3 font-mono text-white">fethi_shop_1</td>
-                                    <td class="p-3 text-cyan-400">Shop</td>
-                                    <td class="p-3 font-mono text-emerald-400">$2,500.00</td>
-                                    <td class="p-3"><button onclick="selectUserForAction('fethi_shop_1')" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-2 py-1 rounded">Sélectionner</button></td>
-                                </tr>
-                                <tr class="hover:bg-slate-900/40">
-                                    <td class="p-3 font-mono text-white">player_tun_2</td>
-                                    <td class="p-3 text-amber-400">Player</td>
-                                    <td class="p-3 font-mono text-emerald-400">$420.50</td>
-                                    <td class="p-3"><button onclick="selectUserForAction('player_tun_2')" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-2 py-1 rounded">Sélectionner</button></td>
-                                </tr>
+                                <!-- تضاف قائمة اللاعبين ديناميكياً هنا لتعرض الحسابات الحقيقية -->
                             </tbody>
                         </table>
                     </div>
@@ -151,16 +142,18 @@
                         <label class="text-slate-400 block mb-1 text-xs font-bold">Nouveau mot de passe</label>
                         <input type="password" id="admin-new-pass" placeholder="••••••••" class="w-full bg-[#04060c] border border-slate-800 p-3 rounded-xl text-xs focus:outline-none focus:border-emerald-500 text-white font-mono font-bold">
                     </div>
-                    <button onclick="showNotification('Sandbox Active ! Mot de passe préservé.')" class="w-full bg-emerald-500 text-slate-950 font-black text-xs py-3 rounded-xl cursor-pointer shadow-lg">Mettre à jour</button>
+                    <button onclick="showNotification('Sandbox Active !')" class="w-full bg-emerald-500 text-slate-950 font-black text-xs py-3 rounded-xl cursor-pointer shadow-lg">Mettre à jour</button>
                 </div>
             </div>
 
         </main>
     </div>
 
-    <!-- برمجة الـ JavaScript الشاملة والربط الديناميكي السليم للمنصة -->
     <script>
         const BACKEND_URL = "https://alpha-core-fl0v.onrender.com";
+        let localAccountsList = [
+            { username: "fethi", role: "admin", balance: 999999999999999 }
+        ];
 
         function showNotification(message, type = 'success') {
             const container = document.getElementById('toast-container');
@@ -188,6 +181,99 @@
 
         function switchAdminSectionMock(name) {
             showNotification(`Section ${name} Sandbox Active ! (Hub88 API Connected)`);
+        }
+
+        async function createNewAccountReal() {
+            const username = document.getElementById('new-user-username').value.trim();
+            const password = document.getElementById('new-user-password').value;
+            const role = document.getElementById('new-user-role').value;
+            
+            if(!username || !password) return showNotification('جميع الحقول مطلوبة لتفريغ الحساب', 'error');
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                if(res.ok) {
+                    showNotification(`تم إنشاء وتثبيت حساب ${username} بنجاح!`);
+                    localAccountsList.push({ username: username.toLowerCase(), role: role, balance: 0.0 });
+                    renderAccountsTable();
+                    document.getElementById('new-user-username').value = "";
+                    document.getElementById('new-user-password').value = "";
+                } else {
+                    const err = await res.json();
+                    showNotification(err.detail || 'خطأ في إنشاء الحساب', 'error');
+                }
+            } catch(e) { showNotification('عطل في تواصل السيرفر', 'error'); }
+        }
+
+        // 🛠️ دالة التحكم البرمجي الفعلي بعمليات الشحن والسحب من الباكيند المباشر
+        async function handleAdminFinanceAction(type) {
+            const targetUser = document.getElementById('action-target-user').value.trim().toLowerCase();
+            let amount = parseFloat(document.getElementById('action-amount').value);
+            
+            if(!targetUser || isNaN(amount) || amount <= 0) {
+                return showNotification('يرجى تحديد حساب لاعب سليم وكتابة قيمة العملية الإيجابية', 'error');
+            }
+
+            // إذا كان الإجراء هو سحب، نقوم بقلب إشارة المبلغ ليكون سالباً ليقوم السيرفر بخصمه تلقائياً
+            const finalAmount = type === 'withdraw' ? -amount : amount;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/bets/settle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        adminUsername: "fethi",
+                        betId: "RECHARGE",
+                        newStatus: `${targetUser}:${finalAmount}`
+                    })
+                });
+                if(res.ok) {
+                    if (type === 'withdraw') {
+                        showNotification(`تم سحب مبلغ $${amount.toFixed(2)} بنجاح من حساب ${targetUser}`);
+                    } else {
+                        showNotification(`تم شحن حساب ${targetUser} بنجاح بمبلغ $${amount.toFixed(2)}`);
+                    }
+                    
+                    const acc = localAccountsList.find(a => a.username === targetUser);
+                    if(acc) {
+                        acc.balance = type === 'withdraw' ? acc.balance - amount : acc.balance + amount;
+                    } else {
+                        localAccountsList.push({ username: targetUser, role: "player", balance: finalAmount });
+                    }
+                    
+                    renderAccountsTable();
+                    document.getElementById('action-amount').value = "";
+                } else {
+                    showNotification('فشلت العملية، تأكد من وجود الحساب بالسيرفر وعمله الإداري', 'error');
+                }
+            } catch(e) { showNotification('عطل في الشبكة الإدارية البنكية', 'error'); }
+        }
+
+        function renderAccountsTable() {
+            const tbody = document.getElementById('users-table-body');
+            if(localAccountsList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">لا يوجد حسابات تابعة بعد</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = localAccountsList.map(acc => `
+                <tr class="hover:bg-slate-900/40">
+                    <td class="p-3 font-mono text-white">${acc.username}</td>
+                    <td class="p-3 text-cyan-400 capitalize">${acc.role === 'user' ? 'Shop' : acc.role}</td>
+                    <td class="p-3 font-mono text-emerald-400">$${parseFloat(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                    <td class="p-3">
+                        <button onclick="selectUserForAction('${acc.username}')" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-2 py-1 rounded cursor-pointer">Sélectionner</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function selectUserForAction(username) {
+            document.getElementById('action-target-user').value = username;
+            showNotification(`تم تحديد حساب: ${username}`);
         }
 
         async function fetchAndRenderAdminBets() {
@@ -270,26 +356,6 @@
             } catch(e) { showNotification('Erreur réseau', 'error'); }
         }
 
-        function selectUserForAction(username) {
-            document.getElementById('action-target-user').value = username;
-            showNotification(`Compte ${username} sélectionné.`);
-        }
-
-        function handleAdminAction(type) {
-            const user = document.getElementById('action-target-user').value.trim();
-            const amt = document.getElementById('action-amount').value;
-            if(!user) return showNotification('يرجى تحديد حساب لاعب أولاً', 'error');
-            if(type === 'charge' && !amt) return showNotification('يرجى كتابة المبلغ للشحن', 'error');
-            
-            showNotification(`Opération ${type} réussie sur ${user}!`);
-        }
-
-        function createNewAccountMock() {
-            const user = document.getElementById('new-user-username').value.trim();
-            if(!user) return showNotification('اسم الحساب مطلوب', 'error');
-            showNotification(`Compte ${user} créé avec succès !`);
-        }
-
         function changeAdminLanguage(lang) {
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
             showNotification(`Langue changée en [${lang.toUpperCase()}]`);
@@ -305,7 +371,9 @@
             if(savedUser) {
                 const parsed = JSON.parse(savedUser);
                 document.getElementById('admin-user-tag').innerText = `${parsed.username} [ADMIN]`;
+                localAccountsList[0].username = parsed.username;
             }
+            renderAccountsTable();
         }
     </script>
 </body>
