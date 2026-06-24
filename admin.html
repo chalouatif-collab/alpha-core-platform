@@ -1,126 +1,223 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="fr" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alpha Core - Admin Dashboard</title>
+    <title>Alphabet - لوحة التحكم الإدارية</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-[#0f172a] text-slate-200 min-h-screen p-4">
-    <header class="bg-slate-900 border-b border-slate-800 p-4 rounded-xl flex justify-between items-center mb-6 shadow-xl">
-        <h1 class="text-xl font-black text-cyan-400 tracking-wider">ALPHA <span class="text-white font-light">ADMINISTRATION</span></h1>
-        <div class="flex items-center gap-4">
-            <span class="text-sm bg-cyan-500/10 text-cyan-400 px-3 py-1 rounded-lg border border-cyan-500/20 font-bold" id="admin-role-badge">ADMIN</span>
-            <span class="font-bold text-slate-300" id="admin-username">---</span>
-            <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-cyan-600 px-3 py-1.5 rounded-lg transition-all cursor-pointer">خروج</button>
+<body class="bg-[#060913] text-slate-200 min-h-screen font-sans p-4 md:p-6 max-w-6xl w-full mx-auto space-y-6">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
+
+    <header class="bg-[#0b101f] border border-slate-800/60 p-4 rounded-2xl flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center transform rotate-45">
+                <span class="text-slate-950 font-black text-base transform -rotate-45">A</span>
+            </div>
+            <div>
+                <h1 class="text-sm font-black uppercase tracking-wider text-white">Alphabet Admin Console</h1>
+                <p class="text-[10px] text-slate-400 font-mono" id="admin-user-display">Admin: Connecté</p>
+            </div>
         </div>
+        <a href="index.html" class="text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl border border-slate-700 transition-all">
+            ⬅️ Retour au site
+        </a>
     </header>
 
-    <main class="max-w-6xl mx-auto space-y-6">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-            <h3 class="text-lg font-bold text-white mb-4">📥 تفريع حساب جديد (Shop / Player)</h3>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">اسم الحساب الجديد</label>
-                    <input type="text" id="adm-user-name" placeholder="Username" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-500">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">كلمة المرور</label>
-                    <input type="password" id="adm-user-pass" placeholder="••••••••" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-500">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">الرتبة</label>
-                    <select id="adm-user-role" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-cyan-500">
-                        <option value="shop">Shop (محل معتمد)</option>
-                        <option value="player">Player (لاعب فرعي)</option>
-                    </select>
-                </div>
-                <button onclick="createSubUser()" class="w-full bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold py-2.5 rounded transition-all cursor-pointer shadow-lg">تثبيت وإنشاء</button>
-            </div>
+    <main class="space-y-6">
+        <div class="flex justify-between items-center px-1 border-b border-slate-900 pb-3">
+            <h2 class="text-sm font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                🛠️ <span>MENU DE GESTION - لوحة الإدارة</span>
+            </h2>
         </div>
 
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-            <div class="bg-cyan-500 p-4 text-slate-950 font-bold flex justify-between items-center">
-                <span>📋 إدارة المحلات واللاعبين التابعين لك</span>
-                <div class="flex gap-2 text-xs">
-                    <input type="text" id="action-target" placeholder="الحساب المحدد" class="bg-white p-1 rounded font-mono text-center text-slate-900 w-24 focus:outline-none" readonly>
-                    <input type="number" id="action-amount" placeholder="المبلغ" class="bg-white p-1 rounded font-mono text-center text-slate-900 w-16 focus:outline-none">
-                    <button onclick="handleBalance('charge')" class="bg-slate-950 text-white px-2 py-1 rounded font-bold">شحن</button>
-                    <button onclick="handleBalance('reset')" class="bg-rose-700 text-white px-2 py-1 rounded font-bold">تصفير</button>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="admin-menu-buttons">
+            <button onclick="switchAdminSection('sport')" id="btn-admin-sport" class="w-full flex items-center gap-3 bg-slate-800/40 border border-emerald-500/30 text-white p-4 rounded-xl transition-all cursor-pointer font-bold text-xs shadow-md">
+                ⚽ Historique de sport
+            </button>
+            <button onclick="switchAdminSection('casino')" id="btn-admin-casino" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
+                🎰 Historique de casino
+            </button>
+            <button onclick="switchAdminSection('transfert')" id="btn-admin-transfert" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
+                💸 Historique de transfert
+            </button>
+            <button onclick="switchAdminSection('compte')" id="btn-admin-compte" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
+                👤 Historique de compte
+            </button>
+            <button onclick="switchAdminSection('security')" id="btn-admin-security" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
+                🔑 Changement de mot de passe
+            </button>
+        </div>
+
+        <div id="admin-sections-content" class="pt-2">
+            
+            <div id="admin-sec-sport" class="admin-tab-content space-y-3">
+                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-1">📋 Tickets de sport actifs :</div>
+                <div id="admin-container" class="grid grid-cols-1 gap-3">
+                    <div class="text-center p-6 text-slate-500 font-bold text-xs animate-pulse">Chargement des tickets depuis le serveur...</div>
                 </div>
             </div>
-            <div class="p-4 overflow-x-auto">
-                <table class="w-full text-right text-sm">
-                    <thead>
-                        <tr class="bg-slate-800 text-slate-400 font-bold border-b border-slate-700 text-xs">
-                            <th class="p-3">اسم المستخدم</th>
-                            <th class="p-3">الرتبة</th>
-                            <th class="p-3 text-left">الرصيد الحالي</th>
-                            <th class="p-3 text-center">الإجراء الفوري</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-tbody" class="divide-y divide-slate-800/60"></tbody>
-                </table>
+
+            <div id="admin-sec-casino" class="admin-tab-content space-y-3 hidden">
+                <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
+                    🎰 Historique de casino Sandbox Native Engine Active. Aucun pari casino enregistré.
+                </div>
             </div>
+
+            <div id="admin-sec-transfert" class="admin-tab-content space-y-3 hidden">
+                <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
+                    💸 Historique de transfert (Dépôts / Retraits Hub88 Logs) - Aucun transfert en attente.
+                </div>
+            </div>
+
+            <div id="admin-sec-compte" class="admin-tab-content space-y-3 hidden">
+                <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
+                    👤 Base de données des comptes utilisateurs sécurisée - Aucun log disponible.
+                </div>
+            </div>
+
+            <div id="admin-sec-security" class="admin-tab-content space-y-3 hidden">
+                <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl space-y-4 max-w-sm mx-auto">
+                    <h4 class="text-xs font-bold text-amber-400">🔑 Modifier le mot de passe Administrateur</h4>
+                    <input type="password" id="admin-new-pass" placeholder="Nouveau mot de passe" class="w-full bg-[#04060c] border border-slate-800 p-2.5 rounded-xl text-xs focus:outline-none focus:border-emerald-500 text-white font-mono">
+                    <button onclick="showNotification('Sandbox Active ! Mot de passe unitaire.')" class="w-full bg-emerald-500 text-slate-950 font-black text-xs py-2 rounded-xl cursor-pointer">Mettre à jour</button>
+                </div>
+            </div>
+
         </div>
     </main>
 
     <script>
-        const BACKEND_URL = "https://alpha-casino-api.onrender.com";
-        let user = JSON.parse(localStorage.getItem('alpha_user'));
-        if (!user || (user.role !== 'super_admin' && user.role !== 'admin')) { window.location.href = "index.html"; }
-        else { document.getElementById('admin-username').innerText = user.username; document.getElementById('admin-role-badge').innerText = user.role.toUpperCase(); loadAdminData(); }
+        const BACKEND_URL = "https://alpha-core-fl0v.onrender.com";
+        let adminUser = null;
 
-        async function loadAdminData() {
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = `p-3 rounded-xl shadow-2xl border text-xs font-bold text-slate-900 flex items-center gap-2 ${type === 'success' ? 'bg-gradient-to-r from-emerald-400 to-teal-400 border-emerald-500' : 'bg-gradient-to-r from-rose-400 to-amber-400 border-rose-500'}`;
+            toast.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        function switchAdminSection(sectionName) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('admin-menu-buttons').querySelectorAll('button').forEach(btn => {
+                btn.className = "w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs";
+            });
+            
+            const targetSection = document.getElementById(`admin-sec-${sectionName}`);
+            const targetBtn = document.getElementById(`btn-admin-${sectionName}`);
+            if (targetSection) targetSection.classList.remove('hidden');
+            if (targetBtn) {
+                targetBtn.className = "w-full flex items-center gap-3 bg-slate-800/40 border border-emerald-500/30 text-white p-4 rounded-xl transition-all cursor-pointer font-bold text-xs shadow-md";
+            }
+            
+            if (sectionName === 'sport') {
+                fetchAndRenderAdminBets();
+            }
+        }
+
+        async function fetchAndRenderAdminBets() {
+            const container = document.getElementById('admin-container');
             try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
-                if(res.ok) {
-                    const data = await res.json();
-                    const tbody = document.getElementById('admin-tbody'); tbody.innerHTML = '';
-                    data.forEach(u => {
-                        tbody.innerHTML += `
-                            <tr class="border-b border-slate-800/40">
-                                <td class="p-3 text-white font-bold">${u.username}</td>
-                                <td class="p-3 text-cyan-400 text-xs font-mono font-bold">${u.role.toUpperCase()}</td>
-                                <td class="p-3 text-[#10b981] font-mono font-bold text-left">$${parseFloat(u.balance).toFixed(2)}</td>
-                                <td class="p-3 text-center"><button onclick="selectUser('${u.username}')" class="text-xs bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 px-2 py-1 rounded font-bold cursor-pointer">🎯 اختيار</button></td>
-                            </tr>`;
-                    });
+                const res = await fetch(`${BACKEND_URL}/api/admin/bets`);
+                const allBets = await res.json();
+                if (allBets && allBets.length > 0) {
+                    container.innerHTML = allBets.map((bet) => {
+                        const selectionsHtml = bet.selections && bet.selections.length > 0 
+                            ? bet.selections.map(sel => `
+                                <div class="bg-[#04060c] border border-slate-800/80 p-2 rounded-xl space-y-1 text-[11px] text-left">
+                                    <div class="flex justify-between font-bold">
+                                        <span class="text-white truncate max-w-[180px]">⚽ ${sel.matchName}</span>
+                                        <span class="text-amber-400 font-mono">@${parseFloat(sel.odds).toFixed(2)}</span>
+                                    </div>
+                                    <div class="flex justify-between text-[10px] text-slate-400">
+                                        <span>League: ${sel.leagueName || 'Football'}</span>
+                                        <span>Pronostic: <span class="text-emerald-400 font-bold">${sel.prediction}</span></span>
+                                    </div>
+                                </div>
+                            `).join('')
+                            : `<p class="text-center text-slate-600 text-[10px]">Aucune sélection trouvée</p>`;
+
+                        return `
+                            <div class="bg-[#0b101f] border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-xl text-left">
+                                <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('admin-details-${bet.betId}').classList.toggle('hidden')">
+                                    <div class="space-y-1">
+                                        <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono font-bold">${bet.betId}</span>
+                                        <p class="text-[11px] text-amber-400 font-black">Joueur: ${bet.username}</p>
+                                        <p class="text-[11px] text-slate-400 font-bold">${bet.date}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded font-mono">@${parseFloat(bet.totalOdds || 1).toFixed(2)}</span>
+                                        <span class="text-[11px] font-black block mt-1 ${bet.status === 'Gagné' ? 'text-emerald-400' : bet.status === 'Perdu' ? 'text-rose-400' : 'text-cyan-400'}">${bet.status}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-slate-800/60 my-2 pt-2 flex justify-between items-center text-xs font-bold">
+                                    <div><span class="text-slate-400">Mise:</span> <span class="text-white font-mono">$${parseFloat(bet.amount).toFixed(2)}</span></div>
+                                    <div><span class="text-slate-400">A Payer:</span> <span class="text-emerald-400 font-mono font-black">$${parseFloat(bet.potentialWin || 0).toFixed(2)}</span></div>
+                                </div>
+
+                                ${bet.status === 'En cours' ? `
+                                <div class="grid grid-cols-2 gap-2 pt-1">
+                                    <button onclick="settleUserBet('${bet.betId}', 'Gagné')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-[10px] py-2 rounded-xl transition-all cursor-pointer">Settle: WIN ✅</button>
+                                    <button onclick="settleUserBet('${bet.betId}', 'Perdu')" class="bg-rose-600 hover:bg-rose-700 text-white font-black text-[10px] py-2 rounded-xl transition-all cursor-pointer">Settle: LOSE ❌</button>
+                                </div>
+                                ` : `<div class="text-center text-[10px] bg-[#04060c] py-1.5 text-slate-500 font-bold border border-slate-900 rounded-xl">Traité et Archivé</div>`}
+
+                                <button onclick="document.getElementById('admin-details-${bet.betId}').classList.toggle('hidden')" class="w-full bg-[#04060c] hover:bg-slate-800/50 text-slate-400 hover:text-white text-[10px] font-bold py-1.5 rounded-xl border border-slate-800/80 transition-all cursor-pointer">
+                                    👁️ Voir les détails du coupon
+                                </button>
+
+                                <div id="admin-details-${bet.betId}" class="hidden space-y-2 pt-2 border-t border-slate-900">
+                                    ${selectionsHtml}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = `<div class="text-center p-8 text-slate-500 text-xs font-bold uppercase tracking-wider">Aucun ticket en attente</div>`;
                 }
-            } catch(e){}
+            } catch (e) {
+                container.innerHTML = `<div class="text-center p-8 text-rose-500 text-xs font-bold">Erreur de chargement de l'historique admin</div>`;
+            }
         }
-        function selectUser(un) { document.getElementById('action-target').value = un; }
-        async function handleBalance(action) {
-            const target_username = document.getElementById('action-target').value;
-            const amountInput = document.getElementById('action-amount').value;
-            if(!target_username) return alert('اختر حساباً أولاً!');
-            const amount = amountInput ? parseFloat(amountInput) : 0;
+
+        async function settleUserBet(betId, statusResult) {
+            const savedUser = localStorage.getItem('alpha_user');
+            const userObj = savedUser ? JSON.parse(savedUser) : { username: "admin" };
             try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
+                const res = await fetch(`${BACKEND_URL}/api/admin/bets/settle`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admin_username: user.username, target_username, action, amount })
+                    body: JSON.stringify({ adminUsername: userObj.username, betId: betId, newStatus: statusResult })
                 });
-                if(res.ok){ alert('تمت العملية المالية!'); loadAdminData(); }
-                else { const err = await res.json(); alert(err.detail); }
-            } catch(e){}
+                if (res.ok) {
+                    showNotification(`Ticket ${betId} mis à jour avec succès!`);
+                    fetchAndRenderAdminBets();
+                } else {
+                    showNotification('Erreur de mise à jour', 'error');
+                }
+            } catch(e) {
+                showNotification('Erreur réseau', 'error');
+            }
         }
-        async function createSubUser() {
-            const username = document.getElementById('adm-user-name').value.trim();
-            const password = document.getElementById('adm-user-pass').value;
-            const role = document.getElementById('adm-user-role').value;
-            if(!username || !password) return alert('أدخل البيانات كاملة!');
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, role, created_by: user.username })
-                });
-                if(res.ok){ alert('تم تفريع الحساب التابع بنجاح!'); loadAdminData(); }
-                else { const err = await res.json(); alert(err.detail); }
-            } catch(e){}
+
+        window.onload = function() {
+            const savedUser = localStorage.getItem('alpha_user');
+            if(savedUser) {
+                const parsed = JSON.parse(savedUser);
+                document.getElementById('admin-user-display').innerText = `Admin: ${parsed.username}`;
+            }
+            fetchAndRenderAdminBets();
         }
-        function logout() { localStorage.removeItem('alpha_user'); window.location.href = "index.html"; }
     </script>
 </body>
 </html>
