@@ -159,21 +159,35 @@ async def confirm_sports_bet(req: BetRequest):
     if not user_row or user_row[0] < req.amount:
         conn.close()
         raise HTTPException(status_code=400, detail="Solde insuffisant")
+    
     new_balance = user_row[0] - req.amount
     random_id = f"ST-{random.randint(100000, 900000)}"
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+    
+    # 🛠️ إصلاح الاستعلام السليم هنا وحذف الكلمة المكررة الزائدة ليعمل الخصم فورا
     cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, uname))
+    
     cursor.execute("INSERT INTO bets (bet_id, username, slip_type, amount, total_odds, potential_win, date, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'En cours')",
                    (random_id, uname, req.slipType, req.amount, req.totalOdds, req.potentialWin, date_str))
+    
     for item in req.selections:
         cursor.execute("INSERT INTO bet_selections (bet_id, match_id, match_name, prediction, odds, league_name) VALUES (?, ?, ?, ?, ?, ?)",
                        (random_id, item.matchId, item.matchName, item.prediction, item.odds, item.leagueName))
+    
     conn.commit()
     conn.close()
     return {"status": "success", "betId": random_id, "newBalance": new_balance}
 
+# 🛠️ دمج مسار جلب السجل ليتوافق مع الـ Query Param والـ Path Param في نفس الوقت لمنع الـ 404
+@app.get("/api/bets/history")
+async def get_bet_history_query(username: str):
+    return await execute_history_fetch(username)
+
 @app.get("/api/bets/history/{username}")
-async def get_bet_history(username: str):
+async def get_bet_history_path(username: str):
+    return await execute_history_fetch(username)
+
+async def execute_history_fetch(username: str):
     uname = username.strip().lower()
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
@@ -245,7 +259,6 @@ async def admin_settle_bet(req: UpdateBetStatusRequest):
 # 🎰 🎰 مـسارات الـ WEBHOOKS الـرسـمية الـمـتطـابـقة مـع Hub88 حرفياً
 # =========================================================================
 
-# 1. مسار جلب بيانات المستخدم المتطابق مع الصورة الأولى
 @app.post("/user/info")
 async def hub88_user_info(req: Hub88UserInfoRequest):
     uname = req.user.strip().lower()
@@ -257,7 +270,6 @@ async def hub88_user_info(req: Hub88UserInfoRequest):
     if not user:
         return {"status": "RS_ERROR_USER_NOT_FOUND", "request_uuid": req.request_uuid}
     
-    # الرد بصيغة الـ JSON المطلوبة في يمين الصورة حرفياً
     return {
         "user": uname,
         "status": "RS_OK",
@@ -266,7 +278,6 @@ async def hub88_user_info(req: Hub88UserInfoRequest):
         "currency": "USDT"
     }
 
-# 2. مسار جلب الرصيد المتوافق مع Hub88
 @app.post("/user/balance")
 async def hub88_get_balance(req: Hub88BalanceRequest):
     uname = req.user.strip().lower()
@@ -284,7 +295,6 @@ async def hub88_get_balance(req: Hub88BalanceRequest):
         "request_uuid": req.request_uuid
     }
 
-# 3. مسار معالجة رهان اللاعب الخصم المباشر
 @app.post("/transaction/bet")
 async def hub88_process_bet(req: Hub88TransactionRequest):
     uname = req.user.strip().lower()
@@ -312,7 +322,6 @@ async def hub88_process_bet(req: Hub88TransactionRequest):
         "request_uuid": req.request_uuid
     }
 
-# 4. مسار معالجة فوز اللاعب إضافة الأرباح
 @app.post("/transaction/win")
 async def hub88_process_win(req: Hub88TransactionRequest):
     uname = req.user.strip().lower()
