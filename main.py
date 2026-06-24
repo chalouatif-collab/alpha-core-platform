@@ -227,26 +227,47 @@ async def admin_get_all_bets():
 
 @app.post("/api/admin/bets/settle")
 async def admin_settle_bet(req: UpdateBetStatusRequest):
-    if req.adminUsername.strip().lower() != "fethi":
-        raise HTTPException(status_code=403, detail="Non autorisé")
+    admin_uname = req.adminUsername.strip().lower()
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
+    
     if req.betId == "RECHARGE":
         try:
             target_player, amount_to_charge = req.newStatus.split(":")
             amount_to_charge = float(amount_to_charge)
-            cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (amount_to_charge, target_player.strip().lower()))
+            target_player = target_player.strip().lower()
+            
+            # نظام الوكلاء الحقيقي: إذا كان الآدمين fethi هو من ينفذ العملية
+            if admin_uname == "fethi":
+                if target_player == "fethi":
+                    # السوبر أونر يشحن للآدمين مباشرة (توليد رصيد للآدمين)
+                    cursor.execute("UPDATE users SET balance = balance + ? WHERE username = 'fethi'", (amount_to_charge,))
+                else:
+                    # الآدمين يشحن للبقية: يتم التأكد من رصيد الآدمين أولاً
+                    cursor.execute("SELECT balance FROM users WHERE username = 'fethi'")
+                    admin_row = cursor.fetchone()
+                    
+                    if not admin_row or admin_row[0] < amount_to_charge:
+                        conn.close()
+                        raise HTTPException(status_code=400, detail="Votre solde admin est insuffisant")
+                    
+                    # الخصم من رصيد الآدمين الإداري والإضافة للمستلم الفعلي
+                    cursor.execute("UPDATE users SET balance = balance - ? WHERE username = 'fethi'", (amount_to_charge,))
+                    cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (amount_to_charge, target_player))
+            
             conn.commit()
             conn.close()
-            return {"status": "success", "message": "Recharge effectuée"}
-        except:
+            return {"status": "success", "message": "Transaction effectuée"}
+        except Exception as e:
             conn.close()
-            raise HTTPException(status_code=400, detail="Format de recharge invalide")
+            raise HTTPException(status_code=400, detail=str(e) if "insuffisant" in str(e) else "Format invalide")
+            
     cursor.execute("SELECT status, username, potential_win FROM bets WHERE bet_id = ?", (req.betId,))
     bet = cursor.fetchone()
     if not bet or bet[0] != "En cours":
         conn.close()
         raise HTTPException(status_code=400, detail="Ticket déjà traité")
+        
     cursor.execute("UPDATE bets SET status = ? WHERE bet_id = ?", (req.newStatus, req.betId))
     if req.newStatus == "Gagné":
         cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (bet[2], bet[1]))
