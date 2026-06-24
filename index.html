@@ -404,7 +404,7 @@
             document.getElementById('slip-potential-payout').innerText = `$${(amt * totalOdds).toFixed(2)}`;
         }
 
-      async function fetchAndRenderHistory() {
+        async function fetchAndRenderHistory() {
             if (!currentUser) return;
             const container = document.getElementById('history-container');
             try {
@@ -462,7 +462,26 @@
             } catch (e) {
                 container.innerHTML = `<div class="text-center p-8 text-rose-500 text-xs font-bold">Erreur de chargement de l'historique</div>`;
             }
-        } { 
+        }
+
+        async function confirmSportsBet() {
+            if(!currentUser || activeBetsList.length === 0) return;
+            const amt = parseFloat(document.getElementById('slip-bet-amount').value);
+            let totalOdds = activeBetsList.reduce((sum, bet) => sum * bet.odds, 1);
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/bets/sports`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: currentUser.username, slipType: currentSlipType, amount: amt, totalOdds: totalOdds, potentialWin: amt * totalOdds, selections: activeBetsList })
+                });
+                if(res.ok) { 
+                    showNotification('Ticket enregistré!'); 
+                    activeBetsList = []; 
+                    closeBetSlip(); 
+                    currentUser.balance -= amt;
+                    document.getElementById('nav-balance').innerText = `$${parseFloat(currentUser.balance).toFixed(2)}`;
+                    localStorage.setItem('alpha_user', JSON.stringify(currentUser));
+                    fetchAndRenderHistory();
+                } else { 
                     showNotification('Solde insuffisant !', 'error'); 
                 }
             } catch(e) {}
