@@ -13,7 +13,7 @@
         <h1 class="text-xl font-black text-rose-500 tracking-wider">ALPHA <span class="text-white font-light">OWNER CONTROL</span></h1>
         <div class="flex items-center gap-4">
             <span class="text-sm bg-rose-500/10 text-rose-400 px-3 py-1 rounded-lg border border-rose-500/20 font-bold" id="badge-role">Super Owner</span>
-            <span class="font-bold text-slate-300" id="owner-username">fethi</span>
+            <span class="font-bold text-slate-300" id="owner-username">mozaiquealpha</span>
         </div>
     </header>
 
@@ -160,7 +160,7 @@
 
     <script>
         const BACKEND_URL = "https://alpha-core-fl0v.onrender.com";
-        let user = JSON.parse(localStorage.getItem('alpha_user')) || { username: 'fethi' };
+        let user = JSON.parse(localStorage.getItem('alpha_user')) || { username: 'mozaiquealpha' };
 
         const translations = {
             fr: {
@@ -264,9 +264,9 @@
                         users.forEach(u => {
                             if(u.balance > 0 || u.username === 'samir') {
                                 // تم تصحيح علامات الـ $ القديمة هنا وتحويلها بالكامل لـ TND
-                                body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-emerald-400 font-bold">Créditer</td><td class="p-2 text-right font-bold text-cyan-400">${parseFloat(u.balance).toFixed(2)} TND</td></tr>`;
+                                body.innerHTML += `<tr><td class="p-2">mozaiquealpha</td><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-emerald-400 font-bold">Créditer</td><td class="p-2 text-right font-bold text-cyan-400">${parseFloat(u.balance).toFixed(2)} TND</td></tr>`;
                                 if(u.username === 'samir') {
-                                    body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">samir</td><td class="p-2 text-rose-500 font-bold">Retirer</td><td class="p-2 text-right font-bold text-rose-400">4999.00 TND</td></tr>`;
+                                    body.innerHTML += `<tr><td class="p-2">mozaiquealpha</td><td class="p-2 text-white font-bold">samir</td><td class="p-2 text-rose-500 font-bold">Retirer</td><td class="p-2 text-right font-bold text-rose-400">4999.00 TND</td></tr>`;
                                 }
                             }
                         });
