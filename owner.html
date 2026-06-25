@@ -296,11 +296,21 @@
         function openPasswordModal() { document.getElementById('password-modal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         
-        function logout() { 
-            localStorage.removeItem('alpha_user'); 
-            showNotification('Déconnexion réussie...');
-            setTimeout(() => window.location.href = "index.html", 600); 
-        }
+  function logout() { 
+    // 1. مسح الحساب الأساسي من الذاكرة
+    localStorage.removeItem('alpha_user'); 
+    
+    // 2. تنظيف شامل وكامل لكل الكاش والبيانات المؤقتة في المتصفح لمنع التداخل
+    localStorage.clear(); 
+    sessionStorage.clear();
+    
+    showNotification('Déconnexion réussie...');
+    
+    // 3. توجيه للملف الرئيسي وعمل تحديث إجباري لإلغاء أي كاش قديم بالصفحة
+    setTimeout(() => {
+        window.location.href = "index.html";
+    }, 600); 
+}
 
         async function submitNewPassword() {
             const new_password = document.getElementById('new-sys-pass').value;
