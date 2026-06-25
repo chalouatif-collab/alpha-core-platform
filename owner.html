@@ -215,7 +215,8 @@
 
         async function loadNetworkData() {
             try {
-                const uRes = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
+                // تعديل جوهري: تم إلغاء تصفية السيرفر المربكة وطلب كافة الحسابات بشكل عام ومباشر
+                const uRes = await fetch(`${BACKEND_URL}/api/admin/users`);
                 if(uRes.ok){
                     const users = await uRes.json();
                     const tbody = document.getElementById('owner-network-tbody'); 
@@ -223,7 +224,6 @@
                     tbody.innerHTML = '';
                     
                     users.forEach(u => {
-                        // حماية البيانات لتجنب الكراش والتعليق عند إضافة حساب جديد
                         const userRole = u.role ? u.role.toUpperCase() : 'PLAYER';
                         const userRtp = u.rtp !== undefined && u.rtp !== null ? u.rtp : 50;
                         const userBalance = u.balance !== undefined && u.balance !== null ? parseFloat(u.balance).toFixed(2) : "0.00";
@@ -268,7 +268,7 @@
             if (type === 'transfert') {
                 headers.innerHTML = `<th class="p-2">Expéditeur</th><th class="p-2">Bénéficiaire</th><th class="p-2">Action</th><th class="p-2 text-right">Montant (TND)</th>`;
                 try {
-                    const res = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
+                    const res = await fetch(`${BACKEND_URL}/api/admin/users`);
                     if(res.ok) {
                         const users = await res.json();
                         users.forEach(u => {
@@ -285,7 +285,7 @@
             } else if (type === 'compte') {
                 headers.innerHTML = `<th class="p-2">Compte Creé</th><th class="p-2">Rôle système</th><th class="p-2 text-right">Créateur</th>`;
                 try {
-                    const res = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
+                    const res = await fetch(`${BACKEND_URL}/api/admin/users`);
                     if(res.ok) {
                         const users = await res.json();
                         users.forEach(u => {
@@ -364,7 +364,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ admin_username: user.username, target_username, action, amount })
             });
-            if(res.ok) { showNotification('Opération réussie!'); loadNetworkData(); }
+            if(res.ok) { showNotification('Opération réussية!'); loadNetworkData(); }
         }
 
         async function createNetworkUser() {
