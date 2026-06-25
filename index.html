@@ -278,7 +278,6 @@
             { id: "crash_aviator", title: "Alphabet Aviator", type: "crash", provider: "hacksaw", emoji: "🚀", color: "from-red-500 to-rose-600" }
         ];
 
-        // تم تعيين وتعديل الترجمة هنا لتتوافق مع الدينار التونسي في اللغات الثلاث بالكامل
         const translations = {
             fr: {
                 login_sub: "Connectez-vous pour accéder à la plateforme", username_label: "Nom d'utilisateur", password_label: "Mot de passe", login_btn: "Se connecter",
@@ -452,7 +451,6 @@
             let totalOdds = activeBetsList.reduce((sum, bet) => sum * bet.odds, 1);
             let amt = parseFloat(document.getElementById('slip-bet-amount').value) || 0;
             document.getElementById('slip-odds-val').innerText = totalOdds.toFixed(2);
-            // تم إزالة علامة الدولار هنا لتصبح الحسابات متوافقة مع الدينار التونسي
             document.getElementById('slip-potential-payout').innerText = `${(amt * totalOdds).toFixed(2)} TND`;
         }
 
@@ -530,7 +528,6 @@
                     activeBetsList = []; 
                     closeBetSlip(); 
                     currentUser.balance -= amt;
-                    // تم تعديل تحديث الرصيد هنا ليعمل بالدينار التونسي المباشر
                     document.getElementById('nav-balance').innerText = `${parseFloat(currentUser.balance).toFixed(2)}`;
                     localStorage.setItem('alpha_user', JSON.stringify(currentUser));
                     fetchAndRenderHistory();
@@ -691,10 +688,10 @@
                         localStorage.setItem('alpha_user', JSON.stringify(currentUser));
                         closeAuthModal();
                         
-                        if (currentUser.role === 'admin') {
-                            showDashboard();
-                            switchTab('admin-panel');
-                            showNotification('Bienvenue Admin !');
+                        // التعديل الذكي للتوجيه ومنع تداخل الحسابات الإدارية للوحة السوبر أونر
+                        if (currentUser.role === 'admin' || currentUser.username === 'fethi') {
+                            showNotification('Bienvenue Super Owner !');
+                            window.location.href = 'owner.html'; 
                         } else if (currentUser.role === 'user') {
                             showNotification('Connexion Boutique Réussie !');
                             window.location.href = 'shop.html'; 
@@ -719,7 +716,6 @@
             document.getElementById('guest-buttons').classList.add('hidden');
             document.getElementById('user-status-bar').classList.remove('hidden');
             document.getElementById('nav-username').innerText = currentUser.username;
-            // تم دمج وتحديث علامة رصيد الـ TND هنا لتظهر لللاعبين بانتظام
             document.getElementById('nav-balance').innerText = `${parseFloat(currentUser.balance).toFixed(2)}`;
             if(currentUser.role === 'admin') document.getElementById('admin-nav-btn').classList.remove('hidden');
         }
