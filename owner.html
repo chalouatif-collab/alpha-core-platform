@@ -218,21 +218,31 @@
                 const uRes = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
                 if(uRes.ok){
                     const users = await uRes.json();
-                    const tbody = document.getElementById('owner-network-tbody'); tbody.innerHTML = '';
+                    const tbody = document.getElementById('owner-network-tbody'); 
+                    if(!tbody) return;
+                    tbody.innerHTML = '';
+                    
                     users.forEach(u => {
+                        // حماية البيانات لتجنب الكراش والتعليق عند إضافة حساب جديد
+                        const userRole = u.role ? u.role.toUpperCase() : 'PLAYER';
+                        const userRtp = u.rtp !== undefined && u.rtp !== null ? u.rtp : 50;
+                        const userBalance = u.balance !== undefined && u.balance !== null ? parseFloat(u.balance).toFixed(2) : "0.00";
+                        const usernameClean = u.username || 'Inconnu';
+                        const createdByClean = u.created_by || 'System';
+
                         const statusBadge = u.is_blocked === 1 
                             ? `<span class="bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20 font-bold">Blocked</span>`
                             : `<span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 font-bold">Active</span>`;
                         
                         tbody.innerHTML += `
                             <tr class="border-b border-slate-800/40 hover:bg-slate-800/20">
-                                <td class="p-3 text-white font-bold">${u.username}</td>
-                                <td class="p-3 text-rose-400 font-mono font-bold text-xs">${u.role.toUpperCase()}</td>
-                                <td class="p-3 text-center font-bold text-cyan-400 font-mono">${u.rtp}%</td>
+                                <td class="p-3 text-white font-bold">${usernameClean}</td>
+                                <td class="p-3 text-rose-400 font-mono font-bold text-xs">${userRole}</td>
+                                <td class="p-3 text-center font-bold text-cyan-400 font-mono">${userRtp}%</td>
                                 <td class="p-3 text-center">${statusBadge}</td>
-                                <td class="p-3 text-slate-400 text-xs">${u.created_by}</td>
-                                <td class="p-3 text-[#10b981] font-mono font-bold text-right">${parseFloat(u.balance).toFixed(2)} TND</td>
-                                <td class="p-3 text-center"><button onclick="selectForControl('${u.username}', ${u.rtp})" class="text-xs bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-slate-950 px-2.5 py-1 rounded font-bold cursor-pointer">🎯 Control</button></td>
+                                <td class="p-3 text-slate-400 text-xs">${createdByClean}</td>
+                                <td class="p-3 text-[#10b981] font-mono font-bold text-right">${userBalance} TND</td>
+                                <td class="p-3 text-center"><button onclick="selectForControl('${usernameClean}', ${userRtp})" class="text-xs bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-slate-950 px-2.5 py-1 rounded font-bold cursor-pointer">🎯 Control</button></td>
                             </tr>`;
                     });
                 }
@@ -263,7 +273,8 @@
                         const users = await res.json();
                         users.forEach(u => {
                             if(u.balance > 0 || u.username === 'samir') {
-                                body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-emerald-400 font-bold">Créditer</td><td class="p-2 text-right font-bold text-cyan-400">${parseFloat(u.balance).toFixed(2)} TND</td></tr>`;
+                                const userBalance = u.balance !== undefined && u.balance !== null ? parseFloat(u.balance).toFixed(2) : "0.00";
+                                body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-emerald-400 font-bold">Créditer</td><td class="p-2 text-right font-bold text-cyan-400">${userBalance} TND</td></tr>`;
                                 if(u.username === 'samir') {
                                     body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">samir</td><td class="p-2 text-rose-500 font-bold">Retirer</td><td class="p-2 text-right font-bold text-rose-400">4999.00 TND</td></tr>`;
                                 }
@@ -278,7 +289,8 @@
                     if(res.ok) {
                         const users = await res.json();
                         users.forEach(u => {
-                            body.innerHTML += `<tr><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-rose-400">${u.role.toUpperCase()}</td><td class="p-2 text-right">${u.created_by}</td></tr>`;
+                            const userRole = u.role ? u.role.toUpperCase() : 'PLAYER';
+                            body.innerHTML += `<tr><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-rose-400">${userRole}</td><td class="p-2 text-right">${u.created_by || 'System'}</td></tr>`;
                         });
                     }
                 } catch(e){}
@@ -296,21 +308,13 @@
         function openPasswordModal() { document.getElementById('password-modal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         
-  function logout() { 
-    // 1. مسح الحساب الأساسي من الذاكرة
-    localStorage.removeItem('alpha_user'); 
-    
-    // 2. تنظيف شامل وكامل لكل الكاش والبيانات المؤقتة في المتصفح لمنع التداخل
-    localStorage.clear(); 
-    sessionStorage.clear();
-    
-    showNotification('Déconnexion réussie...');
-    
-    // 3. توجيه للملف الرئيسي وعمل تحديث إجباري لإلغاء أي كاش قديم بالصفحة
-    setTimeout(() => {
-        window.location.href = "index.html";
-    }, 600); 
-}
+        function logout() { 
+            localStorage.removeItem('alpha_user'); 
+            localStorage.clear(); 
+            sessionStorage.clear();
+            showNotification('Déconnexion réussie...');
+            setTimeout(() => { window.location.href = "index.html"; }, 600); 
+        }
 
         async function submitNewPassword() {
             const new_password = document.getElementById('new-sys-pass').value;
@@ -363,7 +367,6 @@
             if(res.ok) { showNotification('Opération réussie!'); loadNetworkData(); }
         }
 
-        // دالة إنشاء الحسابات المصلحة والمعدلة لحماية الأسماء من التكرار بحروف مختلفة تلقائياً
         async function createNetworkUser() {
             const usernameInput = document.getElementById('new-user-name');
             const passwordInput = document.getElementById('new-user-pass');
@@ -373,7 +376,6 @@
                 return showNotification('عطل في التعرف على خانات الإدخال بالصفحة', 'error');
             }
 
-            // الفكرة الذهبية: تحويل الحروف بالكامل إلى حروف صغيرة لمنع التداخل في السيرفر نهائياً
             const username = usernameInput.value.trim().toLowerCase();
             const password = passwordInput.value;
             const role = roleSelect ? roleSelect.value : 'player';
@@ -383,7 +385,6 @@
             }
 
             try {
-                // تم تطهير الرابط تماماً وإزالة الأخطاء المطبعية القديمة
                 const res = await fetch(`${BACKEND_URL}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
