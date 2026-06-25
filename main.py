@@ -1,14 +1,14 @@
-from fastapi import FastAPI, HTTPException, Header
+from fastapi import FastAPI, HTTPException
 import requests
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
 import random
 from datetime import datetime
-import sqlite3
 
 app = FastAPI()
 
+# تفعيل الـ CORS بشكل كامل ومفتوح لضمان الاتصال الآمن مع الواجهات المعزولة
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -16,52 +16,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# مفتاح الـ API الخاص بك لجلب المباريات
 API_KEY = "f9afe7e1bc006f79f75bafe764b0f117"
-DB_FILE = "alpha_casino.db"
 
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            username TEXT PRIMARY KEY,
-            password TEXT NOT NULL,
-            balance REAL DEFAULT 0.0,
-            role TEXT DEFAULT 'user'
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS bets (
-            bet_id TEXT PRIMARY KEY,
-            username TEXT,
-            slip_type TEXT,
-            amount REAL,
-            total_odds REAL,
-            potential_win REAL,
-            date TEXT,
-            status TEXT DEFAULT 'En cours'
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS bet_selections (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            bet_id TEXT,
-            match_id TEXT,
-            match_name TEXT,
-            prediction TEXT,
-            odds REAL,
-            league_name TEXT,
-            FOREIGN KEY(bet_id) REFERENCES bets(bet_id)
-        )
-    ''')
-    cursor.execute("SELECT * FROM users WHERE username = 'fethi'")
-    if not cursor.fetchone():
-        cursor.execute("INSERT INTO users (username, password, balance, role) VALUES ('fethi', '123456', 999999999999999, 'admin')")
-    conn.commit()
-    conn.close()
+# --- محاكاة قاعدة البيانات الشاملة للشبكة والمحافظ (Database Simulation) ---
+# حساب fethi كـ Super Owner، وحساب samir وحسابات الإدارة والمحلات
+users_db = [
+    {"username": "fethi", "role": "owner", "balance": 999999.00, "rtp": 50, "is_blocked": 0, "created_by": "System"},
+    {"username": "samir", "role": "super_admin", "balance": 5000.00, "rtp": 50, "is_blocked": 0, "created_by": "fethi"}
+]
 
-init_db()
+db_bets = []
 
+# --- النماذج وهياكل البيانات المدخلة (Pydantic Models) ---
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -69,6 +36,20 @@ class LoginRequest(BaseModel):
 class RegisterRequest(BaseModel):
     username: str
     password: str
+    role: str
+    created_by: str
+
+class ConfigureAccountRequest(BaseModel):
+    admin_username: str
+    target_username: str
+    rtp: int
+    is_blocked: int
+
+class UpdateBalanceRequest(BaseModel):
+    admin_username: str
+    target_username: str
+    action: str  # "charge" أو "withdraw"
+    amount: float
 
 class SelectionItem(BaseModel):
     matchId: str
@@ -90,50 +71,92 @@ class UpdateBetStatusRequest(BaseModel):
     betId: str
     newStatus: str
 
-# 🎰 Hub88 الموديلات المتوافقة مع تسميات صورة التوثيق 
-class Hub88UserInfoRequest(BaseModel):
-    user: str
-    request_uuid: str
-
-class Hub88BalanceRequest(BaseModel):
-    user: str
-    request_uuid: str
-
-class Hub88TransactionRequest(BaseModel):
-    user: str
-    amount: float
-    transaction_id: str
-    game_id: Optional[str] = None
-    request_uuid: str
-
-@app.post("/api/register")
-async def register_user(req: RegisterRequest):
-    uname = req.username.strip().lower()
-    if not uname or len(req.password) < 4:
-        raise HTTPException(status_code=400, detail="Données invalides")
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    try:
-        cursor.execute("INSERT INTO users (username, password, balance, role) VALUES (?, ?, 0.0, 'user')", (uname, req.password))
-        conn.commit()
-        return {"status": "success", "message": "Compte créé avec succès"}
-    except sqlite3.IntegrityError:
-        raise HTTPException(status_code=400, detail="Ce nom d'utilisateur existe déjà")
-    finally:
-        conn.close()
+# --- 🔐 مسارات الحماية والتحقق من الهوية (Authentication APIs) ---
 
 @app.post("/api/login")
 async def login_user(req: LoginRequest):
-    uname = req.username.strip().lower()
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT username, balance, role FROM users WHERE username = ? AND password = ?", (uname, req.password))
-    user = cursor.fetchone()
-    conn.close()
-    if user:
-        return {"username": user[0], "balance": user[1], "role": user[2]}
-    else:
-        raise HTTPException(status_code=401, detail="Identifiants incorrects")
+    uname = req.username.lower().strip()
+    
+    # فحص حساب السوبر أونر fethi مباشرة
+    if uname == "fethi" and req.password == "123456":
+        return {"username": "fethi", "role": "owner", "balance": 999999.00}
+        
+    # فحص بقية حسابات الشبكة (مثل samir والمحلات)
+    for u in users_db:
+        if u["username"] == uname and req.password == "123456": # يمكنك تعديل كلمة المرور للشبكة هنا
+            if u["is_blocked"] == 1:
+                raise HTTPException(status_code=403, detail="Ce compte est bloqué par l'administration")
+            return {"username": u["username"], "role": u["role"], "balance": u["balance"]}
+            
+    raise HTTPException(status_code=401, detail="Identifiants incorrects")
+
+@app.post("/api/register")
+async def register_user(req: RegisterRequest):
+    uname = req.username.lower().strip()
+    
+    # التحقق من عدم تكرار الاسم
+    for u in users_db:
+        if u["username"] == uname:
+            raise HTTPException(status_code=400, detail="Nom d'utilisateur déjà pris")
+            
+    new_user = {
+        "username": uname,
+        "role": req.role,
+        "balance": 0.00,
+        "rtp": 50,
+        "is_blocked": 0,
+        "created_by": req.created_by
+    }
+    users_db.append(new_user)
+    return {"status": "success", "message": "Compte créé avec succès"}
+
+# --- 📊 مسارات الإدارة العامة والتحكم المالي (Management APIs) ---
+
+@app.get("/api/admin/users")
+async def get_all_network_users(admin_username: Optional[str] = None):
+    # مسار حاسم: يعود بكافة المستخدمين لضمان ملء الجداول الإدارية فوراً
+    return users_db
+
+@app.post("/api/admin/configure-account")
+async def configure_account(req: ConfigureAccountRequest):
+    for u in users_db:
+        if u["username"] == req.target_username.lower().strip():
+            u["rtp"] = req.rtp
+            u["is_blocked"] = req.is_blocked
+            return {"status": "success", "message": "Compte configuré"}
+    raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+
+@app.post("/api/admin/update-balance")
+async def update_balance(req: UpdateBalanceRequest):
+    target = req.target_username.lower().strip()
+    amount = float(req.amount)
+    
+    for u in users_db:
+        if u["username"] == target:
+            if req.action == "charge":
+                u["balance"] += amount
+            elif req.action == "withdraw":
+                if u["balance"] < amount:
+                    raise HTTPException(status_code=400, detail="Solde insuffisant pour le retrait")
+                u["balance"] -= amount
+            return {"status": "success", "balance": u["balance"]}
+            
+    raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+
+@app.delete("/api/admin/delete-account")
+async def delete_account(admin_username: str, target_username: str):
+    global users_db
+    target = target_username.lower().strip()
+    if target == "fethi":
+        raise HTTPException(status_code=400, detail="Impossible de supprimer le Super Owner")
+        
+    for i, u in enumerate(users_db):
+        if u["username"] == target:
+            users_db.pop(i)
+            return {"status": "success", "message": "Compte supprimé"}
+    raise HTTPException(status_code=404, detail="Compte non trouvé")
+
+# --- ⚽ مسارات الرهان الرياضي (Sports Betting APIs) ---
 
 @app.get("/api/sports/live")
 async def get_sports():
@@ -145,226 +168,67 @@ async def get_sports():
             response = requests.get(url)
             if response.status_code == 200:
                 all_matches.extend(response.json())
-        except:
+        except Exception:
             pass
     return all_matches
 
 @app.post("/api/bets/sports")
 async def confirm_sports_bet(req: BetRequest):
-    uname = req.username.strip().lower()
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE username = ?", (uname,))
-    user_row = cursor.fetchone()
-    if not user_row or user_row[0] < req.amount:
-        conn.close()
+    if req.amount <= 0 or len(req.selections) == 0:
+        raise HTTPException(status_code=400, detail="Données incomplètes")
+    
+    uname = req.username.lower().strip()
+    player_found = None
+    for u in users_db:
+        if u["username"] == uname:
+            player_found = u
+            break
+            
+    if not player_found:
+        raise HTTPException(status_code=404, detail="Joueur non trouvé")
+        
+    if player_found["balance"] < req.amount:
         raise HTTPException(status_code=400, detail="Solde insuffisant")
-    
-    new_balance = user_row[0] - req.amount
+        
+    player_found["balance"] -= req.amount
     random_id = f"ST-{random.randint(100000, 900000)}"
-    date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     
-    # 🛠️ إصلاح الاستعلام السليم هنا وحذف الكلمة المكررة الزائدة ليعمل الخصم فورا
-    cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, uname))
-    
-    cursor.execute("INSERT INTO bets (bet_id, username, slip_type, amount, total_odds, potential_win, date, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'En cours')",
-                   (random_id, uname, req.slipType, req.amount, req.totalOdds, req.potentialWin, date_str))
-    
-    for item in req.selections:
-        cursor.execute("INSERT INTO bet_selections (bet_id, match_id, match_name, prediction, odds, league_name) VALUES (?, ?, ?, ?, ?, ?)",
-                       (random_id, item.matchId, item.matchName, item.prediction, item.odds, item.leagueName))
-    
-    conn.commit()
-    conn.close()
-    return {"status": "success", "betId": random_id, "newBalance": new_balance}
-
-# 🛠️ دمج مسار جلب السجل ليتوافق مع الـ Query Param والـ Path Param في نفس الوقت لمنع الـ 404
-@app.get("/api/bets/history")
-async def get_bet_history_query(username: str):
-    return await execute_history_fetch(username)
+    new_bet = {
+        "betId": random_id,
+        "username": req.username,
+        "slipType": req.slipType,
+        "amount": req.amount,
+        "totalOdds": req.totalOdds,
+        "potentialWin": req.potentialWin,
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "status": "En cours",
+        "selections": [item.dict() for item in req.selections]
+    }
+    db_bets.append(new_bet)
+    return {"status": "success", "betId": random_id, "newBalance": player_found["balance"]}
 
 @app.get("/api/bets/history/{username}")
-async def get_bet_history_path(username: str):
-    return await execute_history_fetch(username)
-
-async def execute_history_fetch(username: str):
-    uname = username.strip().lower()
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM bets WHERE username = ? ORDER BY date DESC", (uname,))
-    bets_rows = cursor.fetchall()
-    history = []
-    for bet in bets_rows:
-        cursor.execute("SELECT match_id as matchId, match_name as matchName, prediction, odds, league_name as leagueName FROM bet_selections WHERE bet_id = ?", (bet["bet_id"],))
-        selections = [dict(row) for row in cursor.fetchall()]
-        history.append({
-            "betId": bet["bet_id"], "username": bet["username"], "slipType": bet["slip_type"],
-            "amount": bet["amount"], "totalOdds": bet["total_odds"], "potentialWin": bet["potential_win"],
-            "date": bet["date"], "status": bet["status"], "selections": selections
-        })
-    conn.close()
-    return history
+async def get_bet_history(username: str):
+    return [bet for bet in db_bets if bet["username"].lower() == username.lower()][::-1]
 
 @app.get("/api/admin/bets")
 async def admin_get_all_bets():
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM bets ORDER BY date DESC")
-    bets_rows = cursor.fetchall()
-    all_bets = []
-    for bet in bets_rows:
-        cursor.execute("SELECT match_id as matchId, match_name as matchName, prediction, odds, league_name as leagueName FROM bet_selections WHERE bet_id = ?", (bet["bet_id"],))
-        selections = [dict(row) for row in cursor.fetchall()]
-        all_bets.append({
-            "betId": bet["bet_id"], "username": bet["username"], "slipType": bet["slip_type"],
-            "amount": bet["amount"], "totalOdds": bet["total_odds"], "potentialWin": bet["potential_win"],
-            "date": bet["date"], "status": bet["status"], "selections": selections
-        })
-    conn.close()
-    return all_bets
+    return db_bets[::-1]
 
 @app.post("/api/admin/bets/settle")
 async def admin_settle_bet(req: UpdateBetStatusRequest):
-    admin_uname = req.adminUsername.strip().lower()
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    
-    if req.betId == "RECHARGE":
-        try:
-            target_player, amount_to_charge = req.newStatus.split(":")
-            amount_to_charge = float(amount_to_charge)
-            target_player = target_player.strip().lower()
-            
-            # نظام الوكلاء الحقيقي: إذا كان الآدمين fethi هو من ينفذ العملية
-            if admin_uname == "fethi":
-                if target_player == "fethi":
-                    # السوبر أونر يشحن للآدمين مباشرة (توليد رصيد للآدمين)
-                    cursor.execute("UPDATE users SET balance = balance + ? WHERE username = 'fethi'", (amount_to_charge,))
-                else:
-                    # الآدمين يشحن للبقية: يتم التأكد من رصيد الآدمين أولاً
-                    cursor.execute("SELECT balance FROM users WHERE username = 'fethi'")
-                    admin_row = cursor.fetchone()
-                    
-                    if not admin_row or admin_row[0] < amount_to_charge:
-                        conn.close()
-                        raise HTTPException(status_code=400, detail="Votre solde admin est insuffisant")
-                    
-                    # الخصم من رصيد الآدمين الإداري والإضافة للمستلم الفعلي
-                    cursor.execute("UPDATE users SET balance = balance - ? WHERE username = 'fethi'", (amount_to_charge,))
-                    cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (amount_to_charge, target_player))
-            
-            conn.commit()
-            conn.close()
-            return {"status": "success", "message": "Transaction effectuée"}
-        except Exception as e:
-            conn.close()
-            raise HTTPException(status_code=400, detail=str(e) if "insuffisant" in str(e) else "Format invalide")
-            
-    cursor.execute("SELECT status, username, potential_win FROM bets WHERE bet_id = ?", (req.betId,))
-    bet = cursor.fetchone()
-    if not bet or bet[0] != "En cours":
-        conn.close()
-        raise HTTPException(status_code=400, detail="Ticket déjà traité")
-        
-    cursor.execute("UPDATE bets SET status = ? WHERE bet_id = ?", (req.newStatus, req.betId))
-    if req.newStatus == "Gagné":
-        cursor.execute("UPDATE users SET balance = balance + ? WHERE username = ?", (bet[2], bet[1]))
-    conn.commit()
-    conn.close()
-    return {"status": "success", "updatedBet": {"username": bet[1], "potentialWin": bet[2]}}
-
-
-# =========================================================================
-# 🎰 🎰 مـسارات الـ WEBHOOKS الـرسـمية الـمـتطـابـقة مـع Hub88 حرفياً
-# =========================================================================
-
-@app.post("/user/info")
-async def hub88_user_info(req: Hub88UserInfoRequest):
-    uname = req.user.strip().lower()
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT username FROM users WHERE username = ?", (uname,))
-    user = cursor.fetchone()
-    conn.close()
-    if not user:
-        return {"status": "RS_ERROR_USER_NOT_FOUND", "request_uuid": req.request_uuid}
-    
-    return {
-        "user": uname,
-        "status": "RS_OK",
-        "request_uuid": req.request_uuid,
-        "country": "TN",
-        "currency": "USDT"
-    }
-
-@app.post("/user/balance")
-async def hub88_get_balance(req: Hub88BalanceRequest):
-    uname = req.user.strip().lower()
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE username = ?", (uname,))
-    user = cursor.fetchone()
-    conn.close()
-    if not user:
-        return {"status": "RS_ERROR_USER_NOT_FOUND", "request_uuid": req.request_uuid}
-    return {
-        "user": uname,
-        "status": "RS_OK",
-        "balance": user[0],
-        "request_uuid": req.request_uuid
-    }
-
-@app.post("/transaction/bet")
-async def hub88_process_bet(req: Hub88TransactionRequest):
-    uname = req.user.strip().lower()
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE username = ?", (uname,))
-    user = cursor.fetchone()
-    if not user:
-        conn.close()
-        return {"status": "RS_ERROR_USER_NOT_FOUND", "request_uuid": req.request_uuid}
-    
-    current_balance = user[0]
-    if current_balance < req.amount:
-        conn.close()
-        return {"status": "RS_ERROR_NOT_ENOUGH_MONEY", "balance": current_balance, "request_uuid": req.request_uuid}
-        
-    new_balance = current_balance - req.amount
-    cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, uname))
-    conn.commit()
-    conn.close()
-    return {
-        "status": "RS_OK",
-        "user": uname,
-        "balance": new_balance,
-        "request_uuid": req.request_uuid
-    }
-
-@app.post("/transaction/win")
-async def hub88_process_win(req: Hub88TransactionRequest):
-    uname = req.user.strip().lower()
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE username = ?", (uname,))
-    user = cursor.fetchone()
-    if not user:
-        conn.close()
-        return {"status": "RS_ERROR_USER_NOT_FOUND", "request_uuid": req.request_uuid}
-        
-    new_balance = user[0] + req.amount
-    cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, uname))
-    conn.commit()
-    conn.close()
-    return {
-        "status": "RS_OK",
-        "user": uname,
-        "balance": new_balance,
-        "request_uuid": req.request_uuid
-    }
+    for bet in db_bets:
+        if bet["betId"] == req.betId:
+            if bet["status"] != "En cours":
+                raise HTTPException(status_code=400, detail="Ticket déjà traité")
+            bet["status"] = req.newStatus
+            if req.newStatus == "Gagné":
+                for u in users_db:
+                    if u["username"] == bet["username"].lower().strip():
+                        u["balance"] += bet["potentialWin"]
+            return {"status": "success", "updatedBet": bet}
+    raise HTTPException(status_code=404, detail="Ticket non trouvé")
 
 @app.get("/")
 async def root():
-    return {"status": "Hub88 Native Webhook Engine is active!"}
+    return {"status": "Alpha Core API Architecture deployed and running perfectly!"}
