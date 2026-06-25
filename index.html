@@ -124,8 +124,8 @@
             <div id="user-status-bar" class="flex items-center gap-3 font-bold hidden">
                 <div class="bg-[#04060c] border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2 font-mono">
                     <span class="text-[10px] text-slate-400 font-sans hidden sm:inline" data-i18n="header_solde">Solde:</span>
-                    <span class="text-emerald-400 font-black text-sm md:text-base" id="nav-balance">$0.00</span>
-                    <span class="text-[9px] bg-emerald-500/10 text-emerald-400 px-1 py-0.5 rounded font-bold">USDT</span>
+                    <span class="text-emerald-400 font-black text-sm md:text-base" id="nav-balance">0.00</span>
+                    <span class="text-[9px] bg-emerald-500/10 text-emerald-400 px-1 py-0.5 rounded font-bold">TND</span>
                 </div>
                 <span class="font-mono text-xs text-slate-300 truncate max-w-[80px]" id="nav-username">Guest</span>
                 <button onclick="logout()" class="text-xs font-bold bg-rose-600/20 text-rose-400 hover:bg-rose-600 hover:text-white px-2.5 py-1.5 rounded-xl transition-all cursor-pointer" data-i18n="header_logout">Sortir</button>
@@ -155,7 +155,6 @@
                 <div class="grid grid-cols-1 gap-3" id="history-container"></div>
             </div>
 
-            <!-- واجهة الإدارة الجانبية المتطورة بناءً على التوثيق الحرفي المرفق -->
             <div id="admin-grid" class="space-y-6 hidden">
                 <div class="flex justify-between items-center px-1 border-b border-slate-900 pb-3">
                     <h2 class="text-sm font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
@@ -163,7 +162,6 @@
                     </h2>
                 </div>
 
-                <!-- قائمة أزرار الإدارة المستوحاة من لقطة الشاشة المرفقة -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="admin-menu-buttons">
                     <button onclick="switchAdminSection('sport')" id="btn-admin-sport" class="w-full flex items-center gap-3 bg-slate-800/40 border border-emerald-500/30 text-white p-4 rounded-xl transition-all cursor-pointer font-bold text-xs shadow-md">
                         ⚽ Historique de sport
@@ -182,7 +180,6 @@
                     </button>
                 </div>
 
-                <!-- الحاويات والتبويبات المخصصة لعرض البيانات إدارياً -->
                 <div id="admin-sections-content" class="pt-2">
                     <div id="admin-sec-sport" class="admin-tab-content space-y-3">
                         <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-1">📋 Tickets de sport actifs :</div>
@@ -259,7 +256,7 @@
             </div>
             <div class="flex justify-between items-center text-xs font-bold">
                 <span class="text-slate-400" data-i18n="slip_total_est">Gains Estimés:</span>
-                <span class="text-emerald-400 text-sm font-black font-mono" id="slip-potential-payout">$0.00</span>
+                <span class="text-emerald-400 text-sm font-black font-mono" id="slip-potential-payout">0.00 TND</span>
             </div>
             <button onclick="confirmSportsBet()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black p-3 rounded-xl transition-all text-xs uppercase cursor-pointer" data-i18n="slip_confirm_btn">Confirmer le Pari</button>
         </div>
@@ -281,13 +278,14 @@
             { id: "crash_aviator", title: "Alphabet Aviator", type: "crash", provider: "hacksaw", emoji: "🚀", color: "from-red-500 to-rose-600" }
         ];
 
+        // تم تعيين وتعديل الترجمة هنا لتتوافق مع الدينار التونسي في اللغات الثلاث بالكامل
         const translations = {
             fr: {
                 login_sub: "Connectez-vous pour accéder à la plateforme", username_label: "Nom d'utilisateur", password_label: "Mot de passe", login_btn: "Se connecter",
                 menu_accueil: "Accueil", menu_sport: "Sport", menu_history: "Mes Paris", menu_casino: "Le casino", menu_live_casino: "Casino en direct",
                 menu_crash: "Jeux de crash", menu_top: "Meilleurs jeux", menu_promo: "Promotions", menu_langue: "Langue", foot_responsible: "Jouez De Façon Responsable",
                 foot_terms: "General Terms and Conditions", header_solde: "Solde:", header_logout: "Sortir", sportsbook_heading: "Matches En Direct & À Venir",
-                sportsbook_live: "COTES EN DIRECT", history_heading: "Historique de mes paris", slip_amount_label: "Mise du pari (USDT)", slip_total_est: "Gains Estimés:", slip_confirm_btn: "Confirmer le Pari",
+                sportsbook_live: "COTES EN DIRECT", history_heading: "Historique de mes paris", slip_amount_label: "Mise du pari (TND)", slip_total_est: "Gains Estimés:", slip_confirm_btn: "Confirmer le Pari",
                 menu_admin: "لوحة الإدارة", admin_panel_title: "لوحة تحكم المسؤول الإداري للمنصة", casino_providers: "🎰 مزودي الألعاب العالميّين", casino_title: "🎰 صالة ألعاب الكازينو الرقمية", slip_total_odds: "Cote Totale:",
                 tab_connexion: "Connexion", tab_inscription: "Inscription", btn_connexion: "Connexion", btn_inscription: "Inscription"
             },
@@ -296,7 +294,7 @@
                 menu_accueil: "الرئيسية", menu_sport: "الرياضة", menu_history: "رهاناتي الحاليّة", menu_casino: "الكازينو", menu_live_casino: "الكازينو المباشر",
                 menu_crash: "ألعاب الكراش", menu_top: "أفضل الألعاب", menu_promo: "العروض الترويجية", menu_langue: "اللغة", foot_responsible: "العب بمسؤولية ووعي مالي",
                 foot_terms: "الشروط والأحكام العامة للشبكة", header_solde: "الرصيد المتاح:", header_logout: "خروج", sportsbook_heading: "المباريات الرياضية المباشرة والقادمة",
-                sportsbook_live: "احتمالات حية", history_heading: "سجل قائمة رهاناتي السابقة كاملة", slip_amount_label: "قيمة الرهان (USDT)", slip_total_est: "الأرباح المتوقعة المحتملة:", slip_confirm_btn: "تأكيد وإطلاق التذكرة المركبة",
+                sportsbook_live: "احتمالات حية", history_heading: "سجل قائمة رهاناتي السابقة كاملة", slip_amount_label: "قيمة الرهان (د.ت)", slip_total_est: "الأرباح المتوقعة المحتملة:", slip_confirm_btn: "تأكيد وإطلاق التذكرة المركبة",
                 menu_admin: "لوحة الإدارة", admin_panel_title: "لوحة تحكم المسؤول الإداري للمنصة", casino_providers: "🎰 مزودي الألعاب العالميّين", casino_title: "🎰 صالة ألعاب الكازينو الرقمية", slip_total_odds: "إجمالي العوائد المعروضة:",
                 tab_connexion: "دخول", tab_inscription: "حساب جديد", btn_connexion: "دخول", btn_inscription: "حساب جديد"
             },
@@ -305,7 +303,7 @@
                 menu_accueil: "Home", menu_sport: "Sports", menu_history: "My Bets", menu_casino: "Casino", menu_live_casino: "Live Casino",
                 menu_crash: "Crash Games", menu_top: "Top Games", menu_promo: "Promotions", menu_langue: "Language", foot_responsible: "Gamble Responsibly",
                 foot_terms: "General Terms and Conditions", header_solde: "Balance:", header_logout: "Logout", sportsbook_heading: "Live & Upcoming Matches",
-                sportsbook_live: "LIVE ODDS", history_heading: "My bet slip history", slip_amount_label: "Bet amount (USDT)", slip_total_est: "Estimated Payout:", slip_confirm_btn: "Confirm Bet",
+                sportsbook_live: "LIVE ODDS", history_heading: "My bet slip history", slip_amount_label: "Bet amount (TND)", slip_total_est: "Estimated Payout:", slip_confirm_btn: "Confirm Bet",
                 menu_admin: "Admin Board", admin_panel_title: "Platform Admin Control Panel", casino_providers: "🎰 Global Game Providers", casino_title: "🎰 Digital Casino Gaming Lounge", slip_total_odds: "Total Odds:",
                 tab_connexion: "Login", tab_inscription: "Register", btn_connexion: "Login", btn_inscription: "Register"
             }
@@ -355,7 +353,7 @@
             const container = document.getElementById('toast-container');
             if(!container) return;
             const toast = document.createElement('div');
-            toast.className = `p-3 rounded-xl shadow-2xl border text-xs font-bold text-slate-900 flex items-center gap-2 ${type === 'success' ? 'bg-gradient-to-r from-emerald-400 to-teal-400 border-emerald-500' : 'bg-gradient-to-r from-rose-400 to-amber-400 border-rose-500'}`;
+            toast.className = `p-3 rounded-xl shadow-2xl border text-xs font-bold text-slate-950 flex items-center gap-2 ${type === 'success' ? 'bg-gradient-to-r from-emerald-400 to-teal-400 border-emerald-500' : 'bg-gradient-to-r from-rose-400 to-amber-400 border-rose-500'}`;
             toast.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 2500);
@@ -454,7 +452,8 @@
             let totalOdds = activeBetsList.reduce((sum, bet) => sum * bet.odds, 1);
             let amt = parseFloat(document.getElementById('slip-bet-amount').value) || 0;
             document.getElementById('slip-odds-val').innerText = totalOdds.toFixed(2);
-            document.getElementById('slip-potential-payout').innerText = `$${(amt * totalOdds).toFixed(2)}`;
+            // تم إزالة علامة الدولار هنا لتصبح الحسابات متوافقة مع الدينار التونسي
+            document.getElementById('slip-potential-payout').innerText = `${(amt * totalOdds).toFixed(2)} TND`;
         }
 
         async function fetchAndRenderHistory() {
@@ -495,8 +494,8 @@
                                 </div>
                                 
                                 <div class="border-t border-slate-800/60 my-2 pt-2 flex justify-between items-center text-xs font-bold">
-                                    <div><span class="text-slate-400">Mise:</span> <span class="text-white font-mono">$${parseFloat(bet.amount).toFixed(2)}</span></div>
-                                    <div><span class="text-slate-400">Gains Est:</span> <span class="text-emerald-400 font-mono font-black">$${parseFloat(bet.potentialWin || 0).toFixed(2)}</span></div>
+                                    <div><span class="text-slate-400">Mise:</span> <span class="text-white font-mono">${parseFloat(bet.amount).toFixed(2)} TND</span></div>
+                                    <div><span class="text-slate-400">Gains Est:</span> <span class="text-emerald-400 font-mono font-black">${parseFloat(bet.potentialWin || 0).toFixed(2)} TND</span></div>
                                 </div>
 
                                 <button onclick="document.getElementById('details-${bet.betId}').classList.toggle('hidden')" class="w-full bg-[#04060c] hover:bg-slate-800/50 text-slate-400 hover:text-white text-[10px] font-bold py-1.5 rounded-xl border border-slate-800/80 transition-all cursor-pointer">
@@ -531,7 +530,8 @@
                     activeBetsList = []; 
                     closeBetSlip(); 
                     currentUser.balance -= amt;
-                    document.getElementById('nav-balance').innerText = `$${parseFloat(currentUser.balance).toFixed(2)}`;
+                    // تم تعديل تحديث الرصيد هنا ليعمل بالدينار التونسي المباشر
+                    document.getElementById('nav-balance').innerText = `${parseFloat(currentUser.balance).toFixed(2)}`;
                     localStorage.setItem('alpha_user', JSON.stringify(currentUser));
                     fetchAndRenderHistory();
                 } else { 
@@ -625,8 +625,8 @@
                                 </div>
                                 
                                 <div class="border-t border-slate-800/60 my-2 pt-2 flex justify-between items-center text-xs font-bold">
-                                    <div><span class="text-slate-400">Mise:</span> <span class="text-white font-mono">$${parseFloat(bet.amount).toFixed(2)}</span></div>
-                                    <div><span class="text-slate-400">A Payer:</span> <span class="text-emerald-400 font-mono font-black">$${parseFloat(bet.potentialWin || 0).toFixed(2)}</span></div>
+                                    <div><span class="text-slate-400">Mise:</span> <span class="text-white font-mono">${parseFloat(bet.amount).toFixed(2)} TND</span></div>
+                                    <div><span class="text-slate-400">A Payer:</span> <span class="text-emerald-400 font-mono font-black">${parseFloat(bet.potentialWin || 0).toFixed(2)} TND</span></div>
                                 </div>
 
                                 ${bet.status === 'En cours' ? `
@@ -691,14 +691,13 @@
                         localStorage.setItem('alpha_user', JSON.stringify(currentUser));
                         closeAuthModal();
                         
-                        // 🛠️ نظام التوجيه الذكي حسب الرتبة
                         if (currentUser.role === 'admin') {
                             showDashboard();
                             switchTab('admin-panel');
                             showNotification('Bienvenue Admin !');
                         } else if (currentUser.role === 'user') {
                             showNotification('Connexion Boutique Réussie !');
-                            window.location.href = 'shop.html'; // يفتح لوحة المحل فوراً
+                            window.location.href = 'shop.html'; 
                         } else {
                             showDashboard();
                             showNotification('Connexion réussie !');
@@ -708,6 +707,7 @@
                     }
                 } else { showNotification(data.detail || 'Erreur !', 'error'); }
             } catch(e){ showNotification('Erreur de communication!', 'error'); }
+        }
 
         function showDashboard() {
             if(!currentUser) {
@@ -719,7 +719,8 @@
             document.getElementById('guest-buttons').classList.add('hidden');
             document.getElementById('user-status-bar').classList.remove('hidden');
             document.getElementById('nav-username').innerText = currentUser.username;
-            document.getElementById('nav-balance').innerText = `$${parseFloat(currentUser.balance).toFixed(2)}`;
+            // تم دمج وتحديث علامة رصيد الـ TND هنا لتظهر لللاعبين بانتظام
+            document.getElementById('nav-balance').innerText = `${parseFloat(currentUser.balance).toFixed(2)}`;
             if(currentUser.role === 'admin') document.getElementById('admin-nav-btn').classList.remove('hidden');
         }
 
