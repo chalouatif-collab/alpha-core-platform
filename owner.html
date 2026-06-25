@@ -162,7 +162,6 @@
         const BACKEND_URL = "https://alpha-core-fl0v.onrender.com";
         let user = JSON.parse(localStorage.getItem('alpha_user')) || { username: 'fethi' };
 
-        // كود ترجمة حقيقي متكامل للغات الثلاث في المنصة
         const translations = {
             fr: {
                 menu: "Menu de Gestion", selected: "Utilisateur Sélectionné", create: "👑 Créer un nouveau compte dans le réseau",
@@ -264,6 +263,7 @@
                         const users = await res.json();
                         users.forEach(u => {
                             if(u.balance > 0 || u.username === 'samir') {
+                                // تم تصحيح علامات الـ $ القديمة هنا وتحويلها بالكامل لـ TND
                                 body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-emerald-400 font-bold">Créditer</td><td class="p-2 text-right font-bold text-cyan-400">${parseFloat(u.balance).toFixed(2)} TND</td></tr>`;
                                 if(u.username === 'samir') {
                                     body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">samir</td><td class="p-2 text-rose-500 font-bold">Retirer</td><td class="p-2 text-right font-bold text-rose-400">4999.00 TND</td></tr>`;
@@ -285,7 +285,7 @@
                 } catch(e){}
             } else {
                 headers.innerHTML = `<th class="p-2">Détails</th><th class="p-2 text-right">Statut</th>`;
-                body.innerHTML = `<tr><td class="p-2 text-slate-500">Aucun pari actif enregistré sur ce serveur.</td><td class="p-2 text-right text-slate-500">0.00</td></tr>`;
+                body.innerHTML = `<tr><td class="p-2 text-slate-500">Aucun pari actif enregistré sur ce serveur.</td><td class="p-2 text-right text-slate-500">0.00 TND</td></tr>`;
             }
 
             if(body.innerHTML === '') {
@@ -354,7 +354,6 @@
             if(res.ok) { showNotification('Opération réussie!'); loadNetworkData(); }
         }
 
-        // دالة إنشاء الرتب المصلحة والمربوطة بالكامل بمعرفات الحقول الصحيحة بالصفحة لتفادي أي عطل
         async function createNetworkUser() {
             const usernameInput = document.getElementById('new-user-name');
             const passwordInput = document.getElementById('new-user-pass');
@@ -373,7 +372,6 @@
             }
 
             try {
-                // تم إزالة كلمة tnd المطبعية الخاطئة ليعود رابط الـ Fetch حقيقياً وصحيحاً ومباشراً
                 const res = await fetch(`${BACKEND_URL}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -384,7 +382,7 @@
                     showNotification('Compte créé avec succès!'); 
                     usernameInput.value = '';
                     passwordInput.value = '';
-                    loadNetworkData(); 
+                    await loadNetworkData(); 
                 } else {
                     showNotification('Échec de la création, nom d\'utilisateur déjà pris', 'error');
                 }
