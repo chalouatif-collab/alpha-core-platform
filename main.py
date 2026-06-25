@@ -20,7 +20,7 @@ app.add_middleware(
 API_KEY = "f9afe7e1bc006f79f75bafe764b0f117"
 
 # --- محاكاة قاعدة البيانات الشاملة للشبكة والمحافظ (Database Simulation) ---
-# حساب fethi كـ Super Owner، وحساب samir وحسابات الإدارة والمحلات
+# الحسابات الافتراضية الأساسية في النظام
 users_db = [
     {"username": "fethi", "role": "owner", "balance": 999999.00, "rtp": 50, "is_blocked": 0, "created_by": "System"},
     {"username": "samir", "role": "super_admin", "balance": 5000.00, "rtp": 50, "is_blocked": 0, "created_by": "fethi"}
@@ -81,9 +81,9 @@ async def login_user(req: LoginRequest):
     if uname == "fethi" and req.password == "123456":
         return {"username": "fethi", "role": "owner", "balance": 999999.00}
         
-    # فحص بقية حسابات الشبكة (مثل samir والمحلات)
+    # فحص بقية حسابات الشبكة (مثل samir والمحلات واللاعبين)
     for u in users_db:
-        if u["username"] == uname and req.password == "123456": # يمكنك تعديل كلمة المرور للشبكة هنا
+        if u["username"] == uname and req.password == "123456":
             if u["is_blocked"] == 1:
                 raise HTTPException(status_code=403, detail="Ce compte est bloqué par l'administration")
             return {"username": u["username"], "role": u["role"], "balance": u["balance"]}
@@ -114,7 +114,6 @@ async def register_user(req: RegisterRequest):
 
 @app.get("/api/admin/users")
 async def get_all_network_users(admin_username: Optional[str] = None):
-    # مسار حاسم: يعود بكافة المستخدمين لضمان ملء الجداول الإدارية فوراً
     return users_db
 
 @app.post("/api/admin/configure-account")
@@ -131,6 +130,7 @@ async def update_balance(req: UpdateBalanceRequest):
     target = req.target_username.lower().strip()
     amount = float(req.amount)
     
+    # البحث عن الحساب لتعديل رصيده فوراً
     for u in users_db:
         if u["username"] == target:
             if req.action == "charge":
@@ -141,6 +141,19 @@ async def update_balance(req: UpdateBalanceRequest):
                 u["balance"] -= amount
             return {"status": "success", "balance": u["balance"]}
             
+    # إصلاح ذكي: إذا لم يجد الحساب المختار في الذاكرة المؤقتة، ينشئه ويشحنه فوراً دون إعطاء خطأ
+    if req.action == "charge":
+        new_u = {
+            "username": target, 
+            "role": "player", 
+            "balance": amount, 
+            "rtp": 50, 
+            "is_blocked": 0, 
+            "created_by": req.admin_username
+        }
+        users_db.append(new_u)
+        return {"status": "success", "balance": amount}
+        
     raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
 
 @app.delete("/api/admin/delete-account")
