@@ -7,10 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-[#0f172a] text-slate-200 min-h-screen p-4 relative">
-    <!-- نظام الإشعارات الذكي المدمج (Toast) -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
-    <!-- الهيدر العلوي للفخامة -->
     <header class="bg-slate-900 border-b border-slate-800 p-4 rounded-xl flex justify-between items-center mb-6 shadow-xl">
         <h1 class="text-xl font-black text-rose-500 tracking-wider">ALPHA <span class="text-white font-light">OWNER CONTROL</span></h1>
         <div class="flex items-center gap-4">
@@ -19,14 +17,11 @@
         </div>
     </header>
 
-    <!-- تقسيم الشاشة: القائمة الجانبية + محتوى التحكم الرئيسي -->
     <div class="max-w-7xl mx-auto table w-full border-spacing-4">
         <div class="table-row">
             
-            <!-- 📊 القائمة الجانبية اليسرى (Sidebar) -->
             <div class="table-cell w-64 bg-slate-900 border border-slate-800 rounded-2xl p-4 vertical-align-top shadow-xl">
                 
-                <!-- 🌐 قسم تغيير اللغة -->
                 <div class="mb-4 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
                     <span class="text-xs font-bold text-slate-400">🌐 Langue:</span>
                     <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-slate-900 text-white text-xs font-bold p-1 rounded border border-slate-700 focus:outline-none cursor-pointer">
@@ -55,7 +50,6 @@
                     </button>
                 </div>
 
-                <!-- 🚪 زر تسجيل الخروج -->
                 <div class="mt-6 pt-4 border-t border-slate-800">
                     <button onclick="logout()" class="w-full text-center bg-rose-600/20 hover:bg-rose-600 border border-rose-600/40 text-rose-400 hover:text-white text-xs font-bold p-3 rounded-xl transition-all cursor-pointer block" id="btn-logout">
                         🚪 Déconnexion
@@ -63,10 +57,8 @@
                 </div>
             </div>
 
-            <!-- 🎮 قسم التحكم والبيانات الرئيسي -->
             <div class="table-cell vertical-align-top pl-4 space-y-6">
                 
-                <!-- لوحة التحكم السريعة (RTP + Block + Delete) -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/60">
                         <span class="text-xs text-slate-400 block mb-1" id="lbl-selected-user">Utilisateur Sélectionné</span>
@@ -83,7 +75,6 @@
                     </div>
                 </div>
 
-                <!-- لوحة إنشاء الرتب -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                     <h3 class="text-sm font-bold text-white mb-4" id="title-create-user">👑 Créer un nouveau compte dans le réseau</h3>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end text-xs">
@@ -109,7 +100,6 @@
                     </div>
                 </div>
 
-                <!-- لوحة الشحن والسحب المالي الجزئي (Créditer / Retirer) -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
                     <div class="bg-[#10b981] p-4 text-slate-950 font-bold flex justify-between items-center text-xs">
                         <span id="title-table-console">📋 Console de gestion globale des comptes</span>
@@ -142,7 +132,6 @@
         </div>
     </div>
 
-    <!-- 📜 نافذة السجلات المتصلة بحسابات قاعدة البيانات الحية الحقيقية -->
     <div id="history-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl relative">
             <button onclick="closeModal('history-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-lg cursor-pointer">&times;</button>
@@ -158,7 +147,6 @@
         </div>
     </div>
 
-    <!-- 🔑 نافذة تغيير كلمة المرور المدمجة الحقيقية للسيستم -->
     <div id="password-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-6 shadow-2xl relative">
             <button onclick="closeModal('password-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-lg cursor-pointer">&times;</button>
@@ -366,7 +354,7 @@
             if(res.ok) { showNotification('Opération réussie!'); loadNetworkData(); }
         }
 
-        // دالة إنشاء الرتب والشبكات المصلحة بالكامل لتعمل مع مدخلات الواجهة وترسل الإشعارات الموثوقة
+        // دالة إنشاء الرتب المصلحة والمربوطة بالكامل بمعرفات الحقول الصحيحة بالصفحة لتفادي أي عطل
         async function createNetworkUser() {
             const usernameInput = document.getElementById('new-user-name');
             const passwordInput = document.getElementById('new-user-pass');
@@ -385,6 +373,7 @@
             }
 
             try {
+                // تم إزالة كلمة tnd المطبعية الخاطئة ليعود رابط الـ Fetch حقيقياً وصحيحاً ومباشراً
                 const res = await fetch(`${BACKEND_URL}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
