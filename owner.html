@@ -23,10 +23,10 @@
     <div class="max-w-7xl mx-auto table w-full border-spacing-4">
         <div class="table-row">
             
-            <!-- 📊 القائمة الجانبية اليسرى (Sidebar) المحفوظة بكامل أزرارها التاريخية مع الأزرار المستعادة -->
+            <!-- 📊 القائمة الجانبية اليسرى (Sidebar) -->
             <div class="table-cell w-64 bg-slate-900 border border-slate-800 rounded-2xl p-4 vertical-align-top shadow-xl">
                 
-                <!-- 🌐 قسم تغيير اللغة المستعاد والمطور -->
+                <!-- 🌐 قسم تغيير اللغة -->
                 <div class="mb-4 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
                     <span class="text-xs font-bold text-slate-400">🌐 Langue:</span>
                     <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-slate-900 text-white text-xs font-bold p-1 rounded border border-slate-700 focus:outline-none cursor-pointer">
@@ -55,7 +55,7 @@
                     </button>
                 </div>
 
-                <!-- 🚪 زر تسجيل الخروج المستعاد في الأسفل -->
+                <!-- 🚪 زر تسجيل الخروج -->
                 <div class="mt-6 pt-4 border-t border-slate-800">
                     <button onclick="logout()" class="w-full text-center bg-rose-600/20 hover:bg-rose-600 border border-rose-600/40 text-rose-400 hover:text-white text-xs font-bold p-3 rounded-xl transition-all cursor-pointer block" id="btn-logout">
                         🚪 Déconnexion
@@ -89,15 +89,15 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end text-xs">
                         <div>
                             <label class="text-slate-400 block mb-1" id="lbl-username">Nom d'utilisateur</label>
-                            <input type="text" id="new-user-name" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono">
+                            <input type="text" id="new-user-name" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:border-rose-500">
                         </div>
                         <div>
                             <label class="text-slate-400 block mb-1" id="lbl-password">Mot de passe</label>
-                            <input type="password" id="new-user-pass" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono">
+                            <input type="password" id="new-user-pass" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:border-rose-500">
                         </div>
                         <div>
                             <label class="text-slate-400 block mb-1" id="lbl-role">Rôle</label>
-                            <select id="new-user-role" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white">
+                            <select id="new-user-role" class="w-full p-2.5 rounded bg-slate-800 border border-slate-700 text-white focus:outline-none">
                                 <option value="owner">Owner</option>
                                 <option value="super_admin">Super Admin</option>
                                 <option value="admin">Admin</option>
@@ -115,7 +115,7 @@
                         <span id="title-table-console">📋 Console de gestion globale des comptes</span>
                         <div class="flex gap-2">
                             <input type="text" id="target-action-user" class="bg-white p-1 rounded font-mono text-center text-slate-900" readonly placeholder="Compte">
-                            <input type="number" id="target-action-amount" class="bg-white p-1 rounded font-mono text-center text-slate-900 w-16" placeholder="Solde">
+                            <input type="number" id="target-action-amount" class="bg-white p-1 rounded font-mono text-center text-slate-900 w-24" placeholder="Montant TND">
                             <button onclick="executeAction('charge')" class="bg-slate-950 text-white px-3 py-1 rounded font-bold cursor-pointer" id="btn-credit">Créditer</button>
                             <button onclick="executeAction('withdraw')" class="bg-rose-700 text-white px-3 py-1 rounded font-bold cursor-pointer" id="btn-retirer">Retirer</button>
                         </div>
@@ -129,7 +129,7 @@
                                     <th class="p-3 text-center">RTP 🔥</th>
                                     <th class="p-3 text-center">Status 🚦</th>
                                     <th class="p-3" id="th-createur">Créateur</th>
-                                    <th class="p-3 text-right" id="th-solde">Solde Actuel</th>
+                                    <th class="p-3 text-right" id="th-solde">Solde Actuel (TND)</th>
                                     <th class="p-3 text-center">Action</th>
                                 </tr>
                             </thead>
@@ -179,17 +179,17 @@
             fr: {
                 menu: "Menu de Gestion", selected: "Utilisateur Sélectionné", create: "👑 Créer un nouveau compte dans le réseau",
                 user: "Nom d'utilisateur", pass: "Mot de passe", console: "📋 Console de gestion globale des comptes",
-                credit: "Créditer", retirer: "Retirer", th_c: "Compte", th_r: "Rôle", th_cr: "Créateur", th_s: "Solde Actuel", out: "🚪 Déconnexion"
+                credit: "Créditer", retirer: "Retirer", th_c: "Compte", th_r: "Rôle", th_cr: "Créateur", th_s: "Solde Actuel (TND)", out: "🚪 Déconnexion"
             },
             ar: {
                 menu: "قائمة الإدارة والتحكم", selected: "المستعمل المختار", create: "👑 إنشاء وتعيين رتبة جديدة في الشبكة",
                 user: "اسم المستخدم", pass: "كلمة المرور", console: "📋 لوحة التحكم المالي وإدارة أرصدة الشبكة",
-                credit: "شحن رصيد", retirer: "سحب جزئي", th_c: "الحساب", th_r: "الرتبة", th_cr: "المنشِئ", th_s: "الرصيد الحالي", out: "🚪 تسجيل الخروج"
+                credit: "شحن رصيد", retirer: "سحب جزئي", th_c: "الحساب", th_r: "الرتبة", th_cr: "المنشِئ", th_s: "الرصيد الحالي (TND)", out: "🚪 تسجيل الخروج"
             },
             en: {
                 menu: "Management Menu", selected: "Selected Account", create: "👑 Create a New Rank in the Hierarchy",
                 user: "Username", pass: "Password", console: "📋 Global Balances Control Console",
-                credit: "Charge", retirer: "Withdraw", th_c: "Account", th_r: "Rank Role", th_cr: "Created By", th_s: "Available Balance", out: "🚪 Logout"
+                credit: "Charge", retirer: "Withdraw", th_c: "Account", th_r: "Rank Role", th_cr: "Created By", th_s: "Available Balance (TND)", out: "🚪 Logout"
             }
         };
 
@@ -212,11 +212,12 @@
 
         function showNotification(message, type = 'success') {
             const container = document.getElementById('toast-container');
+            if(!container) return;
             const toast = document.createElement('div');
-            toast.className = `p-4 rounded-xl shadow-2xl border text-xs font-bold text-slate-950 transition-all duration-300 transform translate-y-2 opacity-0 flex items-center gap-2 tnd{
+            toast.className = `p-4 rounded-xl shadow-2xl border text-xs font-bold text-slate-950 transition-all duration-300 transform translate-y-2 opacity-0 flex items-center gap-2 ${
                 type === 'success' ? 'bg-emerald-400 border-emerald-500' : 'bg-rose-400 border-rose-500'
             }`;
-            toast.innerHTML = type === 'success' ? `✅ tnd{message}` : `❌ tnd{message}`;
+            toast.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
             container.appendChild(toast);
             setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
             setTimeout(() => {
@@ -227,7 +228,7 @@
 
         async function loadNetworkData() {
             try {
-                const uRes = await fetch(`tnd{BACKEND_URL}/api/admin/users?admin_username=tnd{user.username}`);
+                const uRes = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
                 if(uRes.ok){
                     const users = await uRes.json();
                     const tbody = document.getElementById('owner-network-tbody'); tbody.innerHTML = '';
@@ -238,13 +239,13 @@
                         
                         tbody.innerHTML += `
                             <tr class="border-b border-slate-800/40 hover:bg-slate-800/20">
-                                <td class="p-3 text-white font-bold">tnd{u.username}</td>
-                                <td class="p-3 text-rose-400 font-mono font-bold text-xs">tnd{u.role.toUpperCase()}</td>
-                                <td class="p-3 text-center font-bold text-cyan-400 font-mono">tnd{u.rtp}%</td>
-                                <td class="p-3 text-center">tnd{statusBadge}</td>
-                                <td class="p-3 text-slate-400 text-xs">tnd{u.created_by}</td>
-                                <td class="p-3 text-[#10b981] font-mono font-bold text-right">tnd{parseFloat(u.balance).toFixed(2)}</td>
-                                <td class="p-3 text-center"><button onclick="selectForControl('tnd{u.username}', tnd{u.rtp})" class="text-xs bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-slate-950 px-2.5 py-1 rounded font-bold cursor-pointer">🎯 Control</button></td>
+                                <td class="p-3 text-white font-bold">${u.username}</td>
+                                <td class="p-3 text-rose-400 font-mono font-bold text-xs">${u.role.toUpperCase()}</td>
+                                <td class="p-3 text-center font-bold text-cyan-400 font-mono">${u.rtp}%</td>
+                                <td class="p-3 text-center">${statusBadge}</td>
+                                <td class="p-3 text-slate-400 text-xs">${u.created_by}</td>
+                                <td class="p-3 text-[#10b981] font-mono font-bold text-right">${parseFloat(u.balance).toFixed(2)} TND</td>
+                                <td class="p-3 text-center"><button onclick="selectForControl('${u.username}', ${u.rtp})" class="text-xs bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-slate-950 px-2.5 py-1 rounded font-bold cursor-pointer">🎯 Control</button></td>
                             </tr>`;
                     });
                 }
@@ -268,16 +269,16 @@
             body.innerHTML = '';
 
             if (type === 'transfert') {
-                headers.innerHTML = `<th class="p-2">Expéditeur</th><th class="p-2">Bénéficiaire</th><th class="p-2">Action</th><th class="p-2 text-right">Montant</th>`;
+                headers.innerHTML = `<th class="p-2">Expéditeur</th><th class="p-2">Bénéficiaire</th><th class="p-2">Action</th><th class="p-2 text-right">Montant (TND)</th>`;
                 try {
-                    const res = await fetch(`tnd{BACKEND_URL}/api/admin/users?admin_username=tnd{user.username}`);
+                    const res = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
                     if(res.ok) {
                         const users = await res.json();
                         users.forEach(u => {
                             if(u.balance > 0 || u.username === 'samir') {
-                                body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">tnd{u.username}</td><td class="p-2 text-emerald-400 font-bold">Créditer</td><td class="p-2 text-right font-bold text-cyan-400">$${parseFloat(u.balance).toFixed(2)}</td></tr>`;
+                                body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-emerald-400 font-bold">Créditer</td><td class="p-2 text-right font-bold text-cyan-400">${parseFloat(u.balance).toFixed(2)} TND</td></tr>`;
                                 if(u.username === 'samir') {
-                                    body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">samir</td><td class="p-2 text-rose-500 font-bold">Retirer</td><td class="p-2 text-right font-bold text-rose-400">$4999.00</td></tr>`;
+                                    body.innerHTML += `<tr><td class="p-2">fethi</td><td class="p-2 text-white font-bold">samir</td><td class="p-2 text-rose-500 font-bold">Retirer</td><td class="p-2 text-right font-bold text-rose-400">4999.00 TND</td></tr>`;
                                 }
                             }
                         });
@@ -286,11 +287,11 @@
             } else if (type === 'compte') {
                 headers.innerHTML = `<th class="p-2">Compte Creé</th><th class="p-2">Rôle système</th><th class="p-2 text-right">Créateur</th>`;
                 try {
-                    const res = await fetch(`tnd{BACKEND_URL}/api/admin/users?admin_username=tnd{user.username}`);
+                    const res = await fetch(`${BACKEND_URL}/api/admin/users?admin_username=${user.username}`);
                     if(res.ok) {
                         const users = await res.json();
                         users.forEach(u => {
-                            body.innerHTML += `<tr><td class="p-2 text-white font-bold">tnd{u.username}</td><td class="p-2 text-rose-400">tnd{u.role.toUpperCase()}</td><td class="p-2 text-right">tnd{u.created_by}</td></tr>`;
+                            body.innerHTML += `<tr><td class="p-2 text-white font-bold">${u.username}</td><td class="p-2 text-rose-400">${u.role.toUpperCase()}</td><td class="p-2 text-right">${u.created_by}</td></tr>`;
                         });
                     }
                 } catch(e){}
@@ -308,7 +309,6 @@
         function openPasswordModal() { document.getElementById('password-modal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         
-        // دالة تسجيل الخروج المستعادة للعودة لصفحة الدخول الرئيسية الموحدة
         function logout() { 
             localStorage.removeItem('alpha_user'); 
             showNotification('Déconnexion réussie...');
@@ -318,7 +318,7 @@
         async function submitNewPassword() {
             const new_password = document.getElementById('new-sys-pass').value;
             if(!new_password) return showNotification('Veuillez introduire un mot de passe!', 'error');
-            const res = await fetch(`tnd{BACKEND_URL}/api/user/change-password`, {
+            const res = await fetch(`${BACKEND_URL}/api/user/change-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: user.username, new_password })
@@ -334,7 +334,7 @@
             const target_username = document.getElementById('ctrl-target-user').value;
             const rtp = parseInt(document.getElementById('ctrl-rtp-range').value);
             if(!target_username) return showNotification('Sélectionnez un compte d\'abord!', 'error');
-            const res = await fetch(`tnd{BACKEND_URL}/api/admin/configure-account`, {
+            const res = await fetch(`${BACKEND_URL}/api/admin/configure-account`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ admin_username: user.username, target_username, rtp, is_blocked: blockStatus })
@@ -345,7 +345,7 @@
         async function deleteAccountAction() {
             const target_username = document.getElementById('ctrl-target-user').value;
             if(!target_username) return showNotification('Sélectionnez un compte!', 'error');
-            const res = await fetch(`tnd{BACKEND_URL}/api/admin/delete-account?admin_username=tnd{user.username}&target_username=tnd{target_username}`, {
+            const res = await fetch(`${BACKEND_URL}/api/admin/delete-account?admin_username=${user.username}&target_username=${target_username}`, {
                 method: 'DELETE'
             });
             if(res.ok) { showNotification('Compte supprimé!'); setTimeout(() => location.reload(), 800); }
@@ -358,7 +358,7 @@
             const amount = amountInput ? parseFloat(amountInput) : 0;
             if(amount <= 0) return showNotification('Veuillez introduire un montant valide!', 'error');
 
-            const res = await fetch(`tnd{BACKEND_URL}/api/admin/update-balance`, {
+            const res = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ admin_username: user.username, target_username, action, amount })
@@ -366,17 +366,42 @@
             if(res.ok) { showNotification('Opération réussie!'); loadNetworkData(); }
         }
 
+        // دالة إنشاء الرتب والشبكات المصلحة بالكامل لتعمل مع مدخلات الواجهة وترسل الإشعارات الموثوقة
         async function createNetworkUser() {
-            const username = document.getElementById('new-user-name').value.trim();
-            const password = document.getElementById('new-user-pass').value;
-            const role = document.getElementById('new-user-role').value;
-            if(!username || !password) return showNotification('Remplir tous les champs!', 'error');
-            const res = await fetch(`tnd{BACKEND_URL}/api/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password, role, created_by: user.username })
-            });
-            if(res.ok){ showNotification('Compte créé!'); loadNetworkData(); }
+            const usernameInput = document.getElementById('new-user-name');
+            const passwordInput = document.getElementById('new-user-pass');
+            const roleSelect = document.getElementById('new-user-role');
+
+            if(!usernameInput || !passwordInput) {
+                return showNotification('عطل في التعرف على خانات الإدخال بالصفحة', 'error');
+            }
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            const role = roleSelect ? roleSelect.value : 'player';
+
+            if(!username || !password) {
+                return showNotification('Remplir tous les champs!', 'error');
+            }
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role, created_by: user.username })
+                });
+                
+                if(res.ok){ 
+                    showNotification('Compte créé avec succès!'); 
+                    usernameInput.value = '';
+                    passwordInput.value = '';
+                    loadNetworkData(); 
+                } else {
+                    showNotification('Échec de la création, nom d\'utilisateur déjà pris', 'error');
+                }
+            } catch(e) {
+                showNotification('Erreur de connexion au serveur', 'error');
+            }
         }
 
         window.onload = function() { loadNetworkData(); }
