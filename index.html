@@ -3,737 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alphabet - صالة الألعاب العالمية</title>
+    <title>Alpha Core - Secure Management Gateway</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        #bet-slip-panel {
-            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.6);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #sidebar-menu {
-            transition: transform 0.3s ease-in-out;
-        }
-    </style>
 </head>
-<body class="bg-[#060913] text-slate-200 min-h-screen font-sans flex flex-col md:flex-row md:overflow-hidden transition-all duration-300 relative">
+<body class="bg-[#060913] text-slate-200 min-h-screen font-sans flex items-center justify-center p-4">
 
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
-    <div id="auth-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <section class="w-full max-w-md bg-[#0b101f] border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 relative">
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-sm p-1 cursor-pointer">✕</button>
-            <div class="text-center">
-                <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-wider">Alphabet CASINO</h1>
-                <p class="text-xs text-slate-400 mt-2" id="auth-sub-text" data-i18n="login_sub">Connectez-vous pour accéder à la plateforme</p>
+    <main class="w-full max-w-md bg-[#0b101f] border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+        <div class="text-center">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-cyan-500 flex items-center justify-center transform rotate-45 mx-auto mb-4">
+                <span class="text-slate-950 font-black text-xl transform -rotate-45">A</span>
             </div>
-
-            <div class="bg-[#04060c] p-1 rounded-xl flex gap-1 border border-slate-900">
-                <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2 rounded-lg text-xs font-black text-center cursor-pointer bg-emerald-500/20 text-emerald-400" data-i18n="tab_connexion">Connexion</button>
-                <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2 rounded-lg text-xs font-black text-center cursor-pointer text-slate-400" data-i18n="tab_inscription">Inscription</button>
-            </div>
-
-            <div class="space-y-4 text-xs font-bold">
-                <div>
-                    <label class="text-slate-400 block mb-1.5 text-left" data-i18n="username_label">Nom d'utilisateur</label>
-                    <input type="text" id="auth-username" placeholder="fethi" class="w-full p-3.5 rounded-xl bg-[#04060c] border border-slate-800 text-white font-mono focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                    <label class="text-slate-400 block mb-1.5 text-left" data-i18n="password_label">Mot de passe</label>
-                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full p-3.5 rounded-xl bg-[#04060c] border border-slate-800 text-white font-mono focus:outline-none focus:border-emerald-500">
-                </div>
-                <button onclick="handleUnifiedAuth()" id="auth-main-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black p-4 rounded-xl transition-all cursor-pointer shadow-lg text-sm" data-i18n="login_btn">Se connecter</button>
-            </div>
-        </section>
-    </div>
-
-    <aside id="sidebar-menu" class="fixed md:relative top-0 left-0 bottom-0 w-64 bg-[#090d1a] border-r border-slate-800/80 flex flex-col justify-between p-4 shrink-0 shadow-2xl h-screen z-40 transform -translate-x-full md:translate-x-0">
-        <div class="space-y-6">
-            <div class="px-2 py-4 border-b border-slate-800/60 flex items-center justify-between select-none">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center transform rotate-45">
-                        <span class="text-slate-950 font-black text-base transform -rotate-45">A</span>
-                    </div>
-                    <h1 class="text-lg font-black tracking-widest text-white font-sans">Alphabet</h1>
-                </div>
-                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white font-bold text-lg cursor-pointer">✕</button>
-            </div>
-            
-            <nav class="space-y-1 font-bold text-xs tracking-wide max-h-[70vh] overflow-y-auto no-scrollbar" id="sidebar-nav-list">
-                <button onclick="switchTab('accueil');" class="w-full flex items-center gap-3 bg-slate-800/30 text-slate-300 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-                    🏠 <span data-i18n="menu_accueil">Accueil</span>
-                </button>
-                <button onclick="switchTab('sport');" class="w-full flex items-center justify-between text-slate-400 p-3.5 rounded-xl transition-all cursor-pointer">
-                    <div class="flex items-center gap-3">🏆 <span data-i18n="menu_sport">Sport</span></div>
-                </button>
-                <button onclick="switchTab('mes-paris');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-                    <div class="flex items-center justify-between w-full">
-                        <div class="flex items-center gap-3">📑 <span data-i18n="menu_history">Mes Paris</span></div>
-                        <span id="nav-bets-count" class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full text-[10px]">0</span>
-                    </div>
-                </button>
-                <button id="admin-nav-btn" onclick="switchTab('admin-panel');" class="w-full flex items-center gap-3 text-amber-400 bg-amber-500/5 border border-amber-500/10 p-3.5 rounded-xl transition-all cursor-pointer hidden">
-                    👑 <span data-i18n="menu_admin">لوحة الإدارة</span>
-                </button>
-                <button onclick="switchTab('casino');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-                    🎰 <span data-i18n="menu_casino">Le casino</span>
-                </button>
-                <button onclick="switchTab('live-casino');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-                    👤 <span data-i18n="menu_live_casino">Casino en direct</span>
-                </button>
-                <button onclick="switchTab('crash');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-                    🚀 <span data-i18n="menu_crash">Jeux de crash</span>
-                </button>
-                <button onclick="switchTab('top');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-                    🔥 <span data-i18n="menu_top">Meilleurs jeux</span>
-                </button>
-                <button onclick="switchTab('promo');" class="w-full flex items-center gap-3 text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-                    🎁 <span data-i18n="menu_promo">Promotions</span>
-                </button>
-                
-                <div class="relative w-full">
-                    <button onclick="document.getElementById('lang-dropdown').classList.toggle('hidden')" class="w-full flex items-center justify-between text-slate-400 hover:text-white p-3.5 rounded-xl transition-all cursor-pointer">
-                        <div class="flex items-center gap-3">💬 <span data-i18n="menu_langue">Langue</span></div>
-                        <span class="text-[9px]" id="lang-arrow">▼</span>
-                    </button>
-                    <div id="lang-dropdown" class="hidden absolute left-0 right-0 bottom-full mb-1 bg-[#0b101f] border border-slate-800 rounded-xl p-1.5 shadow-2xl z-50 space-y-1">
-                        <button onclick="changeLanguage('fr')" class="w-full text-left p-2 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 block cursor-pointer">Français (FR)</button>
-                        <button onclick="changeLanguage('ar')" class="w-full text-left p-2 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 block cursor-pointer">العربية (AR)</button>
-                        <button onclick="changeLanguage('en')" class="w-full text-left p-2 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 block cursor-pointer">English (EN)</button>
-                    </div>
-                </div>
-            </nav>
+            <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-cyan-400 tracking-wider">ALPHA CORE</h1>
+            <p class="text-xs text-slate-400 mt-2">Portail d'administration sécurisé - بوابات الإدارة المحمية</p>
         </div>
 
-        <div class="border-t border-slate-800/80 pt-4 space-y-2 text-[10px] font-bold text-slate-500 text-center">
-            <p class="hover:text-slate-400 transition-all cursor-pointer" data-i18n="foot_responsible">Jouez De Façon Responsable</p>
-            <p class="text-[9px] uppercase tracking-wider" data-i18n="foot_terms">General Terms and Conditions</p>
+        <div class="space-y-4 text-xs font-bold">
+            <div>
+                <label class="text-slate-400 block mb-1.5 text-left">Nom d'utilisateur (الاسم)</label>
+                <input type="text" id="auth-username" placeholder="fethi" class="w-full p-3.5 rounded-xl bg-[#04060c] border border-slate-800 text-white font-mono focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+                <label class="text-slate-400 block mb-1.5 text-left">Mot de passe (كلمة المرور)</label>
+                <input type="password" id="auth-password" placeholder="••••••••" class="w-full p-3.5 rounded-xl bg-[#04060c] border border-slate-800 text-white font-mono focus:outline-none focus:border-cyan-500">
+            </div>
+            <button onclick="handleAdminSystemAuth()" class="w-full bg-gradient-to-r from-rose-500 to-cyan-500 hover:from-rose-600 hover:to-cyan-600 text-slate-950 font-black p-4 rounded-xl transition-all cursor-pointer shadow-lg text-sm uppercase tracking-wider">
+                Connexion Système
+            </button>
         </div>
-    </aside>
-
-    <div class="flex-1 flex flex-col h-screen overflow-hidden z-10 relative">
-        <header class="bg-[#0b101f]/80 backdrop-blur-md border-b border-slate-800/60 p-4 flex justify-between md:justify-end items-center shadow-md shrink-0">
-            <button onclick="toggleMobileSidebar()" class="md:hidden text-white bg-slate-800 px-3 py-2 rounded-xl text-sm font-black cursor-pointer">☰ Menu</button>
-            
-            <div id="guest-buttons" class="flex items-center gap-2">
-                <button onclick="openAuthModal('login')" class="text-xs font-black bg-slate-800/80 text-white hover:bg-slate-700 px-3.5 py-2 rounded-xl transition-all cursor-pointer border border-slate-700" data-i18n="btn_connexion">Connexion</button>
-                <button onclick="openAuthModal('register')" class="text-xs font-black bg-emerald-500 text-slate-950 hover:bg-emerald-600 px-3.5 py-2 rounded-xl transition-all cursor-pointer shadow-md" data-i18n="btn_inscription">Inscription</button>
-            </div>
-
-            <div id="user-status-bar" class="flex items-center gap-3 font-bold hidden">
-                <div class="bg-[#04060c] border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2 font-mono">
-                    <span class="text-[10px] text-slate-400 font-sans hidden sm:inline" data-i18n="header_solde">Solde:</span>
-                    <span class="text-emerald-400 font-black text-sm md:text-base" id="nav-balance">0.00</span>
-                    <span class="text-[9px] bg-emerald-500/10 text-emerald-400 px-1 py-0.5 rounded font-bold">TND</span>
-                </div>
-                <span class="font-mono text-xs text-slate-300 truncate max-w-[80px]" id="nav-username">Guest</span>
-                <button onclick="logout()" class="text-xs font-bold bg-rose-600/20 text-rose-400 hover:bg-rose-600 hover:text-white px-2.5 py-1.5 rounded-xl transition-all cursor-pointer" data-i18n="header_logout">Sortir</button>
-            </div>
-        </header>
-
-        <main class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar space-y-6 max-w-6xl w-full mx-auto">
-            
-            <div id="games-grid" class="space-y-4">
-                <div class="flex justify-between items-center px-1">
-                    <h2 class="text-xs md:text-sm font-black uppercase tracking-wider text-slate-200 flex items-center gap-2">
-                        ⚽ <span data-i18n="sportsbook_heading">Matches En Direct & À Venir</span>
-                    </h2>
-                    <span class="text-[9px] md:text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded-lg font-bold animate-pulse" data-i18n="sportsbook_live">LIVE ODDS</span>
-                </div>
-                <div class="grid grid-cols-1 gap-3" id="sports-container">
-                    <div class="text-center p-8 text-slate-500 text-xs font-bold uppercase tracking-wider animate-pulse">Chargement des matchs en direct...</div>
-                </div>
-            </div>
-
-            <div id="history-grid" class="space-y-4 hidden">
-                <div class="flex justify-between items-center px-1 border-b border-slate-900 pb-3">
-                    <h2 class="text-sm font-black uppercase tracking-wider text-slate-200 flex items-center gap-2">
-                        📑 <span data-i18n="history_heading">Historique de mes paris</span>
-                    </h2>
-                </div>
-                <div class="grid grid-cols-1 gap-3" id="history-container"></div>
-            </div>
-
-            <div id="admin-grid" class="space-y-6 hidden">
-                <div class="flex justify-between items-center px-1 border-b border-slate-900 pb-3">
-                    <h2 class="text-sm font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                        🛠️ <span data-i18n="admin_panel_title">MENU DE GESTION - لوحة تحكم المنصة</span>
-                    </h2>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="admin-menu-buttons">
-                    <button onclick="switchAdminSection('sport')" id="btn-admin-sport" class="w-full flex items-center gap-3 bg-slate-800/40 border border-emerald-500/30 text-white p-4 rounded-xl transition-all cursor-pointer font-bold text-xs shadow-md">
-                        ⚽ Historique de sport
-                    </button>
-                    <button onclick="switchAdminSection('casino')" id="btn-admin-casino" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
-                        🎰 Historique de casino
-                    </button>
-                    <button onclick="switchAdminSection('transfert')" id="btn-admin-transfert" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
-                        💸 Historique de transfert
-                    </button>
-                    <button onclick="switchAdminSection('compte')" id="btn-admin-compte" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
-                        👤 Historique de compte
-                    </button>
-                    <button onclick="switchAdminSection('security')" id="btn-admin-security" class="w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs">
-                        🔑 Changement de mot de passe
-                    </button>
-                </div>
-
-                <div id="admin-sections-content" class="pt-2">
-                    <div id="admin-sec-sport" class="admin-tab-content space-y-3">
-                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-1">📋 Tickets de sport actifs :</div>
-                        <div id="admin-container" class="grid grid-cols-1 gap-3"></div>
-                    </div>
-
-                    <div id="admin-sec-casino" class="admin-tab-content space-y-3 hidden">
-                        <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
-                            🎰 Historique de casino Sandbox Native En ligne Engine Active. Aucun pari casino enregistré.
-                        </div>
-                    </div>
-
-                    <div id="admin-sec-transfert" class="admin-tab-content space-y-3 hidden">
-                        <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
-                            💸 Historique de transfert (Dépôts / Retraits Hub88 Logs) - Aucun transfert en attente.
-                        </div>
-                    </div>
-
-                    <div id="admin-sec-compte" class="admin-tab-content space-y-3 hidden">
-                        <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500 font-mono">
-                            👤 Base de données des comptes utilisateurs sécurisée - Aucun log disponible.
-                        </div>
-                    </div>
-
-                    <div id="admin-sec-security" class="admin-tab-content space-y-3 hidden">
-                        <div class="bg-[#0b101f] border border-slate-800 p-6 rounded-2xl space-y-4 max-w-sm mx-auto">
-                            <h4 class="text-xs font-bold text-amber-400">🔑 Modifier le mot de passe Administrateur</h4>
-                            <input type="password" id="admin-new-pass" placeholder="Nouveau mot de passe" class="w-full bg-[#04060c] border border-slate-800 p-2.5 rounded-xl text-xs focus:outline-none focus:border-emerald-500 text-white font-mono">
-                            <button onclick="showNotification('Sandbox Active ! Mot de passe inchangé.')" class="w-full bg-emerald-500 text-slate-950 font-black text-xs py-2 rounded-xl cursor-pointer">Mettre à jour</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="casino-grid" class="space-y-6 hidden">
-                <div class="space-y-2">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 px-1" data-i18n="casino_providers">🎰 مزودي الألعاب العالميّين</h3>
-                    <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="providers-container">
-                        <button onclick="filterCasinoGames('all')" id="prov-all" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0">Tout</button>
-                        <button onclick="filterCasinoGames('pragmatic')" id="prov-pragmatic" class="bg-[#0b101f] border border-slate-800 text-slate-300 font-black text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0">🔴 Pragmatic</button>
-                        <button onclick="filterCasinoGames('all')" id="prov-evolution" class="bg-[#0b101f] border border-slate-800 text-slate-300 font-black text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0">👑 Evolution</button>
-                        <button onclick="filterCasinoGames('hacksaw')" id="prov-hacksaw" class="bg-[#0b101f] border border-slate-800 text-slate-300 font-black text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0">🪓 Hacksaw</button>
-                    </div>
-                </div>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center px-1">
-                        <h2 class="text-xs md:text-sm font-black uppercase tracking-wider text-slate-200" id="casino-section-title" data-i18n="casino_title">🎰 صالة ألعاب الكازينو الرقمية</h2>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4" id="casino-games-container"></div>
-                </div>
-            </div>
-
-        </main>
-    </div>
-
-    <div id="bet-slip-panel" class="fixed bottom-0 right-0 top-auto md:top-0 h-[60vh] md:h-screen w-full md:w-80 bg-[#090d1a] border-t md:border-t-0 md:border-l border-slate-800 z-50 flex flex-col justify-between rounded-t-3xl md:rounded-t-none" style="transform: translateY(100%);">
-        <div>
-            <div class="p-4 bg-[#0b101f] border-b border-slate-800 flex justify-between items-center rounded-t-3xl md:rounded-t-none">
-                <div class="flex items-center gap-2">
-                    <span class="text-base">🧾</span>
-                    <h3 class="text-xs font-black uppercase tracking-wider text-white" id="slip-title-text">BETSLIP (0)</h3>
-                </div>
-                <button onclick="closeBetSlip()" class="text-slate-400 hover:text-white font-bold text-sm cursor-pointer p-1">✕</button>
-            </div>
-            <div id="slip-items-container" class="p-4 space-y-2 max-h-[25vh] md:max-h-[50vh] overflow-y-auto no-scrollbar"></div>
-        </div>
-        <div class="p-4 bg-[#0b101f] border-t border-slate-800 space-y-3">
-            <div class="flex justify-between items-center text-xs font-bold">
-                <span class="text-slate-400" data-i18n="slip_total_odds">Cote Totale:</span>
-                <span class="font-mono font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded" id="slip-odds-val">1.00</span>
-            </div>
-            <div class="space-y-1">
-                <input type="number" id="slip-bet-amount" value="10" min="1" oninput="calculatePotentialPayout()" class="w-full bg-[#04060c] border border-slate-800 text-amber-400 font-mono font-black text-base p-2.5 rounded-xl text-center focus:outline-none">
-            </div>
-            <div class="flex justify-between items-center text-xs font-bold">
-                <span class="text-slate-400" data-i18n="slip_total_est">Gains Estimés:</span>
-                <span class="text-emerald-400 text-sm font-black font-mono" id="slip-potential-payout">0.00 TND</span>
-            </div>
-            <button onclick="confirmSportsBet()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black p-3 rounded-xl transition-all text-xs uppercase cursor-pointer" data-i18n="slip_confirm_btn">Confirmer le Pari</button>
-        </div>
-    </div>
+    </main>
 
     <script>
         const BACKEND_URL = "https://alpha-core-fl0v.onrender.com";
-        let currentUser = null;
-        let activeBetsList = []; 
-        let currentSlipType = 'multiple'; 
-        let currentAuthMode = 'login';
-
-        const casinoGamesDatabase = [
-            { id: "slots_gates", title: "Gates of Olympus", type: "slots", provider: "pragmatic", emoji: "⚡", color: "from-amber-500 to-yellow-600" },
-            { id: "slots_bonanza", title: "Sweet Bonanza", type: "slots", provider: "pragmatic", emoji: "🍭", color: "from-pink-500 to-rose-600" },
-            { id: "live_roulette", title: "Lightning Roulette", type: "live-casino", provider: "evolution", emoji: "🎡", color: "from-red-600 to-stone-900" },
-            { id: "live_blackjack", title: "Infinite Blackjack", type: "live-casino", provider: "evolution", emoji: "🃏", color: "from-emerald-600 to-slate-900" },
-            { id: "slots_wanted", title: "Wanted Dead or a Wild", type: "slots", provider: "hacksaw", emoji: "🤠", color: "from-amber-800 to-orange-950" },
-            { id: "crash_aviator", title: "Alphabet Aviator", type: "crash", provider: "hacksaw", emoji: "🚀", color: "from-red-500 to-rose-600" }
-        ];
-
-        const translations = {
-            fr: {
-                login_sub: "Connectez-vous pour accéder à la plateforme", username_label: "Nom d'utilisateur", password_label: "Mot de passe", login_btn: "Se connecter",
-                menu_accueil: "Accueil", menu_sport: "Sport", menu_history: "Mes Paris", menu_casino: "Le casino", menu_live_casino: "Casino en direct",
-                menu_crash: "Jeux de crash", menu_top: "Meilleurs jeux", menu_promo: "Promotions", menu_langue: "Langue", foot_responsible: "Jouez De Façon Responsable",
-                foot_terms: "General Terms and Conditions", header_solde: "Solde:", header_logout: "Sortir", sportsbook_heading: "Matches En Direct & À Venir",
-                sportsbook_live: "COTES EN DIRECT", history_heading: "Historique de mes paris", slip_amount_label: "Mise du pari (TND)", slip_total_est: "Gains Estimés:", slip_confirm_btn: "Confirmer le Pari",
-                menu_admin: "لوحة الإدارة", admin_panel_title: "لوحة تحكم المسؤول الإداري للمنصة", casino_providers: "🎰 مزودي الألعاب العالميّين", casino_title: "🎰 صالة ألعاب الكازينو الرقمية", slip_total_odds: "Cote Totale:",
-                tab_connexion: "Connexion", tab_inscription: "Inscription", btn_connexion: "Connexion", btn_inscription: "Inscription"
-            },
-            ar: {
-                login_sub: "سجل دخولك للوصول إلى منصة Alphabet العالمية", username_label: "اسم المستخدم", password_label: "كلمة المرور", login_btn: "تسجيل الدخول",
-                menu_accueil: "الرئيسية", menu_sport: "الرياضة", menu_history: "رهاناتي الحاليّة", menu_casino: "الكازينو", menu_live_casino: "الكازينو المباشر",
-                menu_crash: "ألعاب الكراش", menu_top: "أفضل الألعاب", menu_promo: "العروض الترويجية", menu_langue: "اللغة", foot_responsible: "العب بمسؤولية ووعي مالي",
-                foot_terms: "الشروط والأحكام العامة للشبكة", header_solde: "الرصيد المتاح:", header_logout: "خروج", sportsbook_heading: "المباريات الرياضية المباشرة والقادمة",
-                sportsbook_live: "احتمالات حية", history_heading: "سجل قائمة رهاناتي السابقة كاملة", slip_amount_label: "قيمة الرهان (د.ت)", slip_total_est: "الأرباح المتوقعة المحتملة:", slip_confirm_btn: "تأكيد وإطلاق التذكرة المركبة",
-                menu_admin: "لوحة الإدارة", admin_panel_title: "لوحة تحكم المسؤول الإداري للمنصة", casino_providers: "🎰 مزودي الألعاب العالميّين", casino_title: "🎰 صالة ألعاب الكازينو الرقمية", slip_total_odds: "إجمالي العوائد المعروضة:",
-                tab_connexion: "دخول", tab_inscription: "حساب جديد", btn_connexion: "دخول", btn_inscription: "حساب جديد"
-            },
-            en: {
-                login_sub: "Log in to access the global Alphabet platform", username_label: "Username", password_label: "Password", login_btn: "Login",
-                menu_accueil: "Home", menu_sport: "Sports", menu_history: "My Bets", menu_casino: "Casino", menu_live_casino: "Live Casino",
-                menu_crash: "Crash Games", menu_top: "Top Games", menu_promo: "Promotions", menu_langue: "Language", foot_responsible: "Gamble Responsibly",
-                foot_terms: "General Terms and Conditions", header_solde: "Balance:", header_logout: "Logout", sportsbook_heading: "Live & Upcoming Matches",
-                sportsbook_live: "LIVE ODDS", history_heading: "My bet slip history", slip_amount_label: "Bet amount (TND)", slip_total_est: "Estimated Payout:", slip_confirm_btn: "Confirm Bet",
-                menu_admin: "Admin Board", admin_panel_title: "Platform Admin Control Panel", casino_providers: "🎰 Global Game Providers", casino_title: "🎰 Digital Casino Gaming Lounge", slip_total_odds: "Total Odds:",
-                tab_connexion: "Login", tab_inscription: "Register", btn_connexion: "Login", btn_inscription: "Register"
-            }
-        };
-
-        function toggleMobileSidebar() {
-            const menu = document.getElementById('sidebar-menu');
-            menu.classList.toggle('-translate-x-full');
-        }
-
-        function openAuthModal(mode = 'login') {
-            document.getElementById('auth-modal').classList.remove('hidden');
-            toggleAuthMode(mode);
-        }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-
-        function toggleAuthMode(mode) {
-            currentAuthMode = mode;
-            const btn = document.getElementById('auth-main-btn');
-            const sub = document.getElementById('auth-sub-text');
-            document.getElementById('tab-login').className = "flex-1 py-2 rounded-lg text-xs font-black text-center cursor-pointer text-slate-400";
-            document.getElementById('tab-register').className = "flex-1 py-2 rounded-lg text-xs font-black text-center cursor-pointer text-slate-400";
-            
-            if(mode === 'register') {
-                document.getElementById('tab-register').className = "flex-1 py-2 rounded-lg text-xs font-black text-center cursor-pointer bg-emerald-500/20 text-emerald-400";
-                btn.innerText = "Créer un compte";
-                sub.innerText = "Créez un compte joueur pour rejoindre Alphabet";
-            } else {
-                document.getElementById('tab-login').className = "flex-1 py-2 rounded-lg text-xs font-black text-center cursor-pointer bg-emerald-500/20 text-emerald-400";
-                btn.innerText = "Se connecter";
-                sub.innerText = "Connectez-vous pour accéder à Alphabet";
-            }
-        }
-
-        function changeLanguage(lang) {
-            localStorage.setItem('alpha_lang', lang);
-            document.documentElement.lang = lang;
-            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if(translations[lang]?.[key]) element.innerText = translations[lang][key];
-            });
-            document.getElementById('lang-dropdown').classList.add('hidden');
-        }
 
         function showNotification(message, type = 'success') {
             const container = document.getElementById('toast-container');
             if(!container) return;
             const toast = document.createElement('div');
-            toast.className = `p-3 rounded-xl shadow-2xl border text-xs font-bold text-slate-950 flex items-center gap-2 ${type === 'success' ? 'bg-gradient-to-r from-emerald-400 to-teal-400 border-emerald-500' : 'bg-gradient-to-r from-rose-400 to-amber-400 border-rose-500'}`;
+            toast.className = `p-3 rounded-xl shadow-2xl border text-xs font-bold text-slate-950 flex items-center gap-2 ${type === 'success' ? 'bg-emerald-400 border-emerald-500' : 'bg-rose-400 border-rose-500'}`;
             toast.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 2500);
         }
 
-        async function fetchAndRenderSports() {
-            const container = document.getElementById('sports-container');
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/sports/live`);
-                const matches = await res.json();
-                if (matches && matches.length > 0) {
-                    container.innerHTML = matches.map((match) => {
-                        const bookmaker = match.bookmakers ? match.bookmakers[0] : null;
-                        const market = bookmaker ? bookmaker.markets[0] : null;
-                        const homeOdds = market ? market.outcomes.find(o => o.name === match.home_team)?.price || 2.00 : 2.00;
-                        const awayOdds = market ? market.outcomes.find(o => o.name === match.away_team)?.price || 2.50 : 2.50;
-                        const drawOdds = market ? market.outcomes.find(o => o.name === "Draw")?.price || 3.20 : 3.20;
-                        return `
-                            <div class="bg-[#0b101f] border border-slate-800/60 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-3 shadow-lg">
-                                <div class="w-full md:w-auto text-center md:text-left">
-                                    <span class="text-[9px] font-bold text-emerald-400 block">${match.sport_title || 'Football'}</span>
-                                    <span class="text-xs font-black text-white">${match.home_team} <span class="text-slate-500 font-normal">vs</span> ${match.away_team}</span>
-                                </div>
-                                <div class="flex items-center gap-2 w-full md:w-auto justify-center md:justify-end">
-                                    <button data-bet-btn data-id="${match.id}" data-match="${match.home_team} vs ${match.away_team}" data-prediction="1" data-odds="${homeOdds}" data-league="${match.sport_title}" class="flex-1 md:flex-initial bg-[#04060c] border border-slate-800 p-2 rounded-xl text-center min-w-[65px] font-mono text-amber-400 text-xs font-bold cursor-pointer">${homeOdds}</button>
-                                    <button data-bet-btn data-id="${match.id}" data-match="${match.home_team} vs ${match.away_team}" data-prediction="X" data-odds="${drawOdds}" data-league="${match.sport_title}" class="flex-1 md:flex-initial bg-[#04060c] border border-slate-800 p-2 rounded-xl text-center min-w-[65px] font-mono text-amber-400 text-xs font-bold cursor-pointer">${drawOdds}</button>
-                                    <button data-bet-btn data-id="${match.id}" data-match="${match.home_team} vs ${match.away_team}" data-prediction="2" data-odds="${awayOdds}" data-league="${match.sport_title}" class="flex-1 md:flex-initial bg-[#04060c] border border-slate-800 p-2 rounded-xl text-center min-w-[65px] font-mono text-amber-400 text-xs font-bold cursor-pointer">${awayOdds}</button>
-                                </div>
-                            </div>`;
-                    }).join('');
-                } else {
-                    container.innerHTML = `<div class="text-center p-6 text-slate-500">Aucun match disponible pour le moment</div>`;
-                }
-            } catch (e) { container.innerHTML = `<div class="text-center p-6 text-rose-500 text-xs font-bold">Erreur de connexion au serveur</div>`; }
-        }
+      async function handleAdminSystemAuth() {
+    const username = document.getElementById('auth-username').value.trim();
+    const password = document.getElementById('auth-password').value;
+    
+    if(!username || !password) return showNotification('Veuillez remplir tous les champs !', 'error');
 
-        function filterCasinoGames(filterType = 'all') {
-            const container = document.getElementById('casino-games-container');
-            let filteredGames = casinoGamesDatabase;
-            if (filterType !== 'all') {
-                filteredGames = casinoGamesDatabase.filter(g => g.provider === filterType || g.type === filterType);
-            }
-            container.innerHTML = filteredGames.map(game => `
-                <div class="bg-[#0b101f] border border-slate-800/60 rounded-2xl overflow-hidden shadow-xl hover:border-slate-700 transition-all flex flex-col justify-between">
-                    <div class="bg-gradient-to-br ${game.color} h-20 md:h-24 flex items-center justify-center text-2xl select-none"><span>${game.emoji}</span></div>
-                    <div class="p-2 md:p-3 space-y-2">
-                        <h4 class="text-[11px] font-black text-white truncate">${game.title}</h4>
-                        <button onclick="handleCasinoPlayClick('${game.title}')" class="w-full bg-[#04060c] hover:bg-emerald-500 hover:text-slate-950 text-slate-300 text-[10px] font-black py-2 rounded-xl border border-slate-800 transition-all cursor-pointer">Jouer</button>
-                    </div>
-                </div>`).join('');
-        }
+    // إضافة مؤشر انتظار - يظهر للاعب أن العملية بدأت
+    showNotification('Connexion en cours...', 'success');
 
-        function handleCasinoPlayClick(gameTitle) {
-            if(!currentUser) { showNotification("Veuillez vous connecter !", "error"); openAuthModal('login'); return; }
-            showNotification(`Lancement de ${gameTitle}... Alphabet Sandbox Active!`);
-        }
-
-        document.getElementById('sports-container').addEventListener('click', function(e) {
-            const btn = e.target.closest('[data-bet-btn]');
-            if (!btn) return;
-            if(!currentUser) { showNotification("Veuillez vous connecter !", "error"); openAuthModal('login'); return; }
-            
-            const existingBetIndex = activeBetsList.findIndex(b => b.matchId === btn.dataset.id);
-            const newBet = { matchId: btn.dataset.id, matchName: btn.dataset.match, prediction: btn.dataset.prediction, odds: parseFloat(btn.dataset.odds), leagueName: btn.dataset.league };
-            
-            if (existingBetIndex > -1) {
-                activeBetsList[existingBetIndex] = newBet;
-            } else {
-                activeBetsList.push(newBet);
-            }
-            renderBetSlipUI();
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/login`, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ username, password }) 
         });
-
-        function renderBetSlipUI() {
-            const panel = document.getElementById('bet-slip-panel');
-            const container = document.getElementById('slip-items-container');
-            if (activeBetsList.length === 0) { 
-                panel.style.transform = "translateY(100%)"; 
-                return; 
-            }
-            document.getElementById('slip-title-text').innerText = `BETSLIP (${activeBetsList.length})`;
-            container.innerHTML = activeBetsList.map(bet => `
-                <div class="bg-[#04060c] border border-slate-800 p-2.5 rounded-xl text-[11px] relative">
-                    <p class="text-white font-black truncate pr-4">${bet.matchName}</p>
-                    <p class="text-slate-400 mt-0.5">Pronostic: <span class="text-emerald-400 font-bold">${bet.prediction}</span></p>
-                    <p class="text-amber-400 font-bold">Cote: ${bet.odds}</p>
-                </div>`).join('');
-            calculatePotentialPayout();
-            panel.style.transform = "translateY(0%)";
-        }
-
-        function closeBetSlip() { document.getElementById('bet-slip-panel').style.transform = "translateY(100%)"; }
         
-        function calculatePotentialPayout() {
-            if (activeBetsList.length === 0) return;
-            let totalOdds = activeBetsList.reduce((sum, bet) => sum * bet.odds, 1);
-            let amt = parseFloat(document.getElementById('slip-bet-amount').value) || 0;
-            document.getElementById('slip-odds-val').innerText = totalOdds.toFixed(2);
-            document.getElementById('slip-potential-payout').innerText = `${(amt * totalOdds).toFixed(2)} TND`;
-        }
-
-        async function fetchAndRenderHistory() {
-            if (!currentUser) return;
-            const container = document.getElementById('history-container');
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/bets/history?username=${currentUser.username}`);
-                const history = await res.json();
-                if (history && history.length > 0) {
-                    document.getElementById('nav-bets-count').innerText = history.length;
-                    container.innerHTML = history.map((bet) => {
-                        const selectionsHtml = bet.selections && bet.selections.length > 0 
-                            ? bet.selections.map(sel => `
-                                <div class="bg-[#04060c] border border-slate-800/80 p-2 rounded-xl space-y-1 text-[11px] text-left">
-                                    <div class="flex justify-between font-bold">
-                                        <span class="text-white truncate max-w-[180px]">⚽ ${sel.matchName}</span>
-                                        <span class="text-amber-400 font-mono">@${parseFloat(sel.odds).toFixed(2)}</span>
-                                    </div>
-                                    <div class="flex justify-between text-[10px] text-slate-400">
-                                        <span>League: ${sel.leagueName || 'Football'}</span>
-                                        <span>Pronostic: <span class="text-emerald-400 font-bold">${sel.prediction}</span></span>
-                                    </div>
-                                </div>
-                            `).join('')
-                            : `<p class="text-center text-slate-600 text-[10px]">Aucune sélection trouvée</p>`;
-
-                        return `
-                            <div class="bg-[#0b101f] border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-xl text-left">
-                                <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('details-${bet.betId}').classList.toggle('hidden')">
-                                    <div class="space-y-1">
-                                        <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono font-bold">${bet.betId}</span>
-                                        <p class="text-[11px] text-slate-400 font-bold">${bet.date}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded font-mono">@${parseFloat(bet.totalOdds || 1).toFixed(2)}</span>
-                                        <span class="text-[11px] font-black block mt-1 ${bet.status === 'Gagné' ? 'text-emerald-400' : bet.status === 'Perdu' ? 'text-rose-400' : 'text-cyan-400'}">${bet.status}</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="border-t border-slate-800/60 my-2 pt-2 flex justify-between items-center text-xs font-bold">
-                                    <div><span class="text-slate-400">Mise:</span> <span class="text-white font-mono">${parseFloat(bet.amount).toFixed(2)} TND</span></div>
-                                    <div><span class="text-slate-400">Gains Est:</span> <span class="text-emerald-400 font-mono font-black">${parseFloat(bet.potentialWin || 0).toFixed(2)} TND</span></div>
-                                </div>
-
-                                <button onclick="document.getElementById('details-${bet.betId}').classList.toggle('hidden')" class="w-full bg-[#04060c] hover:bg-slate-800/50 text-slate-400 hover:text-white text-[10px] font-bold py-1.5 rounded-xl border border-slate-800/80 transition-all cursor-pointer">
-                                    👁️ Afficher/Masquer les matchs
-                                </button>
-
-                                <div id="details-${bet.betId}" class="hidden space-y-2 pt-2 border-t border-slate-900">
-                                    ${selectionsHtml}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    container.innerHTML = `<div class="text-center p-8 text-slate-500 text-xs font-bold uppercase tracking-wider">Aucun pari trouvé</div>`;
-                }
-            } catch (e) {
-                container.innerHTML = `<div class="text-center p-8 text-rose-500 text-xs font-bold">Erreur de chargement de l'historique</div>`;
+        const data = await res.json();
+        
+        if (res.ok) {
+            if(data.role === 'player') {
+                return showNotification('Accès refusé. Vous n\'êtes pas un membre de l\'administration !', 'error');
             }
-        }
 
-        async function confirmSportsBet() {
-            if(!currentUser || activeBetsList.length === 0) return;
-            const amt = parseFloat(document.getElementById('slip-bet-amount').value);
-            let totalOdds = activeBetsList.reduce((sum, bet) => sum * bet.odds, 1);
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/bets/sports`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: currentUser.username, slipType: currentSlipType, amount: amt, totalOdds: totalOdds, potentialWin: amt * totalOdds, selections: activeBetsList })
-                });
-                if(res.ok) { 
-                    showNotification('Ticket enregistré!'); 
-                    activeBetsList = []; 
-                    closeBetSlip(); 
-                    currentUser.balance -= amt;
-                    document.getElementById('nav-balance').innerText = `${parseFloat(currentUser.balance).toFixed(2)}`;
-                    localStorage.setItem('alpha_user', JSON.stringify(currentUser));
-                    fetchAndRenderHistory();
-                } else { 
-                    showNotification('Solde insuffisant !', 'error'); 
-                }
-            } catch(e) {}
-        }
-
-        function switchTab(tabName) {
-            if(['mes-paris', 'admin-panel'].includes(tabName) && !currentUser) {
-                showNotification("Veuillez vous connecter !", "error"); openAuthModal('login'); return;
-            }
-            document.getElementById('games-grid').classList.add('hidden');
-            document.getElementById('history-grid').classList.add('hidden');
-            document.getElementById('admin-grid').classList.add('hidden');
-            document.getElementById('casino-grid').classList.add('hidden');
-
-            if (tabName === 'mes-paris') { 
-                document.getElementById('history-grid').classList.remove('hidden');
-                fetchAndRenderHistory();
-            }
-            else if (tabName === 'admin-panel') { 
-                document.getElementById('admin-grid').classList.remove('hidden'); 
-                switchAdminSection('sport');
-            }
-            else if (['casino', 'live-casino', 'crash', 'top'].includes(tabName)) {
-                document.getElementById('casino-grid').classList.remove('hidden');
-                if (tabName === 'live-casino') filterCasinoGames('live-casino');
-                else if (tabName === 'crash') filterCasinoGames('crash');
-                else if (tabName === 'top') filterCasinoGames('slots');
-                else filterCasinoGames('all');
-            } else { 
-                document.getElementById('games-grid').classList.remove('hidden'); 
-                fetchAndRenderSports(); 
-            }
-        }
-
-        function switchAdminSection(sectionName) {
-            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('admin-menu-buttons').querySelectorAll('button').forEach(btn => {
-                btn.className = "w-full flex items-center gap-3 bg-[#0b101f] hover:bg-slate-800/40 text-slate-400 p-4 rounded-xl border border-slate-800 transition-all cursor-pointer font-bold text-xs";
-            });
+            // حفظ بيانات المستخدم
+            localStorage.setItem('alpha_user', JSON.stringify(data));
+            localStorage.setItem('token', data.access_token); 
             
-            const targetSection = document.getElementById(`admin-sec-${sectionName}`);
-            const targetBtn = document.getElementById(`btn-admin-${sectionName}`);
-            if (targetSection) targetSection.classList.remove('hidden');
-            if (targetBtn) {
-                targetBtn.className = "w-full flex items-center gap-3 bg-slate-800/40 border border-emerald-500/30 text-white p-4 rounded-xl transition-all cursor-pointer font-bold text-xs shadow-md";
-            }
-            
-            if (sectionName === 'sport') {
-                fetchAndRenderAdminBets();
-            }
-        }
+            showNotification('Authentification réussie ! Redirection...');
 
-        async function fetchAndRenderAdminBets() {
-            if (!currentUser || currentUser.role !== 'admin') return;
-            const container = document.getElementById('admin-container');
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/bets`);
-                const allBets = await res.json();
-                if (allBets && allBets.length > 0) {
-                    container.innerHTML = allBets.map((bet) => {
-                        const selectionsHtml = bet.selections && bet.selections.length > 0 
-                            ? bet.selections.map(sel => `
-                                <div class="bg-[#04060c] border border-slate-800/80 p-2 rounded-xl space-y-1 text-[11px] text-left">
-                                    <div class="flex justify-between font-bold">
-                                        <span class="text-white truncate max-w-[180px]">⚽ ${sel.matchName}</span>
-                                        <span class="text-amber-400 font-mono">@${parseFloat(sel.odds).toFixed(2)}</span>
-                                    </div>
-                                    <div class="flex justify-between text-[10px] text-slate-400">
-                                        <span>League: ${sel.leagueName || 'Football'}</span>
-                                        <span>Pronostic: <span class="text-emerald-400 font-bold">${sel.prediction}</span></span>
-                                    </div>
-                                </div>
-                            `).join('')
-                            : `<p class="text-center text-slate-600 text-[10px]">Aucune sélection trouvée</p>`;
-
-                        return `
-                            <div class="bg-[#0b101f] border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-xl text-left">
-                                <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('admin-details-${bet.betId}').classList.toggle('hidden')">
-                                    <div class="space-y-1">
-                                        <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono font-bold">${bet.betId}</span>
-                                        <p class="text-[11px] text-amber-400 font-black">Joueur: ${bet.username}</p>
-                                        <p class="text-[11px] text-slate-400 font-bold">${bet.date}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded font-mono">@${parseFloat(bet.totalOdds || 1).toFixed(2)}</span>
-                                        <span class="text-[11px] font-black block mt-1 ${bet.status === 'Gagné' ? 'text-emerald-400' : bet.status === 'Perdu' ? 'text-rose-400' : 'text-cyan-400'}">${bet.status}</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="border-t border-slate-800/60 my-2 pt-2 flex justify-between items-center text-xs font-bold">
-                                    <div><span class="text-slate-400">Mise:</span> <span class="text-white font-mono">${parseFloat(bet.amount).toFixed(2)} TND</span></div>
-                                    <div><span class="text-slate-400">A Payer:</span> <span class="text-emerald-400 font-mono font-black">${parseFloat(bet.potentialWin || 0).toFixed(2)} TND</span></div>
-                                </div>
-
-                                ${bet.status === 'En cours' ? `
-                                <div class="grid grid-cols-2 gap-2 pt-1">
-                                    <button onclick="settleUserBet('${bet.betId}', 'Gagné')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-[10px] py-2 rounded-xl transition-all cursor-pointer">Settle: WIN ✅</button>
-                                    <button onclick="settleUserBet('${bet.betId}', 'Perdu')" class="bg-rose-600 hover:bg-rose-700 text-white font-black text-[10px] py-2 rounded-xl transition-all cursor-pointer">Settle: LOSE ❌</button>
-                                </div>
-                                ` : `<div class="text-center text-[10px] bg-[#04060c] py-1.5 text-slate-500 font-bold border border-slate-900 rounded-xl">Traité et Archivé</div>`}
-
-                                <button onclick="document.getElementById('admin-details-${bet.betId}').classList.toggle('hidden')" class="w-full bg-[#04060c] hover:bg-slate-800/50 text-slate-400 hover:text-white text-[10px] font-bold py-1.5 rounded-xl border border-slate-800/80 transition-all cursor-pointer">
-                                    👁️ Voir les détails du coupon
-                                </button>
-
-                                <div id="admin-details-${bet.betId}" class="hidden space-y-2 pt-2 border-t border-slate-900">
-                                    ${selectionsHtml}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    container.innerHTML = `<div class="text-center p-8 text-slate-500 text-xs font-bold uppercase tracking-wider">Aucun ticket en attente</div>`;
+            setTimeout(() => {
+                if (data.username === 'fethi' || data.role === 'owner') {
+                    window.location.href = 'owner.html'; 
+                } else if (data.role === 'super_admin') {
+                    window.location.href = 'super_admin.html';
+                } else if (data.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else if (data.role === 'shop') {
+                    window.location.href = 'shop.html';
                 }
-            } catch (e) {
-                container.innerHTML = `<div class="text-center p-8 text-rose-500 text-xs font-bold">Erreur de chargement de l'historique admin</div>`;
-            }
-        }
+            }, 800);
 
-        async function settleUserBet(betId, statusResult) {
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/bets/settle`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminUsername: currentUser.username, betId: betId, newStatus: statusResult })
-                });
-                if (res.ok) {
-                    showNotification(`Ticket ${betId} mis à jour avec succès!`);
-                    fetchAndRenderAdminBets();
-                } else {
-                    showNotification('Erreur de mise à jour', 'error');
-                }
-            } catch(e) {
-                showNotification('Erreur réseau', 'error');
-            }
+        } else { 
+            showNotification(data.detail || 'Identifiants incorrects !', 'error'); 
         }
-
-       async function handleUnifiedAuth() {
-            const username = document.getElementById('auth-username').value.trim();
-            const password = document.getElementById('auth-password').value;
-            if(!username || !password) return showNotification('الحقول مطلوبة!', 'error');
-            const endpoint = currentAuthMode === 'register' ? '/api/register' : '/api/login';
-            try {
-                const res = await fetch(`${BACKEND_URL}${endpoint}`, { 
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ username, password }) 
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    if(currentAuthMode === 'register') {
-                        showNotification('Compte créé ! Connectez-vous.'); toggleAuthMode('login');
-                    } else {
-                        currentUser = data;
-                        localStorage.setItem('alpha_user', JSON.stringify(currentUser));
-                        closeAuthModal();
-                        
-                        // التعديل الذكي للتوجيه ومنع تداخل الحسابات الإدارية للوحة السوبر أونر
-                        if (currentUser.role === 'admin' || currentUser.username === 'fethi') {
-                            showNotification('Bienvenue Super Owner !');
-                            window.location.href = 'owner.html'; 
-                        } else if (currentUser.role === 'user') {
-                            showNotification('Connexion Boutique Réussie !');
-                            window.location.href = 'shop.html'; 
-                        } else {
-                            showDashboard();
-                            showNotification('Connexion réussie !');
-                            fetchAndRenderSports();
-                            fetchAndRenderHistory();
-                        }
-                    }
-                } else { showNotification(data.detail || 'Erreur !', 'error'); }
-            } catch(e){ showNotification('Erreur de communication!', 'error'); }
-        }
-
-        function showDashboard() {
-            if(!currentUser) {
-                document.getElementById('guest-buttons').classList.remove('hidden');
-                document.getElementById('user-status-bar').classList.add('hidden');
-                document.getElementById('admin-nav-btn').classList.add('hidden');
-                return;
-            }
-            document.getElementById('guest-buttons').classList.add('hidden');
-            document.getElementById('user-status-bar').classList.remove('hidden');
-            document.getElementById('nav-username').innerText = currentUser.username;
-            document.getElementById('nav-balance').innerText = `${parseFloat(currentUser.balance).toFixed(2)}`;
-            if(currentUser.role === 'admin') document.getElementById('admin-nav-btn').classList.remove('hidden');
-        }
-
-        function logout() { localStorage.removeItem('alpha_user'); location.reload(); }
-
-        window.onload = function() {
-            const savedLang = localStorage.getItem('alpha_lang') || 'fr';
-            changeLanguage(savedLang);
-            fetchAndRenderSports();
-            filterCasinoGames('all');
-            const savedUser = localStorage.getItem('alpha_user');
-            if(savedUser) { 
-                currentUser = JSON.parse(savedUser); 
-                showDashboard(); 
-                fetchAndRenderHistory();
-            }
-        }
+    } catch(e){ 
+        showNotification('Erreur de communication avec le serveur', 'error'); 
+    }
+}
+        
     </script>
 </body>
 </html>
